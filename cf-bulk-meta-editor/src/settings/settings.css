@@ -1,0 +1,36 @@
+.bme-settings {
+	max-width: 760px;
+	padding: 16px 0;
+}
+
+.bme-card {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 20px 24px;
+	margin-bottom: 20px;
+}
+
+.bme-card h2 {
+	margin-top: 0;
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.bme-settings-footer {
+	margin-top: 8px;
+}
+
+.bme-custom-col-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr auto;
+	gap: 12px;
+	align-items: flex-end;
+	margin-bottom: 12px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid #f0f0f0;
+}
+
+.bme-custom-col-row:last-of-type {
+	border-bottom: none;
+}

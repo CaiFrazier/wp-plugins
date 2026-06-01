@@ -1,0 +1,76 @@
+/*
+ * Schema Override Manager — settings page styles
+ * Loaded on Settings > Schema Override.
+ */
+
+.som-settings-wrap {
+	max-width: 960px;
+}
+
+.som-settings-wrap > h1 {
+	margin-bottom: 16px;
+}
+
+.som-settings-wrap .components-tab-panel__tabs {
+	border-bottom: 1px solid #c3c4c7;
+	margin-bottom: 16px;
+}
+
+.som-settings-wrap .components-card {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+}
+
+.som-settings-wrap .components-card__body {
+	padding: 20px 24px;
+}
+
+.som-settings-wrap .components-panel__body {
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.som-settings-wrap .components-base-control {
+	margin-bottom: 14px;
+}
+
+/* Save button row at the bottom of each tab. */
+.som-save-row {
+	margin-top: 22px;
+	padding-top: 18px;
+	border-top: 1px solid #dcdcde;
+	display: flex;
+	gap: 8px;
+}
+
+/* Opening hours rows in LocalBusinessFields. */
+.som-hours-row {
+	display: grid !important;
+	grid-template-columns: 1.5fr 1fr 1fr auto;
+	gap: 10px;
+	align-items: end;
+	padding: 8px 0;
+	border-bottom: 1px dashed #f0f0f1;
+}
+
+.som-hours-row:last-child {
+	border-bottom: 0;
+}
+
+/* Schema Types Reference table. */
+.som-reference table {
+	margin-top: 10px;
+}
+
+.som-reference table th,
+.som-reference table td {
+	padding: 8px 12px;
+}
+
+.som-reference table code {
+	font-size: 12px;
+}
+
+/* Plugin Settings spacing. */
+.som-plugin-settings .components-notice {
+	margin-bottom: 14px;
+}

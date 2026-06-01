@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<ruleset name="CF WP Plugins — Shared Base">
+	<description>Shared PHPCS base ruleset for all CF WordPress plugins.</description>
+
+	<!--
+		Per-plugin phpcs.xml.dist files extend this base via:
+
+			<rule ref="../phpcs.shared.xml"/>
+
+		Each plugin adds its own <file> targets, <exclude-pattern>s, and the
+		WordPress.WP.I18n text_domain property pinning the plugin's text domain.
+	-->
+
+	<arg name="extensions" value="php"/>
+	<arg name="colors"/>
+	<arg value="sp"/>
+
+	<config name="minimum_supported_wp_version" value="6.2"/>
+	<config name="testVersion" value="8.0-"/>
+
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/build/*</exclude-pattern>
+	<exclude-pattern>*/dist/*</exclude-pattern>
+	<exclude-pattern>*/tests/*</exclude-pattern>
+
+	<rule ref="WordPress">
+		<!-- PSR-4 file naming, not WP file naming. -->
+		<exclude name="WordPress.Files.FileName"/>
+		<!--
+			Short array syntax ([]) is the deliberate, consistent style across
+			every plugin in this repo. The WordPress standard mandates long
+			array() syntax; that single sniff would otherwise produce hundreds
+			of purely-cosmetic "errors" against the established codebase.
+		-->
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+		<!--
+			Mandatory-docblock sniffs. The stock WordPress standard requires a
+			doc comment on every file, class, member, and function. This repo's
+			house style (see CLAUDE.md) is deliberately minimal-comment: comment
+			only the non-obvious "why". Enforcing boilerplate docblocks on every
+			trivial getter contradicts that and none of the existing plugins
+			satisfy it. Real WHY-comments are still written where they matter.
+		-->
+		<exclude name="Squiz.Commenting.FileComment.Missing"/>
+		<exclude name="Squiz.Commenting.FileComment.MissingPackageTag"/>
+		<exclude name="Squiz.Commenting.ClassComment.Missing"/>
+		<exclude name="Squiz.Commenting.VariableComment.Missing"/>
+		<exclude name="Squiz.Commenting.FunctionComment.Missing"/>
+		<exclude name="Squiz.Commenting.FunctionCommentThrowTag.Missing"/>
+	</rule>
+
+	<rule ref="PHPCompatibilityWP"/>
+</ruleset>

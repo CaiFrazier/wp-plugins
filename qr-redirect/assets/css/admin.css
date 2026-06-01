@@ -1,0 +1,531 @@
+/* CF QR Redirect — admin styles
+ * Visual language follows the CF WebP plugin:
+ *   - Brand mark + H1 header (.cfqr-h1 / .cfqr-logo)
+ *   - .cfqr-section content blocks (max-width 780px, bordered <h2>)
+ *   - WP-native colors: #1d2327 text, #50575e/#646970 secondary,
+ *     #c3c4c7/#dcdcde borders, #00a32a green, #b32d2e red, #3c6ed1 brand blue.
+ */
+
+/* ------------------------------------------------------------------
+   H1 with inline logomark (matches .cf-media-manager-h1)
+------------------------------------------------------------------ */
+.cfqr-h1 {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.cfqr-logo {
+	height: 1em;
+	width: auto;
+	display: block;
+	flex-shrink: 0;
+}
+
+.cfqr-h1-text {
+	line-height: 1;
+}
+
+/* ------------------------------------------------------------------
+   Settings-page sections (matches .cf-media-manager-section)
+------------------------------------------------------------------ */
+.cfqr-section {
+	max-width: 780px;
+	margin-top: 4px;
+}
+
+.cfqr-section + .cfqr-section {
+	margin-top: 24px;
+}
+
+.cfqr-section h2 {
+	padding-bottom: 4px;
+	border-bottom: 1px solid #dcdcde;
+}
+
+/* Section-level description text — mirrors .cf-media-manager-engine-info */
+.cfqr-section > p.description {
+	color: #646970;
+	font-size: 13px;
+	margin: 4px 0 8px;
+}
+
+.cfqr-section .form-table {
+	margin-top: 0;
+}
+
+.cfqr-section-meta {
+	margin-top: 24px;
+	color: #646970;
+	font-size: 13px;
+}
+
+.cfqr-meta-line code {
+	font-size: 12px;
+	background: #f0f0f1;
+	padding: 1px 6px;
+	border-radius: 3px;
+}
+
+/* ------------------------------------------------------------------
+   Meta box layout (post.php edit screen)
+------------------------------------------------------------------ */
+.cfqr-metabox {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 6px 0;
+}
+
+.cfqr-subsection {
+	padding: 12px 0;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.cfqr-subsection:last-child {
+	border-bottom: none;
+}
+
+.cfqr-subhead {
+	margin: 0 0 12px 0;
+	padding: 0;
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: #646970;
+}
+
+.cfqr-row {
+	display: grid;
+	grid-template-columns: 180px 1fr;
+	gap: 16px;
+	align-items: start;
+	padding: 8px 0;
+}
+
+.cfqr-label {
+	font-weight: 600;
+	padding-top: 6px;
+	color: #1d2327;
+}
+
+.cfqr-control {
+	min-width: 0;
+}
+
+.cfqr-control input[type="url"],
+.cfqr-control input[type="text"] {
+	max-width: 540px;
+}
+
+@media screen and (max-width: 782px) {
+	.cfqr-row {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* ------------------------------------------------------------------
+   Custom slug editor (URL prefix as static chip + editable slug input)
+------------------------------------------------------------------ */
+.cfqr-slug-editor {
+	display: flex;
+	align-items: stretch;
+	max-width: 540px;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+	background: #fff;
+	overflow: hidden;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cfqr-slug-editor:focus-within {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+}
+
+.cfqr-slug-prefix {
+	background: #f6f7f7;
+	padding: 6px 10px;
+	font-family: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace;
+	font-size: 13px;
+	color: #50575e;
+	white-space: nowrap;
+	display: flex;
+	align-items: center;
+	border-right: 1px solid #dcdcde;
+}
+
+.cfqr-slug-input {
+	flex: 1;
+	min-width: 0;
+	border: none !important;
+	box-shadow: none !important;
+	outline: none !important;
+	font-family: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace;
+	font-size: 13px !important;
+	padding: 6px 10px !important;
+	background: #fff;
+}
+
+/* ------------------------------------------------------------------
+   Short URL chip (legacy — kept for any non-meta-box surfaces)
+------------------------------------------------------------------ */
+.cfqr-shorturl {
+	display: inline-block;
+	padding: 4px 10px;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	font-family: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace;
+	font-size: 13px;
+	color: #1d2327;
+}
+
+#cfqr-qrcode {
+	display: inline-block;
+	padding: 8px;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+}
+
+#cfqr-qrcode img,
+#cfqr-qrcode canvas {
+	display: block;
+}
+
+/* ------------------------------------------------------------------
+   Pre-publish QR placeholder
+------------------------------------------------------------------ */
+.cfqr-pending {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 14px 16px;
+	background: #f6f7f7;
+	border: 1px dashed #c3c4c7;
+	border-radius: 4px;
+	max-width: 540px;
+}
+
+.cfqr-pending-icon {
+	color: #8c8f94;
+	font-size: 22px;
+	width: 22px;
+	height: 22px;
+	flex-shrink: 0;
+	margin-top: 1px;
+}
+
+.cfqr-pending-text {
+	color: #50575e;
+	font-size: 13px;
+	line-height: 1.5;
+}
+
+.cfqr-pending-text strong {
+	color: #1d2327;
+}
+
+/* ------------------------------------------------------------------
+   Analytics-mode picker (radio + pill + description)
+------------------------------------------------------------------ */
+.cfqr-mode-picker {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.cfqr-mode-option {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 8px 12px;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	background: #fff;
+	cursor: pointer;
+	transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.cfqr-mode-option:hover {
+	border-color: #8c8f94;
+}
+
+.cfqr-mode-option.is-active {
+	border-color: #3c6ed1;
+	background: #f6f9ff;
+}
+
+.cfqr-mode-option input[type="radio"] {
+	margin-top: 2px;
+}
+
+.cfqr-mode-pill {
+	display: inline-block;
+	flex-shrink: 0;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	padding: 2px 10px;
+	border-radius: 99px;
+	min-width: 56px;
+	text-align: center;
+}
+
+.cfqr-pill-utm {
+	background: #edfaef;
+	color: #00701f;
+	border: 1px solid #b8e6c1;
+}
+
+.cfqr-pill-event {
+	background: #eef3ff;
+	color: #1d4eb5;
+	border: 1px solid #c2d3f5;
+}
+
+.cfqr-mode-text {
+	font-size: 13px;
+	color: #1d2327;
+	line-height: 1.5;
+}
+
+.cfqr-warn-line {
+	margin: 8px 0 0;
+	font-size: 13px;
+	color: #b32d2e;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.cfqr-warn-line .dashicons {
+	color: #b32d2e;
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+/* Hard warning bubble — used for the 301 redirect choice on the settings page.
+   Visually louder than .cfqr-warn-line (border + tinted background) so it's
+   not mistaken for a normal description line. */
+.cfqr-warn-hard {
+	margin: 10px 0 0;
+	padding: 10px 12px;
+	border-left: 4px solid #b32d2e;
+	background: #fcf0f1;
+	color: #5a1d1f;
+	font-size: 13px;
+	line-height: 1.5;
+	max-width: 640px;
+}
+
+.cfqr-warn-hard .dashicons {
+	color: #b32d2e;
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+	vertical-align: text-bottom;
+	margin-right: 4px;
+}
+
+.cfqr-warn-hard strong {
+	color: #b32d2e;
+}
+
+/* Pre-publish "Preview URL" line under the QR pending placeholder. Lets the
+   editor verify the encoded short URL before the QR is locked in on Publish. */
+.cfqr-preview-url {
+	margin: 10px 0 0;
+	font-size: 13px;
+}
+
+.cfqr-preview-url code {
+	background: #f0f0f1;
+	padding: 2px 6px;
+	border-radius: 3px;
+	font-size: 13px;
+	color: #1d2327;
+}
+
+/* ------------------------------------------------------------------
+   GA4 event preview (dark code block, matches cf-media-manager log pane)
+------------------------------------------------------------------ */
+.cfqr-codeblock {
+	background: #1d2327;
+	color: #f0f0f1;
+	padding: 12px 16px;
+	border-radius: 4px;
+	font-family: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace;
+	font-size: 12px;
+	line-height: 1.6;
+	overflow-x: auto;
+	max-width: 540px;
+	margin: 0;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+/* ------------------------------------------------------------------
+   Performance / stats row
+------------------------------------------------------------------ */
+.cfqr-stat-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 20px;
+	padding: 8px 0;
+}
+
+.cfqr-stat {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 120px;
+}
+
+.cfqr-stat-num {
+	font-size: 24px;
+	font-weight: 600;
+	color: #1d2327;
+	line-height: 1.1;
+}
+
+.cfqr-stat-label {
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: #646970;
+}
+
+.cfqr-stat-val {
+	font-size: 13px;
+	color: #1d2327;
+}
+
+/* ------------------------------------------------------------------
+   List-table column tweaks
+------------------------------------------------------------------ */
+.column-cfqr_short  { width: 200px; }
+.column-cfqr_camp   { width: 140px; }
+.column-cfqr_hits   { width: 60px; text-align: right; }
+.column-cfqr_last   { width: 120px; }
+.column-cfqr_status { width: 90px; }
+
+.cfqr-short {
+	font-family: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace;
+	font-size: 12px;
+	background: #f6f7f7;
+	padding: 2px 8px;
+	border-radius: 3px;
+	color: #1d2327;
+}
+
+/* ------------------------------------------------------------------
+   Bulk-export page: progress bar (matches cf-media-manager-bar-track)
+------------------------------------------------------------------ */
+.cfqr-status-line {
+	font-size: 14px;
+	color: #1d2327;
+	margin-bottom: 12px;
+	min-height: 22px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.cfqr-status-line.cfqr-status-error .cfqr-status-text {
+	color: #b32d2e;
+}
+
+.cfqr-status-line.cfqr-status-done .cfqr-status-text {
+	color: #00701f;
+	font-weight: 600;
+}
+
+.cfqr-bar-track {
+	position: relative;
+	background: linear-gradient(90deg, rgba(125, 226, 209, 0.22), rgba(122, 162, 255, 0.22));
+	border: 1px solid rgba(122, 162, 255, 0.18);
+	border-radius: 99px;
+	height: 8px;
+	overflow: hidden;
+	margin-bottom: 16px;
+	max-width: 480px;
+}
+
+#cfqr-zip-bar {
+	position: relative;
+	height: 100%;
+	width: 0;
+	background: linear-gradient(90deg, #7de2d1, #7aa2ff);
+	border-radius: 99px;
+	transition: width 0.3s ease;
+	box-shadow: 0 0 6px rgba(122, 162, 255, 0.35);
+}
+
+/* Standard redirect manager — list table + pill states. */
+.column-cfqr_rd_source   { width: 22%; }
+.column-cfqr_rd_dest     { width: 28%; }
+.column-cfqr_rd_mode     { width: 110px; }
+.column-cfqr_rd_status   { width: 70px; text-align: right; }
+.column-cfqr_rd_active   { width: 70px; }
+.column-cfqr_rd_hits     { width: 60px; text-align: right; }
+.column-cfqr_rd_last     { width: 120px; }
+
+.cfqr-pill {
+	display: inline-block;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	padding: 2px 10px;
+	border-radius: 99px;
+	min-width: 36px;
+	text-align: center;
+}
+.cfqr-pill-on {
+	background: #edfaef;
+	color: #00701f;
+	border: 1px solid #b8e6c1;
+}
+.cfqr-pill-off {
+	background: #f4f4f5;
+	color: #6b6f76;
+	border: 1px solid #d8dadd;
+}
+.cfqr-pill-warn {
+	background: #fff8e5;
+	color: #8a6500;
+	border: 1px solid #f1d97a;
+	margin-left: 4px;
+}
+
+.cfqr-audit-log {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	max-height: 240px;
+	overflow-y: auto;
+	border: 1px solid #dcdcde;
+	background: #fff;
+	border-radius: 4px;
+}
+.cfqr-audit-log li {
+	padding: 8px 12px;
+	border-bottom: 1px solid #f0f0f1;
+	font-size: 12px;
+	line-height: 1.5;
+}
+.cfqr-audit-log li:last-child {
+	border-bottom: none;
+}
+.cfqr-audit-log code {
+	font-size: 12px;
+	background: #f6f7f7;
+	padding: 1px 4px;
+	border-radius: 2px;
+}

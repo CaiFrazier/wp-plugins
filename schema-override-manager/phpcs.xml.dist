@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<ruleset name="Schema Override Manager">
+	<description>Coding standards for Schema Override Manager.</description>
+
+	<rule ref="../phpcs.shared.xml"/>
+
+	<file>schema-override-manager.php</file>
+	<file>uninstall.php</file>
+	<file>includes</file>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="schema-override-manager"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>

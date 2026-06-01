@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<ruleset name="Bulk Meta Editor">
+	<description>Coding standards for Bulk Meta Editor.</description>
+
+	<rule ref="../phpcs.shared.xml"/>
+
+	<file>cf-bulk-meta-editor.php</file>
+	<file>uninstall.php</file>
+	<file>includes</file>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="cf-bulk-meta-editor"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!--
+		Naming-prefix allowlist. Every plugin-owned class, function, hook,
+		and global symbol starts with one of these prefixes; teach the
+		PrefixAllGlobals sniff so genuine plugin code isn't flagged.
+	-->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="cfbme"/>
+				<element value="BME"/>
+				<element value="BulkMetaEditor"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!--
+		WordPress.DB.SlowDBQuery.slow_db_query_meta_key is a string-literal
+		heuristic: it flags any 'meta_key' literal as a potential slow query.
+		Every hit in this plugin is either a structured-log context field
+		(Logger->info/debug/warn) or the single $wpdb->delete() in uninstall.php
+		(already inline-suppressed). Suppressions are placed inline at each
+		call site so WordPress.org Plugin Check — which runs its own PHPCS
+		configuration and does NOT load this file — picks them up too.
+	-->
+</ruleset>

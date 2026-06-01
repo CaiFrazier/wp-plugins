@@ -1,0 +1,207 @@
+/*
+ * Schema Override Manager — meta box styles
+ * Loaded in both the Classic Editor meta box and Block Editor sidebar panel.
+ */
+
+.som-meta-box {
+	font-size: 13px;
+}
+
+.som-meta-box .components-tab-panel__tabs {
+	border-bottom: 1px solid #dcdcde;
+	margin-bottom: 12px;
+}
+
+.som-meta-box .components-tab-panel__tab-content {
+	padding: 4px 0;
+}
+
+.som-meta-box--sidebar {
+	padding: 12px;
+}
+
+.som-loading {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 16px 0;
+}
+
+/* ---- Existing Schema Viewer ---- */
+
+.som-existing-schema .components-panel__body {
+	border-top: 1px solid #f0f0f1;
+	margin-bottom: 8px;
+}
+
+.som-schema-block {
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	margin-bottom: 6px;
+	background: #fff;
+}
+
+.som-schema-block__toggle {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 10px;
+	background: #f6f7f7;
+	border: 0;
+	border-bottom: 1px solid #dcdcde;
+	cursor: pointer;
+	text-align: left;
+}
+
+.som-schema-block__toggle:hover {
+	background: #f0f0f1;
+}
+
+.som-schema-block__source {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	color: #50575e;
+	background: #e0e0e0;
+	padding: 2px 6px;
+	border-radius: 2px;
+	letter-spacing: 0.5px;
+}
+
+.som-schema-block__toggle code {
+	flex: 1;
+	font-size: 12px;
+	color: #1d2327;
+}
+
+.som-schema-block__arrow {
+	color: #757575;
+	font-size: 10px;
+}
+
+.som-schema-block__json {
+	margin: 0;
+	padding: 10px;
+	background: #1d2327;
+	color: #e6e6e6;
+	font-size: 11px;
+	line-height: 1.5;
+	max-height: 240px;
+	overflow: auto;
+	border-radius: 0 0 3px 3px;
+}
+
+/* ---- Live fetch panel ---- */
+
+.som-fetch-live {
+	margin-top: 16px;
+}
+
+.som-fetch-live h4 {
+	margin: 12px 0 4px;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.som-live-results {
+	margin-top: 12px;
+}
+
+.som-live-results code {
+	font-size: 11px;
+	background: #f0f0f1;
+	padding: 1px 4px;
+	border-radius: 2px;
+}
+
+/* ---- Suppression panel ---- */
+
+.som-suppression-panel .description {
+	margin-bottom: 12px;
+}
+
+.som-suppression-section {
+	margin-bottom: 18px;
+	padding-bottom: 14px;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.som-suppression-section:last-of-type {
+	border-bottom: 0;
+}
+
+.som-suppression-section h4 {
+	margin: 0 0 8px;
+	font-size: 13px;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+/* ---- Schema Builder ---- */
+
+.som-schema-builder .components-panel__body {
+	border-top: 1px solid #f0f0f1;
+	margin-bottom: 10px;
+}
+
+.som-property-editor {
+	margin-top: 8px;
+	padding-top: 8px;
+	border-top: 1px dashed #dcdcde;
+}
+
+.som-mode-toggle {
+	margin-top: 14px;
+	padding-top: 12px;
+	border-top: 1px solid #f0f0f1;
+}
+
+.som-builder-actions {
+	display: flex;
+	gap: 8px;
+	margin-top: 14px;
+	padding-top: 12px;
+	border-top: 1px solid #dcdcde;
+}
+
+/* ---- FAQ Repeater ---- */
+
+.som-faq-repeater {
+	margin-top: 8px;
+}
+
+.som-faq-repeater__item {
+	padding: 10px;
+	margin-bottom: 8px;
+	background: #f6f7f7;
+	border-radius: 3px;
+}
+
+/* ---- Preview ---- */
+
+.som-preview__actions {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 10px;
+}
+
+.som-preview__json {
+	margin: 0;
+	padding: 12px;
+	background: #1d2327;
+	color: #e6e6e6;
+	font-size: 11px;
+	line-height: 1.5;
+	max-height: 480px;
+	overflow: auto;
+	border-radius: 3px;
+}
+
+.som-preview__json code {
+	background: transparent;
+	color: inherit;
+	padding: 0;
+}

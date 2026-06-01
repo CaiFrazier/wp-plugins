@@ -1,0 +1,28 @@
+{
+    "name": "schema-override-manager",
+    "version": "1.0.0",
+    "description": "Schema Override Manager WordPress plugin",
+    "private": true,
+    "scripts": {
+        "build": "wp-scripts build",
+        "start": "wp-scripts start",
+        "lint:js": "wp-scripts lint-js src",
+        "lint:style": "wp-scripts lint-style \"src/**/*.css\"",
+        "format": "wp-scripts format src"
+    },
+    "dependencies": {
+        "@wordpress/api-fetch": "^7.0.0",
+        "@wordpress/block-editor": "^12.0.0",
+        "@wordpress/components": "^28.0.0",
+        "@wordpress/compose": "^6.0.0",
+        "@wordpress/data": "^9.0.0",
+        "@wordpress/element": "^6.0.0",
+        "@wordpress/i18n": "^5.0.0",
+        "@wordpress/plugins": "^7.0.0",
+        "prismjs": "^1.29.0",
+        "zustand": "^4.5.0"
+    },
+    "devDependencies": {
+        "@wordpress/scripts": "^28.0.0"
+    }
+}

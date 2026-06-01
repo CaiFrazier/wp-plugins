@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<ruleset name="CF Chunked Upload">
+	<description>Coding standards for CF Chunked Upload.</description>
+
+	<rule ref="../phpcs.shared.xml"/>
+
+	<file>cf-chunked-upload.php</file>
+	<file>includes</file>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="cf-chunked-upload"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!--
+		Naming-prefix allowlist. Every plugin-owned class, function, hook,
+		and global variable starts with one of these prefixes; teach the
+		PrefixAllGlobals sniff so genuine plugin code isn't flagged.
+	-->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="cf_chunked_upload"/>
+				<element value="CFChunkedUpload"/>
+				<element value="CF_CHUNKED_UPLOAD"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>

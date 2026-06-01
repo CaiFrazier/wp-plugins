@@ -1,0 +1,15 @@
+# Copyright (C) 2026 Cai Frazier
+# This file is distributed under the same license as the CF Content Calendar plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: CF Content Calendar 0.1.0\n"
+"Report-Msgid-Bugs-To: https://github.com/caifrazier/cf-content-calendar\n"
+"POT-Creation-Date: 2026-05-15T00:00:00+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"X-Generator: WP-CLI 2.x\n"
+"X-Domain: cf-content-calendar\n"

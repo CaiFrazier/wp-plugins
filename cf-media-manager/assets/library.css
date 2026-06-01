@@ -1,0 +1,370 @@
+/**
+ * CF Media Manager — Media Library list view (library.css)
+ *
+ * DOM class/ID selectors keep the `cf-mlv-` prefix to avoid a churn-heavy
+ * rename across the JS, PHP template, and CSS — they're scoped to the list
+ * view page only.
+ */
+
+/* ---------------------------------------------------------------------------
+   Wrap & heading
+--------------------------------------------------------------------------- */
+.cf-mlv-wrap {
+	max-width: 100%;
+}
+
+.cf-mlv-version {
+	margin-left: 10px;
+	color: #999;
+	font-size: 12px;
+	font-weight: 400;
+	vertical-align: middle;
+}
+
+/* ---------------------------------------------------------------------------
+   Toolbar
+--------------------------------------------------------------------------- */
+.cf-mlv-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 16px 0 10px;
+}
+
+.cf-mlv-toolbar-left,
+.cf-mlv-toolbar-right {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.cf-mlv-search {
+	height: 30px;
+	min-width: 220px;
+	padding: 0 8px;
+	border: 1px solid #8c8f94;
+	border-radius: 3px;
+	font-size: 13px;
+	line-height: 28px;
+}
+
+.cf-mlv-search:focus {
+	outline: none;
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+}
+
+.cf-mlv-select {
+	height: 30px;
+	font-size: 13px;
+}
+
+/* ---------------------------------------------------------------------------
+   Summary line
+--------------------------------------------------------------------------- */
+.cf-mlv-summary {
+	margin: 0 0 8px;
+	font-size: 13px;
+	color: #646970;
+}
+
+/* ---------------------------------------------------------------------------
+   Table wrapper (horizontal scroll on narrow viewports)
+--------------------------------------------------------------------------- */
+.cf-mlv-table-wrap {
+	width: 100%;
+	overflow-x: auto;
+}
+
+.cf-mlv-table {
+	min-width: 500px;
+	table-layout: fixed;
+}
+
+/* ---------------------------------------------------------------------------
+   Headers
+--------------------------------------------------------------------------- */
+.cf-mlv-th {
+	font-size: 12px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.cf-mlv-th.is-sortable {
+	cursor: pointer;
+	user-select: none;
+}
+
+.cf-mlv-th.is-sortable:hover {
+	background-color: #f6f7f7;
+}
+
+.cf-mlv-th.is-sorted {
+	background-color: #f0f6fc;
+	color: #2271b1;
+}
+
+/* ---------------------------------------------------------------------------
+   Cells
+--------------------------------------------------------------------------- */
+.cf-mlv-td {
+	font-size: 13px;
+	vertical-align: middle;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 0; /* forces text-overflow to engage inside fixed-layout table */
+}
+
+.cf-mlv-td:hover {
+	white-space: normal;
+	overflow: visible;
+	word-break: break-all;
+}
+
+.cf-mlv-code {
+	font-family: Consolas, "Courier New", monospace;
+	font-size: 11px;
+	background: #f6f7f7;
+	padding: 1px 5px;
+	border-radius: 3px;
+	word-break: break-all;
+}
+
+.cf-mlv-link {
+	font-size: 12px;
+	font-family: Consolas, "Courier New", monospace;
+	word-break: break-all;
+}
+
+.cf-mlv-bool {
+	font-weight: 600;
+}
+
+.cf-mlv-bool.yes {
+	color: #1a7e36;
+}
+
+.cf-mlv-bool.no {
+	color: #b32d2e;
+}
+
+/* Loading / empty / error states */
+.cf-mlv-loading,
+.cf-mlv-empty,
+.cf-mlv-error {
+	text-align: center;
+	padding: 48px 20px;
+	color: #646970;
+	font-size: 14px;
+}
+
+.cf-mlv-error {
+	color: #b32d2e;
+}
+
+/* ---------------------------------------------------------------------------
+   Pagination
+--------------------------------------------------------------------------- */
+.cf-mlv-pages {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	flex-wrap: wrap;
+	padding: 10px 0;
+}
+
+.cf-mlv-ellipsis {
+	padding: 0 6px;
+	color: #646970;
+	font-size: 14px;
+}
+
+/* ---------------------------------------------------------------------------
+   Modal overlay
+--------------------------------------------------------------------------- */
+.cf-mlv-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 100060;
+}
+
+.cf-mlv-modal-backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba( 0, 0, 0, 0.55 );
+}
+
+/* Panel — drops down from the top-right, near the Columns button */
+.cf-mlv-modal-panel {
+	position: absolute;
+	top: 32px;
+	right: 20px;
+	width: 500px;
+	max-width: calc( 100vw - 40px );
+	max-height: calc( 100vh - 60px );
+	background: #fff;
+	border-radius: 4px;
+	box-shadow: 0 8px 40px rgba( 0, 0, 0, 0.22 );
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+/* Header */
+.cf-mlv-modal-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 14px 20px;
+	border-bottom: 1px solid #e2e4e7;
+	flex-shrink: 0;
+}
+
+.cf-mlv-modal-header h2 {
+	margin: 0;
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.cf-mlv-modal-close {
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: #646970;
+	font-size: 16px;
+	padding: 4px 8px;
+	line-height: 1;
+	border-radius: 3px;
+}
+
+.cf-mlv-modal-close:hover,
+.cf-mlv-modal-close:focus {
+	color: #1d2327;
+	background: #f0f0f1;
+}
+
+/* Scrollable body */
+.cf-mlv-modal-body {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+}
+
+/* Footer */
+.cf-mlv-modal-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px 20px;
+	border-top: 1px solid #e2e4e7;
+	flex-shrink: 0;
+}
+
+.cf-mlv-modal-footer-right {
+	display: flex;
+	gap: 8px;
+}
+
+/* ---------------------------------------------------------------------------
+   Column groups inside modal
+--------------------------------------------------------------------------- */
+.cf-mlv-modal-group {
+	border-bottom: 1px solid #f0f0f0;
+}
+
+.cf-mlv-group-toggle {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: 9px 20px;
+	background: #f6f7f7;
+	border: none;
+	cursor: pointer;
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: #50575e;
+	text-align: left;
+	transition: background 0.1s;
+}
+
+.cf-mlv-group-toggle:hover {
+	background: #ebebec;
+}
+
+.cf-mlv-group-chevron {
+	font-size: 13px;
+	font-weight: 400;
+	color: #787c82;
+	flex-shrink: 0;
+}
+
+.cf-mlv-group-body {
+	padding: 4px 0;
+}
+
+/* Column rows */
+.cf-mlv-col-row {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 8px 20px;
+	cursor: pointer;
+	transition: background 0.1s;
+}
+
+.cf-mlv-col-row:hover {
+	background: #f6f7f7;
+}
+
+.cf-mlv-col-row input[type="checkbox"] {
+	margin-top: 2px;
+	flex-shrink: 0;
+}
+
+.cf-mlv-col-info {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.cf-mlv-col-name {
+	font-size: 13px;
+	font-weight: 500;
+	color: #1d2327;
+	line-height: 1.3;
+}
+
+.cf-mlv-col-desc {
+	font-size: 11px;
+	color: #646970;
+	line-height: 1.45;
+}
+
+/* "default" badge */
+.cf-mlv-default-badge {
+	display: inline-block;
+	margin-left: 6px;
+	padding: 1px 5px;
+	background: #e5f4ff;
+	color: #2271b1;
+	border-radius: 3px;
+	font-size: 10px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	vertical-align: middle;
+}
+
+/* Prevent body scroll when modal is open */
+body.cf-mlv-modal-open {
+	overflow: hidden;
+}

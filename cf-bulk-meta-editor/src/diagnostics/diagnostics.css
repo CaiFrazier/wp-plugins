@@ -1,0 +1,157 @@
+.bme-diagnostics {
+	max-width: 1100px;
+	padding: 16px 0;
+}
+
+.bme-card {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 20px 24px;
+	margin-bottom: 20px;
+}
+
+.bme-card-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 8px;
+}
+
+.bme-card-header h2 {
+	margin: 0;
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.bme-card-actions {
+	display: flex;
+	gap: 8px;
+}
+
+.bme-card-help {
+	color: #555;
+	font-size: 13px;
+	margin: 0 0 16px;
+}
+
+.bme-env-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 8px 0 16px;
+	font-size: 13px;
+}
+
+.bme-env-table th {
+	text-align: left;
+	width: 220px;
+	padding: 6px 12px 6px 0;
+	color: #555;
+	font-weight: 500;
+	vertical-align: top;
+}
+
+.bme-env-table td {
+	padding: 6px 0;
+	word-break: break-all;
+}
+
+.bme-seo-list {
+	margin: 8px 0;
+	padding-left: 20px;
+}
+
+.bme-self-test-form {
+	display: flex;
+	gap: 12px;
+	align-items: flex-end;
+	margin: 12px 0;
+}
+
+.bme-self-test-form .components-base-control {
+	margin: 0;
+}
+
+.bme-log-filters {
+	display: flex;
+	gap: 12px;
+	margin: 12px 0;
+	align-items: flex-end;
+}
+
+.bme-log-filters .components-base-control {
+	flex: 1;
+	margin: 0;
+}
+
+.bme-log-list {
+	max-height: 600px;
+	overflow-y: auto;
+	border: 1px solid #eee;
+	border-radius: 3px;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+	font-size: 12px;
+	background: #fafafa;
+}
+
+.bme-log-row {
+	display: grid;
+	grid-template-columns: 180px 60px 100px 1fr;
+	gap: 10px;
+	padding: 4px 8px;
+	border-bottom: 1px solid #f0f0f0;
+	align-items: start;
+}
+
+.bme-log-row:last-child {
+	border-bottom: none;
+}
+
+.bme-log-time {
+	color: #888;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.bme-log-level {
+	font-weight: 600;
+	letter-spacing: 0.03em;
+}
+
+.bme-log-channel {
+	color: #444;
+}
+
+.bme-log-message {
+	color: #111;
+	word-break: break-word;
+}
+
+.bme-log-context {
+	grid-column: 4;
+	margin-top: 2px;
+}
+
+.bme-log-context summary {
+	cursor: pointer;
+	color: #2271b1;
+	font-size: 11px;
+}
+
+.bme-log-context pre {
+	background: #f4f4f4;
+	border: 1px solid #e0e0e0;
+	border-radius: 3px;
+	padding: 8px;
+	margin: 4px 0;
+	white-space: pre-wrap;
+	max-height: 300px;
+	overflow-y: auto;
+}
+
+.bme-empty {
+	color: #777;
+	font-style: italic;
+	padding: 12px 0;
+}

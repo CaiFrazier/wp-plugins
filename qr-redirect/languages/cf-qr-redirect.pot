@@ -1,0 +1,1105 @@
+# Copyright (C) 2026 Cai Frazier
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: CF QR Redirect 1.1.1\n"
+"Report-Msgid-Bugs-To: bugs@caifrazier.com\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-05-29T04:35:32+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: cf-qr-redirect\n"
+
+#. Plugin Name of the plugin
+#: cf-qr-redirect.php
+msgid "CF QR Redirect"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: cf-qr-redirect.php
+msgid "https://github.com/caifrazier/cf-qr-redirect"
+msgstr ""
+
+#. Description of the plugin
+#: cf-qr-redirect.php
+msgid "Self-hosted QR code generator and redirect manager with native GA4 analytics integration. Generates branded QR codes pointing to /r/{slug} short URLs on your own domain, plus a standard source→destination redirect manager."
+msgstr ""
+
+#. Author of the plugin
+#: cf-qr-redirect.php
+msgid "Cai Frazier"
+msgstr ""
+
+#. Author URI of the plugin
+#: cf-qr-redirect.php
+msgid "https://github.com/caifrazier"
+msgstr ""
+
+#: cf-qr-redirect.php:149
+#: includes/class-admin.php:1042
+msgid "Settings"
+msgstr ""
+
+#: includes/class-admin.php:125
+#: includes/class-redirect-admin.php:43
+msgid "Label"
+msgstr ""
+
+#: includes/class-admin.php:126
+msgid "Short URL"
+msgstr ""
+
+#: includes/class-admin.php:127
+#: includes/class-redirect-admin.php:45
+msgid "Destination"
+msgstr ""
+
+#: includes/class-admin.php:128
+#: includes/class-admin.php:951
+msgid "Campaign"
+msgstr ""
+
+#: includes/class-admin.php:129
+#: includes/class-redirect-404.php:296
+#: includes/class-redirect-admin.php:50
+msgid "Hits"
+msgstr ""
+
+#: includes/class-admin.php:130
+#: includes/class-redirect-admin.php:51
+msgid "Last Hit"
+msgstr ""
+
+#: includes/class-admin.php:131
+#: includes/class-redirect-404.php:300
+#: includes/class-redirect-admin.php:47
+msgid "Status"
+msgstr ""
+
+#: includes/class-admin.php:132
+#: includes/class-redirect-admin.php:52
+msgid "Date"
+msgstr ""
+
+#: includes/class-admin.php:149
+msgid "Copy short URL to clipboard"
+msgstr ""
+
+#: includes/class-admin.php:150
+#: includes/class-admin.php:560
+#: includes/class-admin.php:671
+msgid "Copy"
+msgstr ""
+
+#: includes/class-admin.php:160
+#: includes/class-redirect-admin.php:66
+msgid "(none)"
+msgstr ""
+
+#: includes/class-admin.php:180
+#: includes/class-admin.php:650
+#: includes/class-redirect-404.php:325
+#: includes/class-redirect-admin.php:138
+#: includes/class-redirect-admin.php:443
+msgid "never"
+msgstr ""
+
+#. translators: %s = human time difference
+#: includes/class-admin.php:186
+#: includes/class-redirect-404.php:331
+#: includes/class-redirect-admin.php:144
+#, php-format
+msgid "%s ago"
+msgstr ""
+
+#: includes/class-admin.php:239
+msgid "All campaigns"
+msgstr ""
+
+#: includes/class-admin.php:279
+msgid "Download QR PNGs (ZIP)"
+msgstr ""
+
+#: includes/class-admin.php:347
+#: includes/class-admin.php:348
+#: includes/class-admin.php:395
+msgid "Export QR Codes"
+msgstr ""
+
+#: includes/class-admin.php:363
+msgid "You do not have permission to access this page."
+msgstr ""
+
+#: includes/class-admin.php:401
+msgid "No export data found, or this export link has already been used. Re-run the bulk action from the QR Codes list."
+msgstr ""
+
+#: includes/class-admin.php:403
+#: includes/class-admin.php:430
+msgid "← Back to QR Codes"
+msgstr ""
+
+#. translators: %d = number of codes
+#: includes/class-admin.php:411
+#, php-format
+msgid "Bundling %d QR code"
+msgid_plural "Bundling %d QR codes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-admin.php:417
+msgid "Generating PNGs in your browser…"
+msgstr ""
+
+#: includes/class-admin.php:424
+msgid "The download will start automatically once every PNG is rendered. Each code is generated at 1000×1000 with Level H error correction (suitable for print up to ~3\")."
+msgstr ""
+
+#: includes/class-admin.php:450
+#: includes/class-admin.php:536
+msgid "QR Code"
+msgstr ""
+
+#: includes/class-admin.php:474
+msgid "You do not have permission to manage QR codes."
+msgstr ""
+
+#: includes/class-admin.php:510
+msgid "Short URL & preview"
+msgstr ""
+
+#: includes/class-admin.php:513
+msgid "Custom slug"
+msgstr ""
+
+#: includes/class-admin.php:519
+msgid "auto"
+msgstr ""
+
+#: includes/class-admin.php:525
+msgid "3–64 chars; letters, numbers, and hyphens. Leave blank to auto-generate. Invalid or duplicate slugs are silently replaced with an auto-generated short code."
+msgstr ""
+
+#: includes/class-admin.php:529
+msgid "Copy URL"
+msgstr ""
+
+#: includes/class-admin.php:541
+msgid "Download PNG (1000×1000)"
+msgstr ""
+
+#: includes/class-admin.php:548
+msgid "Save once to lock in a slug."
+msgstr ""
+
+#: includes/class-admin.php:549
+msgid "The QR code will appear after the post is published."
+msgstr ""
+
+#: includes/class-admin.php:551
+msgid "QR code is generated on first publish."
+msgstr ""
+
+#: includes/class-admin.php:552
+msgid "Tweak the slug, destination, and analytics options below. The QR is not created until you click Publish — that way you never end up with a printed code that points at a stale URL."
+msgstr ""
+
+#: includes/class-admin.php:558
+msgid "Preview URL:"
+msgstr ""
+
+#: includes/class-admin.php:560
+msgid "Copy preview URL to clipboard"
+msgstr ""
+
+#: includes/class-admin.php:562
+msgid "This is the exact short URL that will be encoded into the QR. Verify it matches your slug before publishing — it locks in once you click Publish."
+msgstr ""
+
+#: includes/class-admin.php:572
+msgid "Destination & analytics"
+msgstr ""
+
+#: includes/class-admin.php:575
+#: includes/class-admin.php:947
+#: includes/class-redirect-admin.php:321
+msgid "Destination URL"
+msgstr ""
+
+#: includes/class-admin.php:578
+msgid "Where the short URL redirects. Internal or external. Must be http(s)."
+msgstr ""
+
+#: includes/class-admin.php:583
+#: includes/class-admin.php:1130
+msgid "Analytics mode"
+msgstr ""
+
+#: includes/class-admin.php:587
+msgid "UTM"
+msgstr ""
+
+#: includes/class-admin.php:588
+msgid "Fast 302 redirect, appends utm_* params to the destination URL."
+msgstr ""
+
+#: includes/class-admin.php:592
+msgid "Event"
+msgstr ""
+
+#: includes/class-admin.php:593
+msgid "Renders a minimal page that fires a GA4 event before redirecting. Best for external destinations."
+msgstr ""
+
+#: includes/class-admin.php:596
+msgid "No GA4 Measurement ID configured — Intermediate mode falls back to UTM. Add one under QR Codes → Settings."
+msgstr ""
+
+#: includes/class-admin.php:604
+msgid "Campaign & tagging"
+msgstr ""
+
+#: includes/class-admin.php:607
+msgid "Campaign name"
+msgstr ""
+
+#: includes/class-admin.php:610
+msgid "Sent to GA4 as utm_campaign and as the campaign field on the qr_redirect event. Slugified on save (e.g. \"Spring Mailer 2026\" → \"spring-mailer-2026\")."
+msgstr ""
+
+#: includes/class-admin.php:615
+#: includes/class-admin.php:1139
+msgid "UTM source"
+msgstr ""
+
+#: includes/class-admin.php:622
+#: includes/class-admin.php:1143
+msgid "UTM medium"
+msgstr ""
+
+#: includes/class-admin.php:629
+msgid "GA4 event preview"
+msgstr ""
+
+#: includes/class-admin.php:638
+#: includes/class-redirect-admin.php:431
+msgid "Performance"
+msgstr ""
+
+#: includes/class-admin.php:640
+#: includes/class-redirect-admin.php:433
+msgid "Stats"
+msgstr ""
+
+#: includes/class-admin.php:645
+#: includes/class-redirect-admin.php:438
+msgid "total hits"
+msgstr ""
+
+#: includes/class-admin.php:648
+#: includes/class-redirect-admin.php:441
+msgid "Last hit"
+msgstr ""
+
+#: includes/class-admin.php:654
+#: includes/class-redirect-admin.php:447
+msgid "Created"
+msgstr ""
+
+#: includes/class-admin.php:656
+#: includes/class-redirect-admin.php:449
+msgid "on first publish"
+msgstr ""
+
+#: includes/class-admin.php:666
+msgid "Open GA4"
+msgstr ""
+
+#: includes/class-admin.php:669
+msgid "Then filter by:"
+msgstr ""
+
+#: includes/class-admin.php:671
+msgid "Copy utm_content value to clipboard"
+msgstr ""
+
+#: includes/class-admin.php:673
+msgid "Tip: set your GA4 numeric property ID in Settings → QR Redirects to make this link land in the right property automatically."
+msgstr ""
+
+#. translators: %s = the destination URL the user submitted
+#. translators: %s = the destination URL the user submitted via Quick Edit
+#: includes/class-admin.php:737
+#: includes/class-admin.php:796
+#, php-format
+msgid "The destination URL %s was rejected. Destinations must start with http:// or https:// and include a hostname. The QR code is now inactive (returns 410 Gone) until you provide a valid destination."
+msgstr ""
+
+#: includes/class-admin.php:747
+#: includes/class-admin.php:804
+msgid "The destination URL was rejected because it contained no valid characters. The QR code is now inactive until a destination is set."
+msgstr ""
+
+#: includes/class-admin.php:889
+msgid "Select one or more QR codes before running the ZIP export."
+msgstr ""
+
+#: includes/class-admin.php:892
+msgid "None of the selected codes have a slug yet — save them first, then re-run the export."
+msgstr ""
+
+#: includes/class-admin.php:1041
+msgid "QR Redirect Settings"
+msgstr ""
+
+#: includes/class-admin.php:1084
+msgid "QR Redirect Manager"
+msgstr ""
+
+#: includes/class-admin.php:1095
+msgid "GA4 Integration"
+msgstr ""
+
+#: includes/class-admin.php:1096
+msgid "Configure how QR scans appear in your Google Analytics property. Both fields are optional."
+msgstr ""
+
+#: includes/class-admin.php:1099
+msgid "Measurement ID"
+msgstr ""
+
+#. translators: %s = resolved GA4 ID
+#: includes/class-admin.php:1106
+#, php-format
+msgid "Currently resolved from another source: %s"
+msgstr ""
+
+#: includes/class-admin.php:1108
+msgid "Required for Intermediate-page mode. If empty, the plugin checks for the CFQR_GA4_ID PHP constant or the Site Kit by Google plugin."
+msgstr ""
+
+#: includes/class-admin.php:1115
+msgid "Property ID (numeric)"
+msgstr ""
+
+#: includes/class-admin.php:1118
+msgid "Optional. Found in GA4 → Admin → Property Settings → Property ID. When set, the \"Open GA4\" button on each code's edit screen lands directly in this property."
+msgstr ""
+
+#: includes/class-admin.php:1126
+msgid "Defaults for new codes"
+msgstr ""
+
+#: includes/class-admin.php:1127
+msgid "Applied to every new QR code unless overridden on the edit screen."
+msgstr ""
+
+#: includes/class-admin.php:1133
+msgid "UTM Injection (fast 302 redirect, recommended for internal destinations)"
+msgstr ""
+
+#: includes/class-admin.php:1134
+msgid "Intermediate Page (fires GA4 event, recommended for external destinations)"
+msgstr ""
+
+#: includes/class-admin.php:1151
+msgid "Routing behavior"
+msgstr ""
+
+#: includes/class-admin.php:1154
+msgid "Redirect status"
+msgstr ""
+
+#: includes/class-admin.php:1157
+msgid "302 Found — recommended; destination changes take effect immediately"
+msgstr ""
+
+#: includes/class-admin.php:1158
+msgid "301 Moved Permanently — advanced; cached by scanners and cannot be recalled without reprinting"
+msgstr ""
+
+#: includes/class-admin.php:1162
+msgid "Heads up:"
+msgstr ""
+
+#: includes/class-admin.php:1163
+msgid "301 responses are cached aggressively by browsers, scanner apps, and CDNs. Once a scanner has cached a 301, changing the destination URL on this code will not redirect existing scanners — they will continue to bypass the QR redirect and go directly to the original destination, possibly for years. Use 302 unless the destination is genuinely permanent and you accept that you may need to reprint the QR code to ever change it."
+msgstr ""
+
+#: includes/class-admin.php:1179
+msgid "Short code length"
+msgstr ""
+
+#: includes/class-admin.php:1182
+msgid "Characters in auto-generated slugs. Range 4–12, default 6."
+msgstr ""
+
+#. translators: %s = capability name
+#: includes/class-admin.php:1196
+#, php-format
+msgid "Access is gated by the %s capability — every administrator has this by default."
+msgstr ""
+
+#. translators: 1: plugin version string, 2: WordPress version string.
+#: includes/class-admin.php:1204
+#, php-format
+msgid "CF QR Redirect %1$s &nbsp;·&nbsp; WordPress %2$s &nbsp;·&nbsp; <a href=\"mailto:bugs@caifrazier.com\">Report a bug</a>"
+msgstr ""
+
+#: includes/class-cpt.php:42
+msgctxt "post type general name"
+msgid "QR Codes"
+msgstr ""
+
+#: includes/class-cpt.php:43
+msgctxt "post type singular name"
+msgid "QR Code"
+msgstr ""
+
+#: includes/class-cpt.php:44
+msgctxt "admin menu"
+msgid "QR Codes"
+msgstr ""
+
+#: includes/class-cpt.php:45
+msgctxt "add new on admin bar"
+msgid "QR Code"
+msgstr ""
+
+#: includes/class-cpt.php:46
+msgctxt "qr code"
+msgid "Add New"
+msgstr ""
+
+#: includes/class-cpt.php:47
+msgid "Add New QR Code"
+msgstr ""
+
+#: includes/class-cpt.php:48
+msgid "New QR Code"
+msgstr ""
+
+#: includes/class-cpt.php:49
+msgid "Edit QR Code"
+msgstr ""
+
+#: includes/class-cpt.php:50
+msgid "View QR Code"
+msgstr ""
+
+#: includes/class-cpt.php:51
+msgid "All QR Codes"
+msgstr ""
+
+#: includes/class-cpt.php:52
+msgid "Search QR Codes"
+msgstr ""
+
+#: includes/class-cpt.php:53
+msgid "No QR codes found."
+msgstr ""
+
+#: includes/class-cpt.php:54
+msgid "No QR codes found in Trash."
+msgstr ""
+
+#: includes/class-redirect-404.php:68
+msgctxt "post type general name"
+msgid "404 Captures"
+msgstr ""
+
+#: includes/class-redirect-404.php:69
+msgctxt "post type singular name"
+msgid "404 Capture"
+msgstr ""
+
+#: includes/class-redirect-404.php:70
+msgctxt "admin menu"
+msgid "404 Captures"
+msgstr ""
+
+#: includes/class-redirect-404.php:71
+msgid "All 404s"
+msgstr ""
+
+#: includes/class-redirect-404.php:72
+msgid "Search 404s"
+msgstr ""
+
+#: includes/class-redirect-404.php:73
+msgid "No 404s captured yet. Anyone reaching a missing page on your site will show up here."
+msgstr ""
+
+#: includes/class-redirect-404.php:74
+msgid "No captured 404s in Trash."
+msgstr ""
+
+#: includes/class-redirect-404.php:295
+msgid "Path"
+msgstr ""
+
+#: includes/class-redirect-404.php:297
+msgid "First seen"
+msgstr ""
+
+#: includes/class-redirect-404.php:298
+msgid "Last seen"
+msgstr ""
+
+#: includes/class-redirect-404.php:299
+msgid "Last referer"
+msgstr ""
+
+#: includes/class-redirect-404.php:340
+#: includes/class-redirect-admin.php:109
+msgid "—"
+msgstr ""
+
+#: includes/class-redirect-404.php:350
+msgid "ignored"
+msgstr ""
+
+#: includes/class-redirect-404.php:353
+msgid "open"
+msgstr ""
+
+#: includes/class-redirect-404.php:400
+msgid "Mark as ignored"
+msgstr ""
+
+#: includes/class-redirect-404.php:401
+msgid "Mark as open (un-ignore)"
+msgstr ""
+
+#: includes/class-redirect-404.php:458
+msgid "Create redirect"
+msgstr ""
+
+#: includes/class-redirect-admin.php:44
+msgid "Source"
+msgstr ""
+
+#: includes/class-redirect-admin.php:46
+msgid "Match"
+msgstr ""
+
+#: includes/class-redirect-admin.php:48
+#: includes/class-redirect-admin.php:396
+msgid "Active"
+msgstr ""
+
+#: includes/class-redirect-admin.php:49
+#: includes/class-redirect-cpt.php:69
+msgid "Groups"
+msgstr ""
+
+#: includes/class-redirect-admin.php:91
+msgid "on"
+msgstr ""
+
+#: includes/class-redirect-admin.php:92
+msgid "off"
+msgstr ""
+
+#: includes/class-redirect-admin.php:100
+msgid "scheduled"
+msgstr ""
+
+#: includes/class-redirect-admin.php:100
+msgid "out of window"
+msgstr ""
+
+#: includes/class-redirect-admin.php:101
+msgid "from"
+msgstr ""
+
+#: includes/class-redirect-admin.php:101
+#: includes/class-redirect-admin.php:413
+msgid "until"
+msgstr ""
+
+#: includes/class-redirect-admin.php:198
+msgid "Any match mode"
+msgstr ""
+
+#: includes/class-redirect-admin.php:204
+msgid "Any status"
+msgstr ""
+
+#: includes/class-redirect-admin.php:211
+msgid "Any group"
+msgstr ""
+
+#: includes/class-redirect-admin.php:269
+msgid "Redirect"
+msgstr ""
+
+#: includes/class-redirect-admin.php:308
+msgid "Source &amp; destination"
+msgstr ""
+
+#: includes/class-redirect-admin.php:311
+msgid "Source path"
+msgstr ""
+
+#: includes/class-redirect-admin.php:315
+msgid "The path on this site to intercept. Leading slash required. Paste a full URL on this site and the host will be stripped automatically. Cannot start with /r/ (reserved for QR shortlinks) or any wp-* path."
+msgstr ""
+
+#: includes/class-redirect-admin.php:324
+msgid "Where the source path redirects. Must be http(s). Internal or external."
+msgstr ""
+
+#: includes/class-redirect-admin.php:330
+msgid "Behavior"
+msgstr ""
+
+#: includes/class-redirect-admin.php:333
+msgid "Match mode"
+msgstr ""
+
+#: includes/class-redirect-admin.php:341
+msgid "Exact"
+msgstr ""
+
+#: includes/class-redirect-admin.php:342
+msgid "source path must match exactly (case-insensitive, trailing slashes ignored)."
+msgstr ""
+
+#: includes/class-redirect-admin.php:344
+#: includes/class-redirect-admin.php:854
+msgid "Wildcard"
+msgstr ""
+
+#. translators: 1: example source pattern, 2: example destination
+#: includes/class-redirect-admin.php:348
+#, php-format
+msgid "use %1$s in the source to match any text. Reference matches in the destination with %2$s."
+msgstr ""
+
+#: includes/class-redirect-admin.php:353
+msgid "Example: source"
+msgstr ""
+
+#: includes/class-redirect-admin.php:355
+msgid "destination"
+msgstr ""
+
+#: includes/class-redirect-admin.php:358
+#: includes/class-redirect-admin.php:855
+msgid "Regex"
+msgstr ""
+
+#: includes/class-redirect-admin.php:359
+msgid "raw PCRE pattern (no delimiters). Case-sensitive by default; prepend (?i) for case-insensitive. Captures available as $1, $2, … in destination. Pattern must compile."
+msgstr ""
+
+#: includes/class-redirect-admin.php:361
+#: includes/class-redirect-admin.php:856
+msgid "Query-aware"
+msgstr ""
+
+#: includes/class-redirect-admin.php:362
+msgid "source includes ?key=value. Matches when the path equals the source path AND every specified query param matches on the request (extra params are ignored)."
+msgstr ""
+
+#: includes/class-redirect-admin.php:368
+msgid "Status code"
+msgstr ""
+
+#: includes/class-redirect-admin.php:371
+msgid "302 Found — temporary; not aggressively cached"
+msgstr ""
+
+#: includes/class-redirect-admin.php:372
+msgid "301 Moved Permanently — cached aggressively by browsers and CDNs"
+msgstr ""
+
+#: includes/class-redirect-admin.php:373
+msgid "307 Temporary Redirect — preserves request method"
+msgstr ""
+
+#: includes/class-redirect-admin.php:374
+msgid "308 Permanent Redirect — preserves request method, cached aggressively"
+msgstr ""
+
+#: includes/class-redirect-admin.php:378
+msgid "301 and 308 are cached by browsers and CDNs. After a client has cached the response, changing the destination will not affect them. Use 302/307 unless permanent."
+msgstr ""
+
+#: includes/class-redirect-admin.php:400
+msgid "Redirect is active. Uncheck to temporarily disable without deleting."
+msgstr ""
+
+#: includes/class-redirect-admin.php:406
+msgid "Schedule"
+msgstr ""
+
+#: includes/class-redirect-admin.php:409
+msgid "Active from"
+msgstr ""
+
+#. translators: %s = site timezone string, e.g. "America/Los_Angeles"
+#: includes/class-redirect-admin.php:420
+#, php-format
+msgid "Optional window — leave either bound blank for \"no limit on that side.\" Times are interpreted in the site timezone (%s) and stored as UTC."
+msgstr ""
+
+#: includes/class-redirect-admin.php:424
+msgid "Outside the window the redirect returns nothing (request falls through to normal WP routing)."
+msgstr ""
+
+#: includes/class-redirect-admin.php:459
+msgid "Destination change history"
+msgstr ""
+
+#: includes/class-redirect-admin.php:476
+msgid "from:"
+msgstr ""
+
+#: includes/class-redirect-admin.php:477
+msgid "to:"
+msgstr ""
+
+#. translators: %s = the destination URL the user submitted
+#: includes/class-redirect-admin.php:558
+#, php-format
+msgid "The destination URL %s was rejected. Destinations must start with http:// or https:// and include a hostname. This redirect is now inactive until a valid destination is set."
+msgstr ""
+
+#: includes/class-redirect-admin.php:582
+msgid "This destination would create a redirect loop back to this source (directly or through other redirects), so the destination was cleared."
+msgstr ""
+
+#: includes/class-redirect-admin.php:615
+msgid "Schedule \"until\" must be after \"from\". The \"until\" value was cleared."
+msgstr ""
+
+#: includes/class-redirect-admin.php:675
+msgid "Source path is required."
+msgstr ""
+
+#. translators: %d = max regex pattern length
+#: includes/class-redirect-admin.php:686
+#, php-format
+msgid "Regex pattern is too long (max %d characters)."
+msgstr ""
+
+#: includes/class-redirect-admin.php:691
+msgid "Regex pattern does not compile. Provide a valid PCRE pattern without delimiters (e.g. ^/old/(.*)$)."
+msgstr ""
+
+#: includes/class-redirect-admin.php:698
+msgid "Wildcard mode requires at least one * in the source. Use Exact mode instead, or add a * (e.g. /blog/*)."
+msgstr ""
+
+#: includes/class-redirect-admin.php:701
+msgid "Query-aware mode requires a query string in the source (e.g. /search?q=foo)."
+msgstr ""
+
+#: includes/class-redirect-admin.php:706
+msgid "Redirecting the site root would break every page on this site. Source path must be more specific than /."
+msgstr ""
+
+#. translators: %s = the reserved path segment, like 'wp-admin'
+#: includes/class-redirect-admin.php:720
+#, php-format
+msgid "Source path cannot start with the reserved segment %s."
+msgstr ""
+
+#. translators: %s = source path
+#: includes/class-redirect-admin.php:751
+#, php-format
+msgid "A redirect for %s already exists. Edit that one instead, or trash it before adding a new redirect for the same source."
+msgstr ""
+
+#: includes/class-redirect-admin.php:853
+#: includes/class-redirect-admin.php:862
+msgid "Exact path"
+msgstr ""
+
+#: includes/class-redirect-cpt.php:61
+msgctxt "taxonomy general name"
+msgid "Groups"
+msgstr ""
+
+#: includes/class-redirect-cpt.php:62
+msgctxt "taxonomy singular name"
+msgid "Group"
+msgstr ""
+
+#: includes/class-redirect-cpt.php:63
+msgid "Search Groups"
+msgstr ""
+
+#: includes/class-redirect-cpt.php:64
+msgid "All Groups"
+msgstr ""
+
+#: includes/class-redirect-cpt.php:65
+msgid "Edit Group"
+msgstr ""
+
+#: includes/class-redirect-cpt.php:66
+msgid "Update Group"
+msgstr ""
+
+#: includes/class-redirect-cpt.php:67
+msgid "Add New Group"
+msgstr ""
+
+#: includes/class-redirect-cpt.php:68
+msgid "New Group Name"
+msgstr ""
+
+#: includes/class-redirect-cpt.php:70
+msgid "Separate groups with commas"
+msgstr ""
+
+#: includes/class-redirect-cpt.php:108
+msgctxt "post type general name"
+msgid "Redirects"
+msgstr ""
+
+#: includes/class-redirect-cpt.php:109
+msgctxt "post type singular name"
+msgid "Redirect"
+msgstr ""
+
+#: includes/class-redirect-cpt.php:110
+msgctxt "admin menu"
+msgid "Redirects"
+msgstr ""
+
+#: includes/class-redirect-cpt.php:111
+msgctxt "add new on admin bar"
+msgid "Redirect"
+msgstr ""
+
+#: includes/class-redirect-cpt.php:112
+msgctxt "redirect"
+msgid "Add New"
+msgstr ""
+
+#: includes/class-redirect-cpt.php:113
+msgid "Add New Redirect"
+msgstr ""
+
+#: includes/class-redirect-cpt.php:114
+msgid "New Redirect"
+msgstr ""
+
+#: includes/class-redirect-cpt.php:115
+msgid "Edit Redirect"
+msgstr ""
+
+#: includes/class-redirect-cpt.php:116
+msgid "View Redirect"
+msgstr ""
+
+#: includes/class-redirect-cpt.php:117
+msgid "All Redirects"
+msgstr ""
+
+#: includes/class-redirect-cpt.php:118
+msgid "Search Redirects"
+msgstr ""
+
+#: includes/class-redirect-cpt.php:119
+msgid "No redirects found."
+msgstr ""
+
+#: includes/class-redirect-cpt.php:120
+msgid "No redirects found in Trash."
+msgstr ""
+
+#: includes/class-redirect-import.php:65
+#: includes/class-redirect-import.php:66
+#: includes/class-redirect-import.php:90
+msgid "Import Redirects"
+msgstr ""
+
+#: includes/class-redirect-import.php:75
+#: includes/class-redirect-import.php:173
+msgid "You do not have permission to import redirects."
+msgstr ""
+
+#: includes/class-redirect-import.php:99
+msgid "Upload a CSV"
+msgstr ""
+
+#: includes/class-redirect-import.php:106
+msgid "CSV file"
+msgstr ""
+
+#. translators: %d = max rows per import
+#: includes/class-redirect-import.php:113
+#, php-format
+msgid "Up to %d rows per file. UTF-8 encoded. First row must be a header row."
+msgstr ""
+
+#: includes/class-redirect-import.php:121
+msgid "On duplicate source"
+msgstr ""
+
+#: includes/class-redirect-import.php:125
+msgid "Skip — leave the existing redirect untouched (recommended)."
+msgstr ""
+
+#: includes/class-redirect-import.php:130
+msgid "Update — overwrite the existing redirect with the CSV row."
+msgstr ""
+
+#: includes/class-redirect-import.php:132
+msgid "Only applies to exact-mode redirects (the only mode with reliable dup detection)."
+msgstr ""
+
+#: includes/class-redirect-import.php:137
+msgid "Import"
+msgstr ""
+
+#: includes/class-redirect-import.php:142
+msgid "CSV format"
+msgstr ""
+
+#: includes/class-redirect-import.php:143
+msgid "Required headers: source, destination. Optional headers: mode, status, active, groups, label, active_from, active_until."
+msgstr ""
+
+#: includes/class-redirect-import.php:150
+msgid "Field notes:"
+msgstr ""
+
+#: includes/class-redirect-import.php:152
+msgid "one of exact, wildcard, regex, query_aware (default: exact)."
+msgstr ""
+
+#: includes/class-redirect-import.php:154
+msgid "301, 302, 307, or 308 (default: 302)."
+msgstr ""
+
+#: includes/class-redirect-import.php:156
+msgid "1 or 0 (default: 1)."
+msgstr ""
+
+#: includes/class-redirect-import.php:158
+msgid "comma-separated group names. Quote the cell if multiple, e.g. \"spring-campaign, q2-launches\". New groups are created automatically."
+msgstr ""
+
+#: includes/class-redirect-import.php:160
+msgid "ISO 8601 datetimes (e.g. 2026-06-01T14:00:00). Empty = no bound."
+msgstr ""
+
+#: includes/class-redirect-import.php:179
+msgid "Security check failed. Reload the import page and try again."
+msgstr ""
+
+#: includes/class-redirect-import.php:192
+msgid "No file was uploaded."
+msgstr ""
+
+#: includes/class-redirect-import.php:195
+msgid "Upload failed. The file may be too large for this server."
+msgstr ""
+
+#. translators: %d = maximum upload size in megabytes
+#: includes/class-redirect-import.php:206
+#, php-format
+msgid "The CSV file is too large. Maximum size is %d MB — split the import into smaller files."
+msgstr ""
+
+#: includes/class-redirect-import.php:247
+msgid "Could not open uploaded file."
+msgstr ""
+
+#: includes/class-redirect-import.php:274
+msgid "CSV file is empty."
+msgstr ""
+
+#. translators: %s = required column name
+#: includes/class-redirect-import.php:285
+#, php-format
+msgid "CSV is missing the required column \"%s\"."
+msgstr ""
+
+#. translators: %s = unrecognized column name
+#: includes/class-redirect-import.php:296
+#, php-format
+msgid "Unrecognized column \"%s\" was ignored."
+msgstr ""
+
+#. translators: %d = MAX_ROWS cap
+#: includes/class-redirect-import.php:312
+#, php-format
+msgid "Row cap reached at %d. Remaining rows in the file were not imported."
+msgstr ""
+
+#: includes/class-redirect-import.php:376
+msgid "source is empty."
+msgstr ""
+
+#: includes/class-redirect-import.php:394
+msgid "destination is empty."
+msgstr ""
+
+#: includes/class-redirect-import.php:397
+msgid "destination is not a safe http(s) URL."
+msgstr ""
+
+#: includes/class-redirect-import.php:408
+msgid "active_until must be after active_from."
+msgstr ""
+
+#: includes/class-redirect-import.php:438
+msgid "Failed to save row (WordPress error)."
+msgstr ""
+
+#: includes/class-redirect-import.php:475
+msgid "regex pattern is too long (max 500 chars)."
+msgstr ""
+
+#: includes/class-redirect-import.php:478
+msgid "regex pattern does not compile."
+msgstr ""
+
+#: includes/class-redirect-import.php:483
+msgid "wildcard mode requires at least one * in the source."
+msgstr ""
+
+#: includes/class-redirect-import.php:486
+msgid "query_aware mode requires a query string in the source."
+msgstr ""
+
+#: includes/class-redirect-import.php:490
+msgid "source path \"/\" is too broad to redirect."
+msgstr ""
+
+#. translators: %s = reserved path segment
+#: includes/class-redirect-import.php:498
+#, php-format
+msgid "source starts with reserved segment \"%s\"."
+msgstr ""
+
+#. translators: 1: imported, 2: updated, 3: skipped, 4: error count
+#: includes/class-redirect-import.php:557
+#, php-format
+msgid "Imported %1$d, updated %2$d, skipped %3$d. Errors: %4$d."
+msgstr ""
+
+#: includes/class-redirect-import.php:574
+msgid "Error details"
+msgstr ""
+
+#. translators: 1: row number, 2: reason
+#: includes/class-redirect-import.php:581
+#, php-format
+msgid "Row %1$d: %2$s"
+msgstr ""
+
+#: includes/class-settings.php:152
+msgid "GA4 Measurement ID must be in the form G-XXXXXXX."
+msgstr ""

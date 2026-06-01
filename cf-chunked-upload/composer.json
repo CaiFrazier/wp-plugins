@@ -1,0 +1,34 @@
+{
+    "name": "caifrazier/cf-chunked-upload",
+    "description": "CF Chunked Upload — splits large files client-side and reassembles them server-side, bypassing PHP upload limits.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.6",
+        "wp-coding-standards/wpcs": "^3.0",
+        "phpcompatibility/phpcompatibility-wp": "*",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "CFChunkedUpload\\": "includes/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "CFChunkedUpload\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "lint": "phpcs"
+    }
+}

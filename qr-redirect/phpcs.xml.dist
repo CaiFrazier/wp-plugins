@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<ruleset name="CF QR Redirect">
+	<description>Coding standards for CF QR Redirect.</description>
+
+	<rule ref="../phpcs.shared.xml"/>
+
+	<file>cf-qr-redirect.php</file>
+	<file>uninstall.php</file>
+	<file>includes</file>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="cf-qr-redirect"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>

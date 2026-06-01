@@ -1,0 +1,21 @@
+{
+    "name": "caifrazier/wp-plugins-shared",
+    "description": "Shared library for Cai Frazier WordPress plugins (logger, schema utilities).",
+    "type": "library",
+    "license": "GPL-2.0-or-later",
+    "version": "1.0.0",
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5 || ^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "CFShared\\": "src/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    }
+}

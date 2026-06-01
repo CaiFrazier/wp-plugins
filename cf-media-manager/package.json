@@ -1,0 +1,10 @@
+{
+    "name": "cf-media-manager",
+    "version": "2.1.2",
+    "description": "CF Media Manager release wrapper.",
+    "private": true,
+    "scripts": {
+        "build": "node ../scripts/release.mjs cf-media-manager",
+        "clean": "rm -rf dist/*.zip"
+    }
+}

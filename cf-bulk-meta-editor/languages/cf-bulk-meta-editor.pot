@@ -1,0 +1,461 @@
+# Copyright (C) 2026 Cai Frazier
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: CF Bulk Meta Editor 1.0.4\n"
+"Report-Msgid-Bugs-To: bugs@caifrazier.com\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-05-29T18:16:05+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: cf-bulk-meta-editor\n"
+
+#. Plugin Name of the plugin
+#: cf-bulk-meta-editor.php
+#: includes/Admin.php:38
+#: includes/Admin.php:39
+msgid "CF Bulk Meta Editor"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: cf-bulk-meta-editor.php
+msgid "https://github.com/caifrazier/cf-bulk-meta-editor"
+msgstr ""
+
+#. Description of the plugin
+#: cf-bulk-meta-editor.php
+msgid "Spreadsheet-style editor for SEO meta titles, descriptions, and arbitrary postmeta fields across all post types."
+msgstr ""
+
+#. Author of the plugin
+#: cf-bulk-meta-editor.php
+msgid "Cai Frazier"
+msgstr ""
+
+#: includes/Admin.php:49
+msgid "CF Bulk Meta Editor Settings"
+msgstr ""
+
+#: includes/Admin.php:50
+#: includes/Admin.php:84
+msgid "Settings"
+msgstr ""
+
+#: includes/Admin.php:58
+msgid "CF Bulk Meta Editor Diagnostics"
+msgstr ""
+
+#: includes/Admin.php:59
+#: includes/Admin.php:89
+msgid "Diagnostics"
+msgstr ""
+
+#: includes/Admin.php:79
+msgid "Editor"
+msgstr ""
+
+#: includes/Admin.php:99
+msgid "Secondary menu"
+msgstr ""
+
+#. translators: 1: plugin version string, 2: WordPress version string.
+#: includes/Admin.php:132
+#, php-format
+msgid "CF Bulk Meta Editor %1$s &nbsp;·&nbsp; WordPress %2$s &nbsp;·&nbsp; <a href=\"mailto:bugs@caifrazier.com\">Report a bug</a>"
+msgstr ""
+
+#. translators: %s: build entry name (editor or settings)
+#: includes/Admin.php:185
+#, php-format
+msgid "Bulk Meta Editor: build assets for \"%s\" are missing. Run `npm run build` in the plugin directory."
+msgstr ""
+
+#: includes/RestController.php:298
+msgid "No edits provided."
+msgstr ""
+
+#: includes/RestController.php:321
+msgid "Invalid request body."
+msgstr ""
+
+#: src/diagnostics/components/App.jsx:63
+msgid "Clear all log entries?"
+msgstr ""
+
+#: src/diagnostics/components/App.jsx:114
+msgid "Bulk Meta Editor — Diagnostics"
+msgstr ""
+
+#: src/diagnostics/components/App.jsx:128
+msgid "Server log"
+msgstr ""
+
+#: src/diagnostics/components/App.jsx:130
+#: src/diagnostics/components/App.jsx:208
+msgid "Refresh"
+msgstr ""
+
+#: src/diagnostics/components/App.jsx:132
+msgid "Download .jsonl"
+msgstr ""
+
+#: src/diagnostics/components/App.jsx:134
+msgid "Clear log"
+msgstr ""
+
+#: src/diagnostics/components/App.jsx:140
+msgid "Level"
+msgstr ""
+
+#: src/diagnostics/components/App.jsx:144
+#: src/editor/components/DebugPanel.jsx:97
+msgid "All levels"
+msgstr ""
+
+#: src/diagnostics/components/App.jsx:153
+#: src/editor/components/PostPicker.jsx:52
+msgid "Search"
+msgstr ""
+
+#: src/diagnostics/components/App.jsx:155
+msgid "Filter (channel, message, context)…"
+msgstr ""
+
+#: src/diagnostics/components/App.jsx:163
+msgid "No log entries match."
+msgstr ""
+
+#: src/diagnostics/components/App.jsx:207
+msgid "Environment"
+msgstr ""
+
+#: src/diagnostics/components/App.jsx:222
+msgid "Detected SEO plugins"
+msgstr ""
+
+#: src/diagnostics/components/App.jsx:224
+msgid "No known SEO plugin detected."
+msgstr ""
+
+#: src/diagnostics/components/App.jsx:235
+msgid "Active configuration"
+msgstr ""
+
+#: src/diagnostics/components/App.jsx:258
+msgid "Round-trip self-test"
+msgstr ""
+
+#: src/diagnostics/components/App.jsx:260
+msgid "Writes a unique marker to the configured Meta Title key on the chosen post, reads it back, then restores the original value. Detects when another plugin (Yoast filters, ACF, custom save_post hooks) is silently mutating writes."
+msgstr ""
+
+#: src/diagnostics/components/App.jsx:268
+msgid "Post ID"
+msgstr ""
+
+#: src/diagnostics/components/App.jsx:274
+msgid "Running…"
+msgstr ""
+
+#: src/diagnostics/components/App.jsx:274
+msgid "Run self-test"
+msgstr ""
+
+#: src/diagnostics/components/App.jsx:281
+msgid "Stage:"
+msgstr ""
+
+#: src/diagnostics/components/App.jsx:286
+msgid "Details"
+msgstr ""
+
+#: src/editor/components/ColumnSelector.jsx:10
+#: src/editor/components/Grid.jsx:79
+msgid "Post Title"
+msgstr ""
+
+#: src/editor/components/ColumnSelector.jsx:11
+msgid "Slug / URL"
+msgstr ""
+
+#: src/editor/components/ColumnSelector.jsx:12
+#: src/editor/components/PostPicker.jsx:59
+msgid "Status"
+msgstr ""
+
+#: src/editor/components/ColumnSelector.jsx:13
+msgid "Last Modified"
+msgstr ""
+
+#: src/editor/components/ColumnSelector.jsx:14
+msgid "Author"
+msgstr ""
+
+#: src/editor/components/ColumnSelector.jsx:15
+msgid "Content Excerpt"
+msgstr ""
+
+#: src/editor/components/ColumnSelector.jsx:19
+msgid "Meta Title"
+msgstr ""
+
+#: src/editor/components/ColumnSelector.jsx:22
+msgid "Meta Description"
+msgstr ""
+
+#: src/editor/components/ColumnSelector.jsx:45
+msgid "Columns"
+msgstr ""
+
+#: src/editor/components/DebugPanel.jsx:66
+msgid "Toggle BME debug panel"
+msgstr ""
+
+#: src/editor/components/DebugPanel.jsx:72
+msgid "BME diagnostic log"
+msgstr ""
+
+#: src/editor/components/DebugPanel.jsx:74
+msgid "BME live log"
+msgstr ""
+
+#: src/editor/components/DebugPanel.jsx:78
+msgid "Copy"
+msgstr ""
+
+#: src/editor/components/DebugPanel.jsx:81
+msgid "Flush"
+msgstr ""
+
+#: src/editor/components/DebugPanel.jsx:84
+msgid "Clear"
+msgstr ""
+
+#: src/editor/components/DebugPanel.jsx:92
+msgid "Filter…"
+msgstr ""
+
+#: src/editor/components/DebugPanel.jsx:108
+msgid "No entries (yet). Try interacting with the editor."
+msgstr ""
+
+#: src/editor/components/Grid.jsx:34
+msgid "Revert"
+msgstr ""
+
+#: src/editor/components/Grid.jsx:37
+msgid "Save"
+msgstr ""
+
+#: src/editor/components/Grid.jsx:141
+msgid "Select posts in the picker and click \"Load Selected\"."
+msgstr ""
+
+#: src/editor/components/Grid.jsx:149
+msgid "Showing"
+msgstr ""
+
+#: src/editor/components/Grid.jsx:151
+msgid "of"
+msgstr ""
+
+#: src/editor/components/Grid.jsx:152
+msgid "loaded posts"
+msgstr ""
+
+#: src/editor/components/PaginationControls.jsx:25
+msgid "Per page"
+msgstr ""
+
+#: src/editor/components/PostPicker.jsx:8
+msgid "All"
+msgstr ""
+
+#: src/editor/components/PostPicker.jsx:9
+msgid "Published"
+msgstr ""
+
+#: src/editor/components/PostPicker.jsx:10
+msgid "Draft"
+msgstr ""
+
+#: src/editor/components/PostPicker.jsx:11
+msgid "Pending"
+msgstr ""
+
+#: src/editor/components/PostPicker.jsx:12
+msgid "Private"
+msgstr ""
+
+#: src/editor/components/PostPicker.jsx:43
+msgid "Post Picker"
+msgstr ""
+
+#: src/editor/components/PostPicker.jsx:54
+msgid "Search posts…"
+msgstr ""
+
+#: src/editor/components/PostPicker.jsx:68
+msgid "Select all on this page"
+msgstr ""
+
+#: src/editor/components/PostPicker.jsx:75
+msgid "selected"
+msgstr ""
+
+#: src/editor/components/PostPicker.jsx:110
+msgid "Load Selected"
+msgstr ""
+
+#: src/editor/components/Toolbar.jsx:110
+msgid "Exporting…"
+msgstr ""
+
+#: src/editor/components/Toolbar.jsx:110
+msgid "Export CSV"
+msgstr ""
+
+#: src/editor/components/Toolbar.jsx:119
+#: src/editor/components/Toolbar.jsx:120
+msgid "Save All Changes"
+msgstr ""
+
+#: src/settings/components/App.jsx:38
+msgid "Settings saved."
+msgstr ""
+
+#: src/settings/components/App.jsx:41
+msgid "Save failed."
+msgstr ""
+
+#: src/settings/components/App.jsx:50
+msgid "Bulk Meta Editor Settings"
+msgstr ""
+
+#: src/settings/components/App.jsx:86
+msgid "Save Settings"
+msgstr ""
+
+#: src/settings/components/CustomColumnRepeater.jsx:9
+msgid "Text (multi-line)"
+msgstr ""
+
+#: src/settings/components/CustomColumnRepeater.jsx:10
+msgid "Text (single-line)"
+msgstr ""
+
+#: src/settings/components/CustomColumnRepeater.jsx:11
+msgid "Safe HTML"
+msgstr ""
+
+#: src/settings/components/CustomColumnRepeater.jsx:12
+msgid "URL"
+msgstr ""
+
+#: src/settings/components/CustomColumnRepeater.jsx:13
+msgid "Number"
+msgstr ""
+
+#: src/settings/components/CustomColumnRepeater.jsx:14
+msgid "Raw (no sanitization)"
+msgstr ""
+
+#: src/settings/components/CustomColumnRepeater.jsx:31
+msgid "Custom Columns"
+msgstr ""
+
+#: src/settings/components/CustomColumnRepeater.jsx:32
+msgid "Add arbitrary postmeta fields to expose in the editor grid."
+msgstr ""
+
+#: src/settings/components/CustomColumnRepeater.jsx:37
+msgid "Meta key"
+msgstr ""
+
+#: src/settings/components/CustomColumnRepeater.jsx:43
+msgid "Display label"
+msgstr ""
+
+#: src/settings/components/CustomColumnRepeater.jsx:49
+msgid "Sanitizer"
+msgstr ""
+
+#: src/settings/components/CustomColumnRepeater.jsx:54
+msgid "No sanitization. Cell value is stored verbatim (still capped at 64 KB). Use for JSON or other structured payloads."
+msgstr ""
+
+#: src/settings/components/CustomColumnRepeater.jsx:59
+msgid "Remove"
+msgstr ""
+
+#: src/settings/components/CustomColumnRepeater.jsx:65
+msgid "+ Add Column"
+msgstr ""
+
+#: src/settings/components/DebugSettings.jsx:14
+msgid "Diagnostic Logging"
+msgstr ""
+
+#: src/settings/components/DebugSettings.jsx:16
+msgid "Captures every REST request, capability check, save attempt, and meta-key write to a JSONL file in uploads/bulk-meta-editor/. Visible at Tools → BME Diagnostics. Leave on while testing on staging; turn off in production once you trust the integration."
+msgstr ""
+
+#: src/settings/components/DebugSettings.jsx:23
+msgid "Enable diagnostic logging"
+msgstr ""
+
+#: src/settings/components/DebugSettings.jsx:24
+msgid "Force-enable via wp-config: define( \"BME_DEBUG\", true );"
+msgstr ""
+
+#: src/settings/components/DebugSettings.jsx:33
+msgid "Log level"
+msgstr ""
+
+#: src/settings/components/DebugSettings.jsx:38
+msgid "When debug mode is off, only warnings and errors are recorded regardless of this setting."
+msgstr ""
+
+#: src/settings/components/MetaKeyMapper.jsx:5
+msgid "— Select a preset —"
+msgstr ""
+
+#: src/settings/components/MetaKeyMapper.jsx:27
+msgid "Meta Key Mapping"
+msgstr ""
+
+#: src/settings/components/MetaKeyMapper.jsx:28
+msgid "Choose which postmeta keys store your SEO titles and descriptions. Use a preset or enter custom keys."
+msgstr ""
+
+#: src/settings/components/MetaKeyMapper.jsx:31
+msgid "Apply preset to both fields"
+msgstr ""
+
+#: src/settings/components/MetaKeyMapper.jsx:38
+msgid "Meta Title key"
+msgstr ""
+
+#: src/settings/components/MetaKeyMapper.jsx:41
+msgid "e.g. _yoast_wpseo_title"
+msgstr ""
+
+#: src/settings/components/MetaKeyMapper.jsx:45
+msgid "Meta Description key"
+msgstr ""
+
+#: src/settings/components/MetaKeyMapper.jsx:48
+msgid "e.g. _yoast_wpseo_metadesc"
+msgstr ""
+
+#: src/settings/components/PostTypeList.jsx:14
+msgid "Enabled Post Types"
+msgstr ""
+
+#: src/settings/components/PostTypeList.jsx:15
+msgid "Unchecked post types will be hidden from the editor."
+msgstr ""

@@ -1,0 +1,20 @@
+# Local dependency directories
+*/node_modules/
+*/vendor/
+
+# Generated assets and release output
+*/build/
+*/dist/
+*.zip
+
+# Local caches and OS files
+.DS_Store
+*/.DS_Store
+*/.phpcs.cache
+*/.phpunit.result.cache
+*.log
+
+# Internal planning docs — kept local, not published
+TODO.md
+ROADMAP.md
+PRELAUNCH.md

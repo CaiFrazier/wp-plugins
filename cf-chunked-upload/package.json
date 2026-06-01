@@ -1,0 +1,16 @@
+{
+    "name": "cf-chunked-upload",
+    "version": "1.1.4",
+    "description": "CF Chunked Upload \u2014 client-side chunking + standalone importer UI.",
+    "private": true,
+    "scripts": {
+        "build": "wp-scripts build",
+        "start": "wp-scripts start",
+        "test:js": "wp-scripts test-unit-js",
+        "makepot": "node scripts/makepot.mjs"
+    },
+    "devDependencies": {
+        "@wordpress/scripts": "^27.0.0",
+        "wp-pot": "^1.4.0"
+    }
+}

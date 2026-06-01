@@ -1,0 +1,452 @@
+# Copyright (C) 2026 Cai Frazier
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: CF Chunked Upload 1.1.4\n"
+"Report-Msgid-Bugs-To: bugs@caifrazier.com\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-05-29T17:58:49+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: cf-chunked-upload\n"
+
+#. Plugin Name of the plugin
+#: cf-chunked-upload.php
+msgid "CF Chunked Upload"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: cf-chunked-upload.php
+msgid "https://github.com/caifrazier/cf-chunked-upload"
+msgstr ""
+
+#. Description of the plugin
+#: cf-chunked-upload.php
+msgid "Splits large files client-side and reassembles them server-side, bypassing PHP upload_max_filesize / post_max_size limits. Two surfaces: Media Library and a standalone large-file importer. Integrity-verified with per-chunk and whole-file SHA-256."
+msgstr ""
+
+#. Author of the plugin
+#: cf-chunked-upload.php
+msgid "Cai Frazier"
+msgstr ""
+
+#. Author URI of the plugin
+#: cf-chunked-upload.php
+msgid "https://caifrazier.com"
+msgstr ""
+
+#: cf-chunked-upload.php:62
+msgid "CF Chunked Upload — Activation blocked"
+msgstr ""
+
+#: includes/Admin.php:34
+#: includes/Admin.php:35
+#: includes/Admin.php:51
+msgid "Chunked Upload"
+msgstr ""
+
+#: includes/Admin.php:42
+#: includes/Admin.php:43
+#: includes/Admin.php:56
+msgid "Import Large File"
+msgstr ""
+
+#: includes/Admin.php:88
+msgid "CF Chunked Upload: plugin assets are missing. If you installed from source, run `npm run build` in the plugin directory and reload."
+msgstr ""
+
+#. translators: 1: required bytes 2: free bytes (human readable)
+#: includes/FinalizeJob.php:415
+#, php-format
+msgid "Not enough disk space to assemble this file. Need ~%1$s free, only %2$s available."
+msgstr ""
+
+#. translators: 1: required PHP version 2: detected PHP version
+#: includes/Plugin.php:84
+#, php-format
+msgid "CF Chunked Upload requires PHP %1$s or newer. This site runs PHP %2$s."
+msgstr ""
+
+#: includes/Plugin.php:90
+msgid "CF Chunked Upload requires the PHP hash extension for integrity verification."
+msgstr ""
+
+#: includes/Plugin.php:97
+msgid "CF Chunked Upload requires the PHP fileinfo extension to safely verify uploaded file types. Contact your host to enable it."
+msgstr ""
+
+#: includes/Preflight.php:67
+msgid "Disk space may be insufficient to assemble this file."
+msgstr ""
+
+#: includes/Preflight.php:87
+msgid "The upload destination is not writable."
+msgstr ""
+
+#: includes/Preflight.php:98
+msgid "This file would exceed your storage quota."
+msgstr ""
+
+#: includes/Preflight.php:108
+msgid "You have reached the maximum number of concurrent uploads."
+msgstr ""
+
+#: includes/Preflight.php:114
+msgid "WP-Cron is disabled. Ensure a system cron calls wp-cron.php or assembly jobs may not complete automatically."
+msgstr ""
+
+#: includes/Preflight.php:124
+msgid "This file type is not in the importer allowlist."
+msgstr ""
+
+#: includes/RestApi.php:120
+msgid "Too many chunk requests. Please wait a moment before retrying."
+msgstr ""
+
+#: includes/RestApi.php:138
+msgid "You have reached the maximum number of concurrent uploads. Finish or cancel an existing upload before starting another."
+msgstr ""
+
+#: includes/RestApi.php:147
+msgid "Storage quota exceeded. Wait for in-progress uploads to finish or contact your administrator."
+msgstr ""
+
+#: includes/RestApi.php:188
+msgid "Invalid destination."
+msgstr ""
+
+#: includes/RestApi.php:191
+#: includes/RestApi.php:197
+#: includes/RestApi.php:281
+#: includes/RestApi.php:305
+msgid "Malformed upload id."
+msgstr ""
+
+#: includes/RestApi.php:202
+#: includes/RestApi.php:285
+msgid "Upload session not found."
+msgstr ""
+
+#: includes/RestApi.php:209
+msgid "Finalize destination does not match the session."
+msgstr ""
+
+#: includes/RestApi.php:214
+msgid "Not all chunks have been received yet."
+msgstr ""
+
+#: includes/RestApi.php:242
+msgid "totalSha256 must be a 64-char hex digest."
+msgstr ""
+
+#: includes/RestApi.php:269
+msgid "Malformed job id."
+msgstr ""
+
+#: includes/RestApi.php:273
+msgid "No such job (it may have expired)."
+msgstr ""
+
+#: includes/RestApi.php:375
+msgid "This upload belongs to another user."
+msgstr ""
+
+#. translators: 1: requested MB 2: capped MB
+#: includes/Settings.php:107
+#, php-format
+msgid "Chunk size reduced from %1$d MB to %2$d MB — your host caps a single request below the requested size."
+msgstr ""
+
+#: includes/Settings.php:323
+msgid "Imports directory must be inside wp-content; the default location was used instead."
+msgstr ""
+
+#: src/importer.js:267
+msgid "Drop files here"
+msgstr ""
+
+#: src/importer.js:269
+msgid "or"
+msgstr ""
+
+#: src/importer.js:271
+msgid "click to browse"
+msgstr ""
+
+#: src/importer.js:317
+msgid "Nginx detected. The temp chunk directory is not protected by .htaccess on Nginx — add this server block so it is never web-served:"
+msgstr ""
+
+#: src/importer.js:332
+msgid "Resume previous uploads"
+msgstr ""
+
+#: src/importer.js:336
+#: src/importer.js:395
+#: src/importer.js:429
+#: src/importer.js:488
+msgid "File"
+msgstr ""
+
+#: src/importer.js:337
+#: src/importer.js:396
+#: src/importer.js:430
+#: src/importer.js:489
+msgid "Size"
+msgstr ""
+
+#: src/importer.js:369
+#: src/importer.js:464
+msgid "Resume"
+msgstr ""
+
+#: src/importer.js:376
+msgid "Discard"
+msgstr ""
+
+#: src/importer.js:391
+msgid "Queued"
+msgstr ""
+
+#: src/importer.js:414
+msgid "Remove"
+msgstr ""
+
+#: src/importer.js:431
+msgid "Progress"
+msgstr ""
+
+#: src/importer.js:432
+msgid "ETA"
+msgstr ""
+
+#: src/importer.js:433
+msgid "Speed"
+msgstr ""
+
+#: src/importer.js:445
+msgid "Assembling…"
+msgstr ""
+
+#: src/importer.js:453
+msgid "Paused"
+msgstr ""
+
+#: src/importer.js:465
+msgid "Pause"
+msgstr ""
+
+#: src/importer.js:473
+msgid "Cancel"
+msgstr ""
+
+#: src/importer.js:484
+msgid "Completed"
+msgstr ""
+
+#: src/importer.js:490
+msgid "Saved to"
+msgstr ""
+
+#: src/importer.js:492
+msgid "Integrity"
+msgstr ""
+
+#: src/importer.js:510
+#: src/importer.js:525
+msgid "Copied!"
+msgstr ""
+
+#: src/importer.js:511
+msgid "Copy path"
+msgstr ""
+
+#: src/importer.js:529
+msgid "—"
+msgstr ""
+
+#: src/importer.js:540
+msgid "Files uploaded here are saved directly to the server filesystem and do not appear in the Media Library."
+msgstr ""
+
+#: src/media-hook.js:126
+msgid "Reload to see it"
+msgstr ""
+
+#: src/settings.js:37
+msgid "Max execution time"
+msgstr ""
+
+#: src/settings.js:39
+msgid "Max upload filesize"
+msgstr ""
+
+#: src/settings.js:40
+msgid "Max POST size"
+msgstr ""
+
+#: src/settings.js:41
+msgid "Memory limit"
+msgstr ""
+
+#: src/settings.js:43
+msgid "Free disk space"
+msgstr ""
+
+#: src/settings.js:51
+msgid "Unlimited"
+msgstr ""
+
+#: src/settings.js:72
+msgid "WP-Cron is disabled (DISABLE_WP_CRON). Assembly jobs run on the task runner — ensure a system cron is calling wp-cron.php, or large-file finalization will never complete."
+msgstr ""
+
+#: src/settings.js:80
+msgid "Chunked upload is active. Files larger than the threshold are split automatically — your effective upload limit is now your available disk space."
+msgstr ""
+
+#: src/settings.js:88
+msgid "Nginx detected. Add this server block so the temp chunk directory is never web-served:"
+msgstr ""
+
+#: src/settings.js:146
+msgid "Settings saved."
+msgstr ""
+
+#: src/settings.js:155
+msgid "Chunk size (MB)"
+msgstr ""
+
+#: src/settings.js:168
+msgid "Each chunk is one HTTP request. 8 MB is safe on virtually all hosts; we clamp to the host limit automatically."
+msgstr ""
+
+#. translators: %s is a byte size like "7 MB".
+#: src/settings.js:177
+#, js-format
+msgid "Your host ceiling: %s per request."
+msgstr ""
+
+#: src/settings.js:187
+msgid "Concurrent uploads"
+msgstr ""
+
+#: src/settings.js:200
+msgid "How many chunks to send at the same time. Higher is faster on reliable connections; set to 1 for maximum reliability on unstable connections."
+msgstr ""
+
+#: src/settings.js:207
+msgid "Chunking threshold (MB)"
+msgstr ""
+
+#: src/settings.js:223
+msgid "Max retries per chunk"
+msgstr ""
+
+#: src/settings.js:240
+msgid "Imports directory"
+msgstr ""
+
+#: src/settings.js:253
+msgid "Where importer uploads are saved. Must be inside wp-content; created automatically and not web-accessible. Leave blank for the default."
+msgstr ""
+
+#: src/settings.js:263
+msgid "Allowed file types"
+msgstr ""
+
+#: src/settings.js:288
+msgid "Comma-separated extensions the importer accepts. Leave blank to allow all non-executable types. Executable/server-interpreted files (.php, .phtml, .phar, .asp, .jsp, .cgi, .htaccess, …) are always rejected. Files are also content-inspected after upload."
+msgstr ""
+
+#: src/settings.js:298
+msgid "Importer access"
+msgstr ""
+
+#: src/settings.js:308
+msgid "Administrators only"
+msgstr ""
+
+#: src/settings.js:311
+msgid "Anyone who can upload files"
+msgstr ""
+
+#: src/settings.js:318
+msgid "Who can use the standalone importer. Media-library chunking always uses the standard upload capability and is unaffected."
+msgstr ""
+
+#: src/settings.js:328
+msgid "Filename collision policy"
+msgstr ""
+
+#: src/settings.js:338
+msgid "Rename with timestamp"
+msgstr ""
+
+#: src/settings.js:341
+msgid "Reject"
+msgstr ""
+
+#: src/settings.js:344
+msgid "Overwrite (destructive)"
+msgstr ""
+
+#: src/settings.js:348
+msgid "What to do when a file with the same name already exists in the imports directory. Overwrite is destructive — use with care in backup workflows."
+msgstr ""
+
+#: src/settings.js:358
+msgid "Stale chunk cleanup (hours)"
+msgstr ""
+
+#: src/settings.js:371
+msgid "Incomplete or abandoned uploads leave temporary chunk files on the server. They are automatically deleted after this many hours of inactivity."
+msgstr ""
+
+#: src/settings.js:379
+msgid "Resource limits"
+msgstr ""
+
+#: src/settings.js:385
+msgid "Rate limit (chunks / min)"
+msgstr ""
+
+#: src/settings.js:398
+msgid "Maximum chunk requests per user per minute. 0 disables the limit (single-user or trusted installs only)."
+msgstr ""
+
+#: src/settings.js:408
+msgid "Per-user storage quota (GB)"
+msgstr ""
+
+#: src/settings.js:421
+msgid "Maximum in-progress upload storage per user across all active sessions. 0 disables the quota."
+msgstr ""
+
+#: src/settings.js:431
+msgid "Max concurrent uploads per user"
+msgstr ""
+
+#: src/settings.js:444
+msgid "How many simultaneous upload sessions a single user may have active. 0 disables the cap."
+msgstr ""
+
+#: src/settings.js:454
+msgid "Import file retention (days)"
+msgstr ""
+
+#: src/settings.js:467
+msgid "Automatically delete files in the imports directory after this many days. 0 disables auto-deletion."
+msgstr ""
+
+#: src/settings.js:484
+msgid "Saving…"
+msgstr ""
+
+#: src/settings.js:485
+msgid "Save Changes"
+msgstr ""

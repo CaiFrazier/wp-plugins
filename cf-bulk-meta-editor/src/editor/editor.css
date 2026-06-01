@@ -1,0 +1,377 @@
+.bme-app {
+	padding: 16px 0;
+}
+
+.bme-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+	margin-bottom: 16px;
+	padding: 10px 12px;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}
+
+.bme-toolbar-actions {
+	display: flex;
+	gap: 8px;
+	margin-left: auto;
+	align-items: center;
+}
+
+.bme-post-type-tabs {
+	display: flex;
+	gap: 4px;
+}
+
+.bme-tab {
+	padding: 6px 14px;
+	border: 1px solid #ddd;
+	background: #f6f7f7;
+	border-radius: 3px;
+	cursor: pointer;
+	font-size: 13px;
+}
+
+.bme-tab.is-active {
+	background: #2271b1;
+	color: #fff;
+	border-color: #2271b1;
+}
+
+.bme-layout {
+	display: flex;
+	gap: 0;
+	align-items: flex-start;
+}
+
+/* ── Post Picker ─────────────────────────────────────── */
+
+.bme-picker {
+	width: 280px;
+	flex-shrink: 0;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	background: #fff;
+	padding: 12px;
+	margin-right: 16px;
+}
+
+.bme-picker.is-collapsed {
+	width: 40px;
+	padding: 8px;
+	overflow: hidden;
+}
+
+.bme-picker-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 10px;
+}
+
+.bme-collapse-btn {
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-size: 14px;
+	color: #555;
+}
+
+.bme-picker-select-all {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 8px 0;
+}
+
+.bme-picker-selected-count {
+	font-size: 12px;
+	color: #2271b1;
+}
+
+.bme-picker-list {
+	max-height: 400px;
+	overflow-y: auto;
+	border: 1px solid #eee;
+	border-radius: 3px;
+	padding: 6px;
+	margin-bottom: 8px;
+}
+
+.bme-picker-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 0;
+	border-bottom: 1px solid #f0f0f0;
+}
+
+.bme-picker-row:last-child {
+	border-bottom: none;
+}
+
+.bme-load-btn {
+	width: 100%;
+	justify-content: center;
+	margin-top: 10px;
+}
+
+.bme-status-badge {
+	font-size: 10px;
+	padding: 1px 6px;
+	border-radius: 10px;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	margin-left: auto;
+	flex-shrink: 0;
+}
+
+.bme-status-publish { background: #d1e7dd; color: #0a3622; }
+.bme-status-draft   { background: #e2e3e5; color: #41464b; }
+.bme-status-pending { background: #fff3cd; color: #664d03; }
+.bme-status-private { background: #f8d7da; color: #58151c; }
+
+/* ── Grid ────────────────────────────────────────────── */
+
+.bme-grid-wrap {
+	flex: 1;
+	min-width: 0;
+}
+
+.bme-grid-info {
+	font-size: 12px;
+	color: #666;
+	margin-bottom: 6px;
+}
+
+.bme-grid-empty,
+.bme-grid-loading {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 200px;
+	border: 1px dashed #ddd;
+	border-radius: 4px;
+	color: #999;
+	font-size: 14px;
+}
+
+.bme-char-cell {
+	display: flex;
+	flex-direction: column;
+	line-height: 1.3;
+}
+
+.bme-char-value {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.bme-char-count {
+	font-size: 10px;
+	margin-top: 1px;
+}
+
+.bme-count--ok   { color: #0a7227; }
+.bme-count--warn { color: #c44b00; }
+.bme-count--over { color: #cc1818; font-weight: 600; }
+
+.bme-char-editor {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 6px;
+}
+
+.bme-char-editor textarea {
+	width: 300px;
+	resize: vertical;
+	font-family: inherit;
+	font-size: 13px;
+	padding: 6px;
+	border: 1px solid #8c8f94;
+	border-radius: 3px;
+}
+
+.bme-row-actions {
+	display: flex;
+	gap: 4px;
+	align-items: center;
+}
+
+/* ── Pagination ──────────────────────────────────────── */
+
+.bme-pagination {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-top: 8px;
+	font-size: 13px;
+}
+
+.bme-pagination-label {
+	min-width: 60px;
+	text-align: center;
+}
+
+/* ── Column Selector ─────────────────────────────────── */
+
+.bme-column-selector {
+	position: relative;
+}
+
+.bme-column-popover {
+	padding: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 200px;
+}
+
+/* ── Debug panel ─────────────────────────────────────── */
+
+.bme-debug-toggle {
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	z-index: 99998;
+	background: #1d2327;
+	color: #fff;
+	border: none;
+	border-radius: 999px;
+	padding: 8px 14px;
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
+	box-shadow: 0 2px 8px rgba( 0, 0, 0, 0.2 );
+}
+
+.bme-debug-toggle.is-open {
+	background: #cc1818;
+}
+
+.bme-debug-panel {
+	position: fixed;
+	bottom: 60px;
+	right: 20px;
+	z-index: 99999;
+	width: 720px;
+	max-width: calc( 100vw - 40px );
+	height: 480px;
+	max-height: calc( 100vh - 100px );
+	background: #fff;
+	border: 1px solid #1d2327;
+	border-radius: 6px;
+	box-shadow: 0 8px 32px rgba( 0, 0, 0, 0.3 );
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.bme-debug-header {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 12px;
+	background: #1d2327;
+	color: #fff;
+	font-size: 12px;
+}
+
+.bme-debug-count {
+	color: #aaa;
+	font-size: 11px;
+}
+
+.bme-debug-actions {
+	margin-left: auto;
+	display: flex;
+	gap: 4px;
+}
+
+.bme-debug-filters {
+	display: flex;
+	gap: 6px;
+	padding: 6px 10px;
+	background: #f6f7f7;
+	border-bottom: 1px solid #e0e0e0;
+	font-size: 12px;
+}
+
+.bme-debug-filters input,
+.bme-debug-filters select {
+	font-size: 12px;
+	padding: 3px 6px;
+}
+
+.bme-debug-filters input {
+	flex: 1;
+}
+
+.bme-debug-list {
+	flex: 1;
+	overflow-y: auto;
+	font-size: 11px;
+	background: #fafafa;
+}
+
+.bme-debug-row {
+	display: grid;
+	grid-template-columns: 90px 50px 90px 1fr;
+	gap: 6px;
+	padding: 3px 8px;
+	border-bottom: 1px solid #f0f0f0;
+	align-items: start;
+}
+
+.bme-debug-time {
+	color: #888;
+	white-space: nowrap;
+}
+
+.bme-debug-level {
+	font-weight: 600;
+	font-size: 10px;
+}
+
+.bme-debug-channel {
+	color: #444;
+}
+
+.bme-debug-message {
+	color: #111;
+	word-break: break-word;
+}
+
+.bme-debug-context {
+	grid-column: 4;
+}
+
+.bme-debug-context summary {
+	cursor: pointer;
+	color: #2271b1;
+	font-size: 10px;
+}
+
+.bme-debug-context pre {
+	background: #f0f0f0;
+	border: 1px solid #ddd;
+	padding: 6px;
+	margin: 2px 0;
+	max-height: 200px;
+	overflow-y: auto;
+	white-space: pre-wrap;
+	font-size: 10px;
+}
+
+.bme-debug-empty {
+	padding: 16px;
+	text-align: center;
+	color: #777;
+}

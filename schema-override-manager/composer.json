@@ -1,0 +1,32 @@
+{
+    "name": "caifrazier/schema-override-manager",
+    "description": "Schema Override Manager WordPress plugin",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../shared",
+            "options": { "symlink": false }
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "caifrazier/wp-plugins-shared": "*"
+    },
+    "require-dev": {
+        "wp-coding-standards/wpcs": "^3.0",
+        "phpcompatibility/phpcompatibility-wp": "*",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "SchemaOverrideManager\\": "includes/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}
