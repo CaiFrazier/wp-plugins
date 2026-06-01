@@ -1,6 +1,6 @@
 # CF WordPress Plugin Support
 
-These plugins are free professional utilities. Support is best-effort unless there is an existing client relationship or a separate support agreement.
+These plugins are free professional utilities. Support is best-effort, with reproducible bug reports prioritized. Paid or custom support can be arranged separately.
 
 ## Bug Reports
 
@@ -24,10 +24,9 @@ Useful bug reports include:
 Priority order:
 
 1. Security issues and data-loss risks.
-2. Reproducible bugs affecting current client/internal use.
-3. Reproducible public bugs with clear steps and environment details.
-4. Compatibility issues with major WordPress, PHP, SEO, cache, media, and editor stacks.
-5. Feature requests.
+2. Reproducible bugs with clear steps and environment details.
+3. Compatibility issues with major WordPress, PHP, SEO, cache, media, and editor stacks.
+4. Feature requests.
 
 ## Plugin UI Policy
 

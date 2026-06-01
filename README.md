@@ -1,133 +1,99 @@
 # CF WordPress Plugins
 
-This directory contains independently installable WordPress plugins plus one shared PHP library used by plugins that need common infrastructure.
+A collection of free, focused WordPress utility plugins by Cai Frazier, plus a small shared PHP library. Each plugin is independent, installs from its own zip, and is built to feel WordPress-native — standard admin patterns, no dashboards, no upsells, no marketing in the way.
 
-Current release strategy:
+## Plugins
 
-- Self-hosted release zips are the first wide-release target.
-- WordPress.org publishing is a longer-term stretch goal.
-- Each plugin must install from its own zip with no prerequisite CF plugin, `shared/` checkout, Composer install, npm install, or build step required by the end user.
-- Plugins are free lead-generation utilities.
-- Branding should be light and WordPress-native: sibling tools, no flashy screens, no upsells, no marketing getting in the way.
-- Public bug reports are welcome; support is best-effort unless tied to client/internal work.
-- Target foundation baseline is WordPress 6.2+ and PHP 8.0+.
-- Multisite support is not a launch promise unless a plugin has been explicitly tested for it.
+| Plugin | Folder | What it does |
+|---|---|---|
+| CF Media Manager | [`cf-media-manager/`](cf-media-manager/) | Converts JPEG/PNG uploads to WebP and AVIF and serves them through `<picture>` with native browser fallback. Originals are never modified. |
+| CF Bulk Meta Editor | [`cf-bulk-meta-editor/`](cf-bulk-meta-editor/) | Spreadsheet-style editor for SEO meta titles, descriptions, and custom postmeta across all post types. Presets for Yoast, Rank Math, AIOSEO, and The SEO Framework. |
+| CF QR Redirect | [`qr-redirect/`](qr-redirect/) | Self-hosted QR codes and a redirect manager — branded short URLs on your own domain with native GA4 attribution. |
+| CF Chunked Upload | [`cf-chunked-upload/`](cf-chunked-upload/) | Uploads large files by splitting them into browser-side chunks and reassembling them on the server. |
+| CF Color Tools | [`cf-color-tools/`](cf-color-tools/) | Embeddable accessibility color tools: WCAG contrast checker, color scale generator, and accessible color picker. |
+| CF Post List View | [`cf-post-list-view/`](cf-post-list-view/) | A developer-focused list view for any post type — adjustable columns, SEO fields, hierarchy, taxonomy terms, and CSV export. |
+| CF Content Calendar | [`cf-content-calendar/`](cf-content-calendar/) | An editorial calendar: drag to reschedule, create drafts from empty day slots, and see content across post types. |
+| Schema Override Manager | [`schema-override-manager/`](schema-override-manager/) | View, suppress, extend, and inject JSON-LD structured data at the global, template, and per-page level. |
 
-| Plugin | Directory | Version | Build | Runtime vendor? | Status |
-|---|---|---:|---|---|---|
-| CF Bulk Meta Editor | `cf-bulk-meta-editor/` | 1.0.0 | `npm run build` | Yes, uses `CFShared` | Active |
-| CF Chunked Upload | `cf-chunked-upload/` | 1.0.0 | `npm run build` | No | Active |
-| CF Content Calendar | `cf-content-calendar/` | 0.1.0 | `npm run build` | No | Alpha |
-| CF Media List View | `cf-media-list-view/` | 1.0.0 | None | No | Alpha |
-| CF Post List View | `cf-post-list-view/` | 1.0.0 | None | No | Alpha |
-| CF QR Redirect | `qr-redirect/` | 1.0.3 | None | No | Active |
-| Schema Override Manager | `schema-override-manager/` | 1.0.0 | `npm run build` | Yes, uses `CFShared` | Alpha |
-| CF Media Manager | `cf-media-manager/` | 2.0.1-dev | None | No | Active (multisite-ready) |
-| Shared library | `shared/` | 1.0.0 | None | n/a | Internal Composer package |
+Each plugin's own `readme.txt` is the source of truth for its current version, full feature list, and changelog.
 
-The `shared/` package currently provides `CFShared\Logger` and `CFShared\Csv\Escaper`. It is consumed by CF Bulk Meta Editor and Schema Override Manager through Composer path repositories during development/release, but it must never be a separate install prerequisite for users.
+## Installing
 
-## Source Layout
+Every plugin installs and runs from its own release zip with no prerequisites — no other plugin, no Composer or npm step, no build. Download a plugin's zip from the [Releases](../../releases) page (or build one locally — see [Development](#development)), then install it in WordPress via **Plugins → Add New → Upload Plugin**.
 
-Plugin roots are the canonical source. Do not keep a second plugin copy inside a plugin-local `src/` directory.
+## Design
 
-Use `src/` only for JavaScript/CSS source that is compiled into `build/`:
+These are utilities for people who work in WordPress every day — developers, SEO and content teams, and site owners. They aim to:
+
+- Feel WordPress-native: standard admin screens, controls, and language.
+- Stay quiet and task-focused — no hero dashboards, onboarding funnels, upsell boxes, or email gates.
+- Work independently; no plugin depends on another.
+
+See [PRODUCT_PRINCIPLES.md](PRODUCT_PRINCIPLES.md) for the full design philosophy and [SUPPORT.md](SUPPORT.md) for how to report a bug.
+
+## Requirements
+
+- WordPress 6.2+
+- PHP 8.0+
+
+Some plugins run on lower versions — check the header in each plugin's main file or `readme.txt`.
+
+## Shared library
+
+`shared/` (`CFShared`) is a small PHP library — currently `CFShared\Logger` and `CFShared\Csv\Escaper` — reused by a few plugins through a Composer path repository during development. It is **not** a separate install: the release build bundles the runtime code each consuming plugin needs into that plugin's own zip, so users never install or manage it. It is not an installable WordPress plugin.
+
+## Development
+
+### Source layout
+
+Plugin roots are the canonical source. Use a plugin's `src/` only for JavaScript/CSS that compiles into `build/`:
 
 - `cf-bulk-meta-editor/src/`
 - `cf-chunked-upload/src/`
 - `cf-content-calendar/src/`
 - `schema-override-manager/src/`
 
-Generated and dependency directories stay out of git:
+Generated and dependency directories stay out of git: `node_modules/`, `vendor/`, `build/`, `dist/`, and release zips.
 
-- `node_modules/`
-- `vendor/`
-- `build/`
-- `dist/`
-- `.DS_Store`
-- `.phpunit.result.cache`
-- root-level `*.zip`
+### Bootstrap
 
-## Bootstrap
-
-From a plugin directory:
+From a plugin directory, run only what that plugin needs:
 
 ```bash
-composer install
-npm install
-npm run build
+composer install   # plugins with a composer.json (PHPUnit, PHPCS, runtime deps)
+npm install        # plugins with a package.json
+npm run build      # plugins that compile src/ into build/
 ```
 
-Only run the commands a plugin needs:
+### Tests
 
-- Composer is needed for PHPUnit, PHPCS, and plugins with `composer.json`.
-- npm is needed only for plugins with `package.json`.
-- `npm run build` is needed only for plugins that compile `src/` to `build/`.
+Run from each plugin directory:
 
-## Tests
-
-Run plugin tests from the plugin directory:
-
-| Directory | Command |
+| Plugin | Command |
 |---|---|
 | `cf-bulk-meta-editor/` | `composer test` |
-| `cf-chunked-upload/` | `composer test` and `npm run test:js` |
+| `cf-chunked-upload/` | `composer test`, `npm run test:js` |
 | `cf-content-calendar/` | `composer test` |
-| `cf-media-list-view/` | `composer test` |
 | `qr-redirect/` | `php tests/test-suite.php` |
-| `shared/` | `composer test` |
 | `cf-media-manager/` | `composer test` |
+| `shared/` | `composer test` |
 
-Schema Override Manager does not currently define a PHPUnit suite in this tree.
-
-For a shallow all-plugin syntax check from the repo root:
+Shallow PHP syntax check across every plugin, from the repo root:
 
 ```bash
 find . -path '*/vendor/*' -prune -o -path '*/node_modules/*' -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
 ```
 
-## Release Zips
-
-Use the repo helper instead of manually zipping plugin folders:
+### Building release zips
 
 ```bash
 node scripts/release.mjs <plugin-directory>
 ```
 
-Examples:
+The helper reads the plugin header version, runs `php -l` and any installed tests, runs `npm run build` and `composer install --no-dev` where applicable, regenerates the `.pot`, stages an explicit runtime allowlist, writes `dist/<slug>-<version>.zip`, and rejects any archive that still contains development artifacts. Required tools: `node`, `npm`, `composer`, `php`, `zip`, `unzip` (`wp`/WP-CLI is optional, used for `.pot` regeneration).
 
-```bash
-node scripts/release.mjs cf-bulk-meta-editor
-node scripts/release.mjs qr-redirect
-node scripts/release.mjs cf-media-manager
-```
+See [TESTING.md](TESTING.md) for the full local test and smoke-test workflow.
 
-The helper reads the WordPress plugin header version, stages an explicit allowlist, writes `dist/<zip-slug>-<version>.zip`, and rejects archives containing development artifacts.
+## License
 
-Release behavior:
-
-- Runs `npm run build` for plugins that declare a build step.
-- Runs `php -l` against package PHP files before staging.
-- Runs available plugin tests when the local test dependencies are already installed.
-- Runs `composer install --no-dev --optimize-autoloader` for plugins that must ship Composer runtime dependencies.
-- Includes `vendor/` only for CF Bulk Meta Editor and Schema Override Manager.
-- Excludes `node_modules/`, `src/`, `tests/`, dotfiles, lockfiles, config files, and old zip artifacts.
-
-Release zips are the public installation artifacts. A built zip should contain everything WordPress needs at runtime.
-
-Required local tools: `node`, `npm`, `composer`, `php`, `zip`, and `unzip`. `wp` is optional for fresh WordPress activation smoke tests.
-
-The release helper intentionally keeps using the system `zip`/`unzip` tools for now. They are already available on the target local environment, make archive inspection straightforward, and avoid adding another release-time npm dependency.
-
-## Per-Plugin Notes
-
-- `cf-bulk-meta-editor/`: renamed from the older `bulk-meta-editor/` directory. The plugin header, entrypoint, and current directory use the `cf-` slug.
-- `cf-chunked-upload/`: has no `uninstall.php` today; release packaging follows the current code.
-- `cf-media-list-view/` and `cf-post-list-view/`: no build step; static assets ship from `assets/`.
-- `qr-redirect/`: plain PHP/JS plugin. The root plugin files are canonical.
-- `schema-override-manager/`: requires bundled Composer runtime dependencies because it imports `CFShared`. Intended to become public later, after real-world battle testing.
-- `cf-media-manager/`: plain PHP/JS plugin with WP-CLI integration in `cli.php`. The root plugin files are canonical. 2.0.1 closed a multi-phase security/correctness/perf audit: SSRF-hardened live page verifier (extracted into `UrlVerifier`), multisite capability gates on every destructive endpoint, atomic per-attachment convert lock, post-INSERT convergence DELETE for the variant manifest, and PCRE-failure fallback in the front-end rewriter. Multisite uninstall is covered by `UninstallTest`; the cap-gate split is `Security::authorize_ajax` for read-only / per-user endpoints vs. `Security::authorize_ajax_network` for the nine endpoints with cross-site blast radius.
-
-## Roadmap
-
-`PRODUCT_PRINCIPLES.md` captures product posture, branding, support, and baseline direction. `SUPPORT.md` captures bug-report and support expectations. `TODO.md` is the top-level wide-release checklist. `TESTING.md` defines local test and smoke-test workflow. `ROADMAP.md` tracks plugin ideas and product direction. Each plugin's `PRELAUNCH.md` tracks local release risks. `shared/PRELAUNCH.md` tracks cross-cutting release, CI, i18n, and repo hygiene work.
+GPL-2.0-or-later. See [LICENSE](LICENSE).

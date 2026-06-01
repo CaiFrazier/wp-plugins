@@ -85,7 +85,7 @@ It fails when runtime files are missing, the version header is missing, PHP synt
 
 ## Fresh WordPress Smoke Test
 
-Use a disposable WordPress install. Do not rely on an existing client site for first activation.
+Use a disposable WordPress install. Do not test first activation on a production site.
 
 1. Build the release zip.
 2. Install and activate the zip.
