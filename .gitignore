@@ -14,8 +14,10 @@
 */.phpunit.result.cache
 *.log
 
-# Internal planning docs — kept local, not published
+# Internal dev docs — kept local, not published.
+# User-facing changelogs live in each plugin's readme.txt (== Changelog ==).
 TODO.md
 ROADMAP.md
 PRELAUNCH.md
 PLAN.md
+CHANGELOG.md
