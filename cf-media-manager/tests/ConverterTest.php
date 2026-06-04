@@ -389,7 +389,7 @@ final class ConverterTest extends TestCase {
 		// us, taking the bail path.
 		$peer_option = Converter::CONVERT_LOCK_OPTION_PREFIX . '777';
 		$GLOBALS['cf_media_manager_test_options'][ $peer_option ] = array(
-			'pid'     => 5678,
+			'pid'     => getmypid(), // a LIVE peer — must block, never be stolen.
 			'token'   => 'peer-token',
 			'expires' => time() + 300,
 		);
@@ -434,6 +434,39 @@ final class ConverterTest extends TestCase {
 
 		self::assertStringNotContainsString( 'already in progress', $reasons[0] ?? '', 'expired lock must be stolen, not treated as held' );
 		// Lock option must be gone after the call (release path runs).
+		self::assertArrayNotHasKey( $peer_option, $GLOBALS['cf_media_manager_test_options'] );
+	}
+
+	/**
+	 * Dead-owner reclaim: a worker that crashed mid-convert leaves a lock whose
+	 * TTL has NOT yet expired but whose owner PID is gone. The next caller must
+	 * reclaim it immediately (via the PID-liveness check) instead of waiting out
+	 * the full TTL — this is the fix for the post-crash 'already in progress'
+	 * lockout.
+	 */
+	public function test_convert_attachment_reclaims_dead_pid_lock(): void {
+		if ( ! function_exists( 'posix_kill' ) ) {
+			self::markTestSkipped( 'posix_kill unavailable — dead-PID reclaim not testable here.' );
+		}
+		$dead = 2147483647; // above any realistic pid_max -> guaranteed ESRCH.
+		if ( @posix_kill( $dead, 0 ) ) {
+			self::markTestSkipped( 'chosen PID is unexpectedly alive on this host.' );
+		}
+
+		$peer_option = Converter::CONVERT_LOCK_OPTION_PREFIX . '889';
+		$GLOBALS['cf_media_manager_test_options'][ $peer_option ] = array(
+			'pid'     => $dead,
+			'token'   => 'crashed-peer',
+			'expires' => time() + 300, // NOT expired — only the dead PID makes it stale.
+		);
+
+		[ , , , , , $reasons ] = $this->converter->convert_attachment( 889 );
+
+		self::assertStringNotContainsString(
+			'already in progress',
+			$reasons[0] ?? '',
+			'a lock whose owner PID is dead must be reclaimed before its TTL expires'
+		);
 		self::assertArrayNotHasKey( $peer_option, $GLOBALS['cf_media_manager_test_options'] );
 	}
 

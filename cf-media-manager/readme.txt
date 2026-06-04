@@ -4,7 +4,7 @@ Tags: webp, avif, image optimization, performance, picture
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 2.1.2
+Stable tag: 2.1.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -117,6 +117,10 @@ Yes:
 4. Background queue card with cancel/dismiss controls.
 
 == Changelog ==
+
+= 2.1.3 =
+* **Fix: a crashed conversion worker could wedge an attachment for up to 5 minutes.** When a php-fpm worker was killed mid-conversion (a native libheif/libaom AVIF crash, or an OOM-kill — neither catchable in PHP), the per-attachment lock's `finally` release never ran, leaking both the object-cache and DB-option lock. The object-cache layer also short-circuited *before* the stale-lock recovery could run, so every retry returned "Conversion already in progress for this attachment" until the full TTL expired. The lock now self-heals: staleness — an expired TTL **or** a dead owner PID (checked via `posix_kill`) — is evaluated before the cache fast-path, so a leaked lock is reclaimed on the very next attempt instead of waiting out the timeout.
+* **Fix: an AVIF encode crash no longer crash-loops an attachment.** AVIF encoding runs through libheif/libaom, which can segfault or be OOM-killed at the C level — a process death no `try/catch` can trap. A per-source circuit-breaker now arms immediately before the AVIF encode and disarms only when the encode returns control to PHP; if it hard-crashes, the next run skips AVIF for that source (WebP still converts, so the attachment finishes) and the breaker auto-expires so a transient failure is retried later.
 
 = 2.1.2 =
 * **Fix: Adopt button missing after upgrade from CF Media Optimizer.** `is_fresh_install()` only checked for `cf_media_manager_*` option names, so activating on a site that had the previous `cf-media-optimizer` build was mis-detected as a brand-new install and `BACKFILL_DONE` was set prematurely — permanently hiding the Adopt button before the admin could run it. Legacy `cf_media_optimizer_*` options are now recognised as sentinels, and a one-time boot migration clears the incorrectly-set flag on already-affected sites so the button re-appears automatically.

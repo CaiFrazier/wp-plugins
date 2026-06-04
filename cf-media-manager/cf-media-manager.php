@@ -3,7 +3,7 @@
  * Plugin Name:       CF Media Manager
  * Plugin URI:        https://github.com/caifrazier/cf-media-manager
  * Description:       Media management toolkit: WebP/AVIF conversion with <picture> wrapping and native browser fallback, a bulk alt text auditor and editor, and a fully configurable Media Library list view with 40+ columns and CSV export. No nginx or .htaccess config required.
- * Version:           2.1.2
+ * Version:           2.1.3
  * Requires at least: 6.2
  * Requires PHP:      8.0
  * Author:            Cai Frazier

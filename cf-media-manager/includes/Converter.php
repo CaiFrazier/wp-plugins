@@ -183,6 +183,22 @@ final class Converter {
 			$avif_dest = null;
 		}
 
+		// AVIF crash circuit-breaker. AVIF encoding runs through libheif/libaom,
+		// which can segfault or be OOM-killed mid-encode — a native process death
+		// no PHP try/catch can trap. When that happens the arm/disarm pair around
+		// the encode below is left armed, so on the next run for this source we
+		// skip AVIF and let WebP (which never crashes) finish. Without this a
+		// poison-pill image crash-loops the worker and, with the per-attachment
+		// lock, bricks the attachment.
+		$avif_breaker_key = ( null !== $avif_dest ) ? 'cfmm_avif_pp_' . md5( $src ) : null;
+		if ( null !== $avif_breaker_key && function_exists( 'get_transient' ) && get_transient( $avif_breaker_key ) ) {
+			$avif_dest = null;
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- WP_DEBUG-gated diagnostic.
+				error_log( '[cf-media-manager] AVIF circuit-breaker armed for ' . $src . ' — skipping AVIF (a prior encode crashed the worker).' );
+			}
+		}
+
 		$quality = $quality ?? (int) get_option( Options::QUALITY, Options::DEFAULT_QUALITY );
 
 		// Ownership gate — refuse to touch an existing variant we did not write.
@@ -282,12 +298,24 @@ final class Converter {
 				}
 
 				if ( $avif_dest !== null && ( $force || ! $avif_fresh ) ) {
+					// Arm the circuit-breaker BEFORE the encode. If writeImage()
+					// crashes the process at the C level (libheif/libaom fault or
+					// OOM-kill), this marker survives and trips the breaker on the
+					// next run. The disarm in finally runs only when the encode
+					// returned control to PHP — i.e. did NOT hard-crash.
+					if ( null !== $avif_breaker_key && function_exists( 'set_transient' ) ) {
+						set_transient( $avif_breaker_key, 1, self::AVIF_BREAKER_TTL );
+					}
 					try {
 						if ( $this->write_imagick_variant( $im, $avif_dest, 'avif', $quality, $ext ) ) {
 							$this->last_avif_written = true;
 						}
 					} catch ( Throwable $e ) {
 						// AVIF writes are best-effort; never fail the whole call.
+					} finally {
+						if ( null !== $avif_breaker_key && function_exists( 'delete_transient' ) ) {
+							delete_transient( $avif_breaker_key );
+						}
 					}
 				} elseif ( $avif_dest !== null && file_exists( $avif_dest ) ) {
 					$this->last_avif_written = true;
@@ -549,6 +577,16 @@ final class Converter {
 	const CONVERT_LOCK_OPTION_PREFIX = 'cfmm_conv_lock_';
 
 	/**
+	 * Seconds the AVIF crash circuit-breaker stays armed after an AVIF encode
+	 * that did not cleanly disarm. AVIF runs through libheif/libaom, which can
+	 * segfault or be OOM-killed at the C level — a native death no PHP
+	 * try/catch can trap. The breaker is keyed per source file: it lets WebP
+	 * keep converting while a poison-pill source is skipped, and auto-expires
+	 * so a transient OOM is retried later. See convert().
+	 */
+	const AVIF_BREAKER_TTL = 1800;
+
+	/**
 	 * Convert every size variant of an attachment.
 	 *
 	 * Returns [ converted, failed, bytes_saved, gd_fallbacks, avif_written, reasons ].
@@ -590,65 +628,8 @@ final class Converter {
 			array( __( 'Conversion already in progress for this attachment (another worker holds the lock).', 'cf-media-manager' ) ),
 		);
 
-		// Layer 1 — wp_cache_add fast path.
-		$held_cache = function_exists( 'wp_cache_add' )
-			&& (bool) wp_cache_add( $cache_key, $pid, self::CONVERT_LOCK_GROUP, self::CONVERT_LOCK_TTL );
-
-		if ( ! $held_cache && function_exists( 'wp_cache_add' ) ) {
+		if ( ! $this->acquire_convert_lock( $cache_key, $option_key, (int) $pid, $token ) ) {
 			return $blocked;
-		}
-
-		// Layer 2 — add_option atomic acquire. Cross-process lock via
-		// MySQL INSERT IGNORE. add_option returns false if the row
-		// already exists.
-		$held_option = false;
-		if ( function_exists( 'add_option' ) ) {
-			$held_option = (bool) add_option(
-				$option_key,
-				array(
-					'pid'     => $pid,
-					'token'   => $token,
-					'expires' => time() + self::CONVERT_LOCK_TTL,
-				),
-				'',
-				false
-			);
-
-			// Stale lock recovery — a peer that died mid-conversion left
-			// its row in place. Steal with verify-after-write, mirroring
-			// Queue::acquire_lock's pattern (see that method for the
-			// race-resolution rationale).
-			if ( ! $held_option ) {
-				$current = function_exists( 'get_option' ) ? get_option( $option_key ) : false;
-				if ( is_array( $current ) && (int) ( $current['expires'] ?? 0 ) < time() ) {
-					update_option(
-						$option_key,
-						array(
-							'pid'     => $pid,
-							'token'   => $token,
-							'expires' => time() + self::CONVERT_LOCK_TTL,
-						),
-						false
-					);
-					if ( function_exists( 'wp_cache_delete' ) ) {
-						wp_cache_delete( $option_key, 'options' );
-					}
-					$stored = get_option( $option_key );
-					if ( is_array( $stored ) && ( $stored['token'] ?? '' ) === $token ) {
-						$held_option = true;
-					}
-				}
-			}
-
-			if ( ! $held_option ) {
-				// Peer owns the option (and not stale, or we lost the
-				// steal race). Release the cache slot we briefly took so
-				// we don't leak it on every blocked call.
-				if ( $held_cache && function_exists( 'wp_cache_delete' ) ) {
-					wp_cache_delete( $cache_key, self::CONVERT_LOCK_GROUP );
-				}
-				return $blocked;
-			}
 		}
 
 		try {
@@ -691,21 +672,131 @@ final class Converter {
 
 			return array( $converted, $failed, $bytes_saved, $gd_fallbacks, $avif_written, $reasons );
 		} finally {
-			// Always release. We never delete a lock we didn't take — the
-			// $held_* flags ensure that. The option-level delete is
-			// guarded by a token re-check so a runaway peer that stole
-			// our lock mid-encode can't have its lock deleted by our
-			// release path.
-			if ( $held_cache && function_exists( 'wp_cache_delete' ) ) {
-				wp_cache_delete( $cache_key, self::CONVERT_LOCK_GROUP );
-			}
-			if ( $held_option && function_exists( 'get_option' ) && function_exists( 'delete_option' ) ) {
-				$current = get_option( $option_key );
-				if ( is_array( $current ) && ( $current['token'] ?? '' ) === $token ) {
+			$this->release_convert_lock( $cache_key, $option_key, $token );
+		}
+	}
+
+	/**
+	 * Acquire the two-layer per-attachment conversion lock, self-healing a stale
+	 * lock left by a worker that died mid-convert (segfault, OOM-kill, or fatal).
+	 * Returns true only when both layers are held under $token.
+	 *
+	 * The critical fix over the previous inline logic: staleness (expired TTL OR
+	 * a dead owner PID) is evaluated BEFORE the object-cache fast path can
+	 * short-circuit, so a leaked cache entry can no longer block the attachment
+	 * for the full TTL on its own — and a crashed worker's lock is reclaimed on
+	 * the very next attempt via the dead-PID check instead of waiting the TTL.
+	 */
+	private function acquire_convert_lock( string $cache_key, string $option_key, int $pid, string $token ): bool {
+		// Self-heal: clear a stale option lock (and its cache shadow) up front.
+		if ( function_exists( 'get_option' ) ) {
+			$existing = get_option( $option_key );
+			if ( is_array( $existing ) && self::lock_is_stale( $existing ) ) {
+				if ( function_exists( 'delete_option' ) ) {
 					delete_option( $option_key );
+				}
+				if ( function_exists( 'wp_cache_delete' ) ) {
+					wp_cache_delete( $cache_key, self::CONVERT_LOCK_GROUP );
 				}
 			}
 		}
+
+		// Layer 1 — object-cache fast path (SETNX-style). A cache entry left by a
+		// crashed worker is already cleared by the option-level self-heal above
+		// (the option row persists and, once detected stale, deletes this shadow
+		// too), so here we simply block when the slot is taken. We never steal a
+		// bare cache entry — doing so would race a peer that is mid-acquire
+		// between its own Layer 1 and Layer 2.
+		$held_cache = false;
+		if ( function_exists( 'wp_cache_add' ) ) {
+			$held_cache = (bool) wp_cache_add( $cache_key, $pid, self::CONVERT_LOCK_GROUP, self::CONVERT_LOCK_TTL );
+			if ( ! $held_cache ) {
+				return false;
+			}
+		}
+
+		// Layer 2 — cross-process atomic acquire via add_option (INSERT IGNORE),
+		// with stale-lock steal using verify-after-write.
+		if ( function_exists( 'add_option' ) ) {
+			$payload = array(
+				'pid'        => $pid,
+				'token'      => $token,
+				'expires'    => time() + self::CONVERT_LOCK_TTL,
+				'started_at' => time(),
+			);
+			if ( ! add_option( $option_key, $payload, '', false ) ) {
+				$current = function_exists( 'get_option' ) ? get_option( $option_key ) : false;
+				if ( is_array( $current ) && self::lock_is_stale( $current ) ) {
+					update_option( $option_key, $payload, false );
+					if ( function_exists( 'wp_cache_delete' ) ) {
+						wp_cache_delete( $option_key, 'options' );
+					}
+					$stored = function_exists( 'get_option' ) ? get_option( $option_key ) : false;
+					if ( ! is_array( $stored ) || ( $stored['token'] ?? '' ) !== $token ) {
+						if ( $held_cache && function_exists( 'wp_cache_delete' ) ) {
+							wp_cache_delete( $cache_key, self::CONVERT_LOCK_GROUP );
+						}
+						return false; // lost the steal race
+					}
+				} else {
+					// A live worker owns it — release the cache slot we took.
+					if ( $held_cache && function_exists( 'wp_cache_delete' ) ) {
+						wp_cache_delete( $cache_key, self::CONVERT_LOCK_GROUP );
+					}
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Release both lock layers. The DB option is deleted only when its token
+	 * still matches ours, so a peer that legitimately stole an expired lock
+	 * mid-encode keeps its own lock.
+	 */
+	private function release_convert_lock( string $cache_key, string $option_key, string $token ): void {
+		if ( function_exists( 'wp_cache_delete' ) ) {
+			wp_cache_delete( $cache_key, self::CONVERT_LOCK_GROUP );
+		}
+		if ( function_exists( 'get_option' ) && function_exists( 'delete_option' ) ) {
+			$current = get_option( $option_key );
+			if ( is_array( $current ) && ( $current['token'] ?? '' ) === $token ) {
+				delete_option( $option_key );
+			}
+		}
+	}
+
+	/**
+	 * A lock is stale when its TTL has expired OR its owner process is gone.
+	 * The PID check enables immediate recovery from a crashed worker instead
+	 * of waiting out the full TTL.
+	 */
+	private static function lock_is_stale( array $lock ): bool {
+		$expires = (int) ( $lock['expires'] ?? 0 );
+		if ( $expires > 0 && $expires < time() ) {
+			return true;
+		}
+		$pid = (int) ( $lock['pid'] ?? 0 );
+		return $pid > 0 && self::pid_is_dead( $pid );
+	}
+
+	/**
+	 * True only when the PID is positively gone (ESRCH). When we cannot tell —
+	 * posix unavailable, or EPERM because the process belongs to another user
+	 * (CLI master vs php-fpm app user) — report "alive" so we never steal from
+	 * a running worker; the TTL is the backstop for that case.
+	 */
+	private static function pid_is_dead( int $pid ): bool {
+		if ( $pid <= 0 || ! function_exists( 'posix_kill' ) ) {
+			return false;
+		}
+		if ( @posix_kill( $pid, 0 ) ) {
+			return false; // signalable -> alive
+		}
+		// ESRCH (3) = no such process; EPERM (1) = exists but not ours.
+		return function_exists( 'posix_get_last_error' ) && 3 === posix_get_last_error();
 	}
 
 	/**
