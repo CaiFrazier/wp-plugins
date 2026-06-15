@@ -72,6 +72,7 @@ final class Ajax {
 			'backfill_manifest' => 'backfill_manifest',
 			'diagnose_variant'  => 'diagnose_variant',
 			'claim_variant'     => 'claim_variant',
+			'delete_conflicting_variant' => 'delete_conflicting_variant',
 		);
 		foreach ( $endpoints as $slug => $method ) {
 			add_action( 'wp_ajax_' . Plugin::AJAX_PREFIX . $slug, array( $this, $method ) );
@@ -314,6 +315,7 @@ final class Ajax {
 		$rewrite          = Request::post_bool( 'rewrite' );
 		$enable_avif      = Request::post_bool( 'enable_avif' );
 		$rewrite_favicons = Request::post_bool( 'rewrite_favicons' );
+		$alt_fallback     = Request::post_bool( 'alt_fallback' );
 		$max_source_mb    = max( 1, min( Options::HARD_MAX_SOURCE_MB, Request::post_int( 'max_source_mb', Options::DEFAULT_MAX_SOURCE_MB ) ) );
 		$scope_in   = Request::post_key( 'scope' );
 		$filter_in  = Request::post_key( 'filter_mode' );
@@ -329,6 +331,7 @@ final class Ajax {
 		update_option( Options::REWRITE, $rewrite );
 		update_option( Options::ENABLE_AVIF, $enable_avif );
 		update_option( Options::REWRITE_FAVICONS, $rewrite_favicons );
+		update_option( Options::ALT_FALLBACK, $alt_fallback );
 		update_option( Options::MAX_SOURCE_MB, $max_source_mb );
 		update_option( Options::SCOPE, $scope );
 		update_option( Options::FILTER_MODE, $filter );
@@ -1052,6 +1055,118 @@ final class Ajax {
 		);
 	}
 
+	/**
+	 * Delete a "shadow" variant attachment occupying a JPEG/PNG source's
+	 * destination slot. This is the {@see summarize_diagnosis()} `is_attachment`
+	 * case: a `.webp`/`.avif` file that was imported as its OWN Media Library
+	 * attachment (typically by a migration or an earlier conversion plugin),
+	 * blocking the plugin from writing and owning its generated derivative.
+	 *
+	 * Neither bulk Adopt nor the per-attachment Claim can resolve this — both
+	 * deliberately refuse to seize a file that belongs to a real attachment.
+	 * The only fix is to remove the duplicate attachment, after which Convert
+	 * regenerates and owns the derivative.
+	 *
+	 * Safety:
+	 *   - Re-derives the target from the SOURCE attachment id; it never deletes
+	 *     a client-supplied attachment id directly. The deleted attachment must
+	 *     genuinely sit in the source's `.webp`/`.avif` destination slot.
+	 *   - Refuses (HTTP 409) to delete a variant attachment that is referenced
+	 *     on the front end (InUseScanner) — deleting it would break that
+	 *     reference.
+	 *   - Force-deletes (bypasses Trash) so the destination slot is actually
+	 *     freed for the regenerated derivative.
+	 */
+	public function delete_conflicting_variant(): void {
+		$this->authorize_network();
+
+		$id = Request::post_int( 'id' );
+		if ( $id <= 0 ) {
+			wp_send_json_error( __( 'Invalid attachment ID.', 'cf-media-manager' ), 400 );
+		}
+
+		$mime = (string) get_post_mime_type( $id );
+		if ( ! in_array( $mime, array( 'image/jpeg', 'image/png' ), true ) ) {
+			wp_send_json_error( __( 'Source is not a JPEG or PNG attachment.', 'cf-media-manager' ), 400 );
+		}
+
+		$source_abs = (string) get_attached_file( $id );
+		if ( '' === $source_abs ) {
+			wp_send_json_error( __( 'Source file not found.', 'cf-media-manager' ), 404 );
+		}
+
+		$path_to_id = AttachmentLookup::path_to_id();
+
+		// Find every conflicting variant attachment sitting in this source's
+		// destination slots. Keyed by ext so the response can report which.
+		$targets = array();
+		foreach ( array( 'webp', 'avif' ) as $ext ) {
+			$variant_abs = Paths::src_to_variant_path( $source_abs, $ext );
+			if ( '' === $variant_abs || ! $this->paths->within_upload_dir( $variant_abs ) ) {
+				continue;
+			}
+			$variant_rel = $this->paths->to_rel_or_empty( $variant_abs );
+			if ( '' === $variant_rel || ! isset( $path_to_id[ $variant_rel ] ) ) {
+				continue;
+			}
+			$att_id = (int) $path_to_id[ $variant_rel ];
+			// Guard against the degenerate case where the source rel and the
+			// variant rel collide onto the same id — never delete the source.
+			if ( $att_id > 0 && $att_id !== $id ) {
+				$targets[ $ext ] = $att_id;
+			}
+		}
+
+		if ( empty( $targets ) ) {
+			wp_send_json_error( __( 'No conflicting variant attachment found for this image. It may already be resolved — try Convert again.', 'cf-media-manager' ), 404 );
+		}
+
+		// In-use safety: refuse if any target is referenced on the front end.
+		$scan       = $this->in_use_scanner->get();
+		$in_use_ids = isset( $scan['ids'] ) ? array_map( 'intval', (array) $scan['ids'] ) : array();
+		$in_use     = array();
+		foreach ( $targets as $att_id ) {
+			if ( in_array( $att_id, $in_use_ids, true ) ) {
+				$in_use[] = $att_id;
+			}
+		}
+		if ( ! empty( $in_use ) ) {
+			wp_send_json_error(
+				sprintf(
+					/* translators: %s: comma-separated attachment IDs. */
+					__( 'The conflicting attachment (%s) is referenced on the front end. Deleting it would break that reference — update or remove those references first, then retry.', 'cf-media-manager' ),
+					implode( ', ', array_map( 'strval', array_values( array_unique( $in_use ) ) ) )
+				),
+				409
+			);
+		}
+
+		$deleted = array();
+		$failed  = array();
+		foreach ( $targets as $att_id ) {
+			if ( in_array( $att_id, $deleted, true ) || in_array( $att_id, $failed, true ) ) {
+				continue; // same attachment claimed both slots — delete once.
+			}
+			if ( wp_delete_attachment( $att_id, true ) ) {
+				$deleted[] = $att_id;
+			} else {
+				$failed[] = $att_id;
+			}
+		}
+
+		if ( empty( $deleted ) ) {
+			wp_send_json_error( __( 'Failed to delete the conflicting attachment.', 'cf-media-manager' ), 500 );
+		}
+
+		wp_send_json_success(
+			array(
+				'id'      => $id,
+				'deleted' => array_values( $deleted ),
+				'failed'  => array_values( $failed ),
+			)
+		);
+	}
+
 	private function summarize_diagnosis( array $report ): string {
 		$id          = (int) ( $report['id'] ?? 0 );
 		$source      = $report['source'] ?? array();
@@ -1079,7 +1194,7 @@ final class Ajax {
 		if ( ( $webp['is_attachment'] ?? 0 ) > 0 ) {
 			return sprintf(
 				/* translators: %d: attachment id the .webp is registered as. */
-				__( 'WebP is itself registered as Media Library attachment %d — Adopt deliberately skipped it. Delete that attachment first if it is stale.', 'cf-media-manager' ),
+				__( 'WebP is itself registered as Media Library attachment %d — Adopt and Claim deliberately skip it. If it is a stale duplicate, use "Delete the conflicting variant attachment" below, then Convert again.', 'cf-media-manager' ),
 				(int) $webp['is_attachment']
 			);
 		}

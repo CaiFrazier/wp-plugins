@@ -196,5 +196,32 @@ final class Request {
 		return esc_url_raw( wp_unslash( (string) $_POST[ $key ] ) );
 	}
 
+	/**
+	 * Map of sanitized single-line strings keyed by their (int-cast) array
+	 * keys. Use for bulk endpoints that post `field[<id>]=value` shapes —
+	 * e.g. the Accessibility tab's "Save all" submits one alt string per
+	 * attachment id as `alt[<id>]=...`. Each element runs through the same
+	 * unslash-then-sanitize_text_field pipeline as {@see post_string()};
+	 * non-scalar elements are dropped. Non-array input yields the default.
+	 *
+	 * @return array<int,string>
+	 */
+	public static function post_string_map( string $key, array $default = array() ): array {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.NonceVerification.Recommended -- caller has run Security::authorize_ajax.
+		if ( ! isset( $_POST[ $key ] ) || ! is_array( $_POST[ $key ] ) ) {
+			return $default;
+		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitize_text_field is applied to every element below.
+		$raw = wp_unslash( $_POST[ $key ] );
+		$out = array();
+		foreach ( (array) $raw as $k => $v ) {
+			if ( ! is_scalar( $v ) ) {
+				continue;
+			}
+			$out[ (int) $k ] = sanitize_text_field( (string) $v );
+		}
+		return $out;
+	}
+
 	private function __construct() {}
 }

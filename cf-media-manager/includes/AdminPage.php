@@ -168,6 +168,7 @@ final class AdminPage {
 		$batch_size          = max( 1, min( 25, (int) get_option( Options::BATCH_SIZE, Options::DEFAULT_BATCH ) ) );
 		$enable_avif         = (bool) get_option( Options::ENABLE_AVIF, true );
 		$rewrite_favicons    = (bool) get_option( Options::REWRITE_FAVICONS, false );
+		$alt_fallback        = (bool) get_option( Options::ALT_FALLBACK, true );
 		$max_source_mb       = max( 1, min( Options::HARD_MAX_SOURCE_MB, (int) get_option( Options::MAX_SOURCE_MB, Options::DEFAULT_MAX_SOURCE_MB ) ) );
 		$delete_on_uninstall = (bool) get_option( Options::DELETE_ON_UNINSTALL, false );
 		?>
@@ -250,14 +251,12 @@ final class AdminPage {
 				<span id="cf-media-manager-done-msg" class="cf-media-manager-done-msg" style="display:none">&#10003; <?php esc_html_e( 'All done!', 'cf-media-manager' ); ?></span>
 			</p>
 
-			<?php if ( ! get_option( \CFMediaManager\Options::BACKFILL_DONE, 0 ) ) : ?>
 			<p class="cf-media-manager-backfill-row">
-				<button id="cf-media-manager-backfill" class="button" type="button"><?php esc_html_e( 'Adopt legacy variants…', 'cf-media-manager' ); ?></button>
+				<button id="cf-media-manager-backfill" class="button" type="button"><?php esc_html_e( 'Claim all untracked variants…', 'cf-media-manager' ); ?></button>
 				<span class="description">
-					<?php esc_html_e( 'Adopts existing .webp/.avif files into the plugin\'s ownership manifest so Delete All can remove them and the rewriter can serve them. Files registered as Media Library attachments are skipped. The first click runs a dry-run and asks for confirmation.', 'cf-media-manager' ); ?>
+					<?php esc_html_e( 'Claims existing .webp/.avif files into the plugin\'s ownership manifest in one pass, so Delete All can remove them and the rewriter can serve them. Use this when Convert reports "An unowned WebP exists in the destination slot" for many images at once — e.g. variants left by a previous plugin or brought in by a media import. Files that are themselves Media Library attachments are skipped (use Diagnose Attachment to remove those individually). Asks for confirmation before writing, and is safe to re-run anytime.', 'cf-media-manager' ); ?>
 				</span>
 			</p>
-			<?php endif; ?>
 
 			<?php if ( ! self::explainer_dismissed() ) : ?>
 			<div class="cf-media-manager-explainer" id="cf-media-manager-explainer">
@@ -393,6 +392,9 @@ final class AdminPage {
 					<option value="in_use_missing" selected><?php esc_html_e( 'In-use + missing alt (recommended)', 'cf-media-manager' ); ?></option>
 				</select>
 				<span id="cf-alt-summary" class="cf-alt-summary"></span>
+				<button type="button" id="cf-alt-save-all" class="button button-primary cf-alt-save-all" disabled>
+					<?php esc_html_e( 'Save all changes', 'cf-media-manager' ); ?>
+				</button>
 			</div>
 
 			<div id="cf-alt-loading" class="cf-alt-loading" style="display:none">
@@ -423,6 +425,17 @@ final class AdminPage {
 				<button type="button" id="cf-alt-prev" class="button">← <?php esc_html_e( 'Previous', 'cf-media-manager' ); ?></button>
 				<span id="cf-alt-page-info" class="cf-alt-page-info"></span>
 				<button type="button" id="cf-alt-next" class="button"><?php esc_html_e( 'Next', 'cf-media-manager' ); ?> →</button>
+			</div>
+		</div>
+
+		<!-- Full-image popup for the Alt Text editor. Hidden until a thumb is -->
+		<!-- clicked; populated and toggled entirely from admin.js.            -->
+		<div id="cf-alt-lightbox" class="cf-alt-lightbox" hidden role="dialog" aria-modal="true" aria-label="<?php esc_attr_e( 'Image preview', 'cf-media-manager' ); ?>">
+			<div class="cf-alt-lightbox-backdrop"></div>
+			<div class="cf-alt-lightbox-body" role="document">
+				<button type="button" class="cf-alt-lightbox-close" aria-label="<?php esc_attr_e( 'Close preview', 'cf-media-manager' ); ?>">&times;</button>
+				<img class="cf-alt-lightbox-img" src="" alt="">
+				<div class="cf-alt-lightbox-caption"></div>
 			</div>
 		</div>
 
@@ -538,6 +551,18 @@ final class AdminPage {
 								'<code>apple-touch-icon</code>'
 							);
 							?>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Alt text fallback', 'cf-media-manager' ); ?></th>
+					<td>
+						<label>
+							<input type="checkbox" id="cf-media-manager-alt-fallback" <?php checked( $alt_fallback, true ); ?>>
+							<?php esc_html_e( 'Apply Media Library alt text to images that render without it', 'cf-media-manager' ); ?>
+						</label>
+						<p class="description">
+							<?php esc_html_e( 'At render time, fills an empty or missing alt attribute on any uploads-folder image from that attachment\'s alt text (the field the Accessibility tab edits). Page builders like Divi store their own per-module alt and ignore the attachment field, so alt set in the media library otherwise never reaches the page. Only adds alt — never overrides an existing one, and skips images marked decorative or aria-hidden. Requires HTML rewriting (above) to be enabled.', 'cf-media-manager' ); ?>
 						</p>
 					</td>
 				</tr>

@@ -2,6 +2,8 @@
 
 namespace CFMediaManager\Tests;
 
+use CFMediaManager\AltTextManager;
+use CFMediaManager\AttachmentLookup;
 use CFMediaManager\Paths;
 use CFMediaManager\Rewriter;
 use CFMediaManager\VariantManifest;
@@ -52,6 +54,36 @@ final class RewriterTest extends TestCase {
 	protected function tearDown(): void {
 		$this->rrmdir( $this->root );
 		unset( $GLOBALS['cf_media_manager_test_options'] );
+		unset( $GLOBALS['cf_media_manager_test_post_meta'] );
+		AttachmentLookup::reset();
+	}
+
+	/**
+	 * Seed the AttachmentLookup original-file map (normally built from $wpdb,
+	 * which tests don't have) so resolve_relative_path() returns our id.
+	 *
+	 * @param array<string,int> $map upload-rel path => attachment ID
+	 */
+	private function seed_lookup( array $map ): void {
+		// setAccessible() is required on PHP 8.0 but a deprecated no-op from 8.1.
+		$ref = new \ReflectionProperty( AttachmentLookup::class, 'path_to_id' );
+		if ( \PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
+		$ref->setValue( null, $map );
+		// Also prime the size map to empty so it doesn't try to build from $wpdb.
+		$sref = new \ReflectionProperty( AttachmentLookup::class, 'size_to_parent' );
+		if ( \PHP_VERSION_ID < 80100 ) {
+			$sref->setAccessible( true );
+		}
+		$sref->setValue( null, [] );
+	}
+
+	private function seed_attachment_alt( int $id, string $alt, bool $decorative = false ): void {
+		$GLOBALS['cf_media_manager_test_post_meta'][ $id ][ AltTextManager::META_KEY_ALT ] = $alt;
+		if ( $decorative ) {
+			$GLOBALS['cf_media_manager_test_post_meta'][ $id ][ AltTextManager::META_KEY_DECORATIVE ] = '1';
+		}
 	}
 
 	public function test_short_circuits_when_no_img_or_uploads_url(): void {
@@ -372,6 +404,113 @@ final class RewriterTest extends TestCase {
 		$html = '<img src="https://other-site.com/wp-content/uploads/2026/05/photo.jpg">';
 		$out  = $this->rewriter->rewrite_html( $html );
 		self::assertSame( $html, $out );
+	}
+
+	// =========================================================================
+	// Alt-text fallback (Options::ALT_FALLBACK)
+	// =========================================================================
+
+	public function test_alt_fallback_fills_empty_alt_from_attachment(): void {
+		$this->seed_lookup( [ '2026/05/diagram.png' => 55 ] );
+		$this->seed_attachment_alt( 55, 'A labeled tooth diagram' );
+
+		// diagram.png has a webp variant, so it also gets wrapped — the inner
+		// <img> (the fallback) must carry the injected alt.
+		$html = '<img src="' . $this->base_url . '/2026/05/diagram.png" alt="">';
+		$out  = $this->rewriter->rewrite_html( $html );
+
+		self::assertStringContainsString( 'alt="A labeled tooth diagram"', $out );
+		self::assertStringNotContainsString( 'alt=""', $out );
+	}
+
+	public function test_alt_fallback_adds_missing_alt_attribute(): void {
+		$this->seed_lookup( [ '2026/05/orphan.jpg' => 60 ] );
+		$this->seed_attachment_alt( 60, 'Orphan photo' );
+
+		// orphan.jpg has no variants, so it is NOT wrapped — proves the alt
+		// pass runs independently of <picture> wrapping.
+		$html = '<img src="' . $this->base_url . '/2026/05/orphan.jpg">';
+		$out  = $this->rewriter->rewrite_html( $html );
+
+		self::assertStringNotContainsString( '<picture>', $out );
+		self::assertStringContainsString( 'alt="Orphan photo"', $out );
+	}
+
+	public function test_alt_fallback_does_not_override_existing_alt(): void {
+		$this->seed_lookup( [ '2026/05/orphan.jpg' => 61 ] );
+		$this->seed_attachment_alt( 61, 'Attachment alt' );
+
+		$html = '<img src="' . $this->base_url . '/2026/05/orphan.jpg" alt="Author wrote this">';
+		$out  = $this->rewriter->rewrite_html( $html );
+
+		self::assertStringContainsString( 'alt="Author wrote this"', $out );
+		self::assertStringNotContainsString( 'Attachment alt', $out );
+	}
+
+	public function test_alt_fallback_skips_aria_hidden(): void {
+		$this->seed_lookup( [ '2026/05/orphan.jpg' => 62 ] );
+		$this->seed_attachment_alt( 62, 'Should not appear' );
+
+		$html = '<img src="' . $this->base_url . '/2026/05/orphan.jpg" alt="" aria-hidden="true">';
+		$out  = $this->rewriter->rewrite_html( $html );
+
+		self::assertStringNotContainsString( 'Should not appear', $out );
+	}
+
+	public function test_alt_fallback_skips_decorative_flagged_attachment(): void {
+		$this->seed_lookup( [ '2026/05/orphan.jpg' => 63 ] );
+		$this->seed_attachment_alt( 63, 'Has alt but decorative', true );
+
+		$html = '<img src="' . $this->base_url . '/2026/05/orphan.jpg" alt="">';
+		$out  = $this->rewriter->rewrite_html( $html );
+
+		self::assertStringNotContainsString( 'Has alt but decorative', $out );
+	}
+
+	public function test_alt_fallback_resolves_webp_url_to_source_attachment(): void {
+		// Page hard-codes the .webp variant URL (e.g. a Divi module); the
+		// attachment is the .png. Must swap extensions to resolve.
+		$this->seed_lookup( [ '2026/05/diagram.png' => 64 ] );
+		$this->seed_attachment_alt( 64, 'Resolved via webp swap' );
+
+		$html = '<img src="' . $this->base_url . '/2026/05/diagram.webp" alt="">';
+		$out  = $this->rewriter->rewrite_html( $html );
+
+		self::assertStringContainsString( 'alt="Resolved via webp swap"', $out );
+	}
+
+	public function test_alt_fallback_disabled_makes_no_change(): void {
+		$GLOBALS['cf_media_manager_test_options']['cf_media_manager_alt_fallback'] = false;
+		$this->seed_lookup( [ '2026/05/orphan.jpg' => 65 ] );
+		$this->seed_attachment_alt( 65, 'Should stay hidden' );
+
+		$html = '<img src="' . $this->base_url . '/2026/05/orphan.jpg" alt="">';
+		$out  = $this->rewriter->rewrite_html( $html );
+
+		self::assertStringNotContainsString( 'Should stay hidden', $out );
+		self::assertStringContainsString( 'alt=""', $out );
+	}
+
+	public function test_alt_fallback_ignores_non_upload_images(): void {
+		$this->seed_lookup( [ '2026/05/orphan.jpg' => 66 ] );
+		$this->seed_attachment_alt( 66, 'nope' );
+
+		$html = '<img src="https://cdn.example.com/external.jpg" alt="">';
+		$out  = $this->rewriter->rewrite_html( $html );
+
+		self::assertSame( $html, $out );
+	}
+
+	public function test_alt_fallback_is_backreference_safe(): void {
+		// Alt text containing regex backreference syntax must be inserted
+		// literally, not interpreted.
+		$this->seed_lookup( [ '2026/05/orphan.jpg' => 67 ] );
+		$this->seed_attachment_alt( 67, 'Cost $1 & up' );
+
+		$html = '<img src="' . $this->base_url . '/2026/05/orphan.jpg" alt="">';
+		$out  = $this->rewriter->rewrite_html( $html );
+
+		self::assertStringContainsString( 'Cost $1 &amp; up', $out );
 	}
 
 	private function rrmdir( string $dir ): void {

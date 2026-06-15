@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: CF Media Manager 2.1.3\n"
+"Project-Id-Version: CF Media Manager 2.2.0\n"
 "Report-Msgid-Bugs-To: bugs@caifrazier.com\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-04T22:15:11+00:00\n"
+"POT-Creation-Date: 2026-06-08T19:33:14+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: cf-media-manager\n"
@@ -64,19 +64,19 @@ msgid "Total"
 msgstr ""
 
 #: cli.php:68
-#: includes/AdminPage.php:764
-#: assets/admin.js:1042
+#: includes/AdminPage.php:789
+#: assets/admin.js:1044
 msgid "Converted"
 msgstr ""
 
 #: cli.php:72
-#: includes/AdminPage.php:770
-#: assets/admin.js:1043
+#: includes/AdminPage.php:795
+#: assets/admin.js:1045
 msgid "Pending"
 msgstr ""
 
 #: cli.php:76
-#: includes/AdminPage.php:642
+#: includes/AdminPage.php:667
 msgid "Quality"
 msgstr ""
 
@@ -174,100 +174,100 @@ msgid "Adopted %d file(s) into the manifest."
 msgstr ""
 
 #: includes/AdminPage.php:58
-#: includes/AdminPage.php:201
+#: includes/AdminPage.php:202
 msgid "Settings"
 msgstr ""
 
 #: includes/AdminPage.php:82
 #: includes/AdminPage.php:83
-#: includes/AdminPage.php:178
+#: includes/AdminPage.php:179
 msgid "Media Manager"
 msgstr ""
 
-#: includes/AdminPage.php:183
+#: includes/AdminPage.php:184
 msgid "No WebP support found — install the Imagick PHP extension or enable GD with WebP support."
 msgstr ""
 
-#: includes/AdminPage.php:189
+#: includes/AdminPage.php:190
 msgid "Convert"
 msgstr ""
 
-#: includes/AdminPage.php:193
+#: includes/AdminPage.php:194
 msgid "Accessibility"
 msgstr ""
 
-#: includes/AdminPage.php:197
+#: includes/AdminPage.php:198
 #: includes/AuditPage.php:77
 msgid "Audit"
 msgstr ""
 
-#: includes/AdminPage.php:213
+#: includes/AdminPage.php:214
 msgid "Bulk Conversion"
 msgstr ""
 
-#: includes/AdminPage.php:214
+#: includes/AdminPage.php:215
 msgid "Recheck the media library for newly uploaded images"
 msgstr ""
 
-#: includes/AdminPage.php:214
+#: includes/AdminPage.php:215
 msgid "Recheck"
 msgstr ""
 
-#: includes/AdminPage.php:217
-#: includes/AdminPage.php:400
+#: includes/AdminPage.php:218
+#: includes/AdminPage.php:402
 #: includes/AuditPage.php:108
 #: includes/LibraryPage.php:134
 #: assets/audit.js:469
 msgid "Loading…"
 msgstr ""
 
-#: includes/AdminPage.php:224
+#: includes/AdminPage.php:225
 msgid "Which images to convert"
 msgstr ""
 
-#: includes/AdminPage.php:227
+#: includes/AdminPage.php:228
 msgid "All images in the media library"
 msgstr ""
 
-#: includes/AdminPage.php:231
+#: includes/AdminPage.php:232
 msgid "In-use only — images referenced on the front end"
 msgstr ""
 
-#: includes/AdminPage.php:232
+#: includes/AdminPage.php:233
 #: assets/admin.js:352
 msgid "scanning…"
 msgstr ""
 
-#: includes/AdminPage.php:233
+#: includes/AdminPage.php:234
 msgid "Re-scan the site for image references"
 msgstr ""
 
-#: includes/AdminPage.php:233
+#: includes/AdminPage.php:234
 #: assets/audit.js:316
 msgid "Rescan"
 msgstr ""
 
-#: includes/AdminPage.php:241
+#: includes/AdminPage.php:242
 msgid "Force reconvert all — re-encodes even up-to-date files. Use after changing quality."
 msgstr ""
 
-#: includes/AdminPage.php:246
+#: includes/AdminPage.php:247
 msgid "Convert Now"
 msgstr ""
 
-#: includes/AdminPage.php:247
-#: includes/AdminPage.php:276
+#: includes/AdminPage.php:248
+#: includes/AdminPage.php:275
 #: assets/admin.js:614
 #: assets/admin.js:624
 msgid "Convert in Background"
 msgstr ""
 
-#: includes/AdminPage.php:248
+#: includes/AdminPage.php:249
 #: assets/admin.js:517
 msgid "Stop"
 msgstr ""
 
-#: includes/AdminPage.php:249
+#: includes/AdminPage.php:250
 #: assets/admin.js:791
 #: assets/admin.js:825
 #: assets/admin.js:855
@@ -275,497 +275,545 @@ msgstr ""
 msgid "Delete All Variants"
 msgstr ""
 
-#: includes/AdminPage.php:250
+#: includes/AdminPage.php:251
 msgid "All done!"
 msgstr ""
 
 #: includes/AdminPage.php:255
-#: assets/admin.js:922
-msgid "Adopt legacy variants…"
+#: assets/admin.js:924
+msgid "Claim all untracked variants…"
 msgstr ""
 
 #: includes/AdminPage.php:257
-msgid "Adopts existing .webp/.avif files into the plugin's ownership manifest so Delete All can remove them and the rewriter can serve them. Files registered as Media Library attachments are skipped. The first click runs a dry-run and asks for confirmation."
+msgid "Claims existing .webp/.avif files into the plugin's ownership manifest in one pass, so Delete All can remove them and the rewriter can serve them. Use this when Convert reports \"An unowned WebP exists in the destination slot\" for many images at once — e.g. variants left by a previous plugin or brought in by a media import. Files that are themselves Media Library attachments are skipped (use Diagnose Attachment to remove those individually). Asks for confirmation before writing, and is safe to re-run anytime."
 msgstr ""
 
-#: includes/AdminPage.php:268
+#: includes/AdminPage.php:267
 msgid "Dismiss this explainer permanently"
 msgstr ""
 
-#: includes/AdminPage.php:269
+#: includes/AdminPage.php:268
 msgid "Dismiss permanently"
 msgstr ""
 
-#: includes/AdminPage.php:272
-#: includes/AdminPage.php:392
+#: includes/AdminPage.php:271
+#: includes/AdminPage.php:391
 msgid "In-use only"
 msgstr ""
 
-#: includes/AdminPage.php:273
+#: includes/AdminPage.php:272
 msgid "scans for images referenced in post content, featured images, page builders (Divi, Elementor, Beaver Builder, Bricks, WPBakery), reusable blocks, block theme templates, widget areas, ACF image fields, WooCommerce galleries, site logo, and site icon. Anything in the media library nothing links to is skipped — a big speed-up on sites with lots of stale imagery."
 msgstr ""
 
-#: includes/AdminPage.php:279
+#: includes/AdminPage.php:278
 msgid "queues the run on the server (Action Scheduler) and processes a small batch every few seconds. You can close this tab — conversion keeps going. Reopen this page anytime to see live progress."
 msgstr ""
 
-#: includes/AdminPage.php:281
+#: includes/AdminPage.php:280
 msgid "queues the run on the server (WP-Cron) and processes a small batch on each cron tick. You can close this tab — conversion keeps going, but cron only fires when someone visits the site. Reopen this page anytime to see live progress."
 msgstr ""
 
-#: includes/AdminPage.php:295
+#: includes/AdminPage.php:294
 msgid "Convert Specific Images"
 msgstr ""
 
-#: includes/AdminPage.php:296
+#: includes/AdminPage.php:295
 msgid "Pick individual images from your media library using the standard WordPress media browser."
 msgstr ""
 
-#: includes/AdminPage.php:298
+#: includes/AdminPage.php:297
 msgid "Choose Images…"
 msgstr ""
 
-#: includes/AdminPage.php:304
+#: includes/AdminPage.php:303
 msgid "Convert Selected"
 msgstr ""
 
-#: includes/AdminPage.php:311
+#: includes/AdminPage.php:310
 msgid "Cache Management"
 msgstr ""
 
 #. translators: %s: <code>&lt;picture&gt;</code> markup tag.
-#: includes/AdminPage.php:316
+#: includes/AdminPage.php:315
 #, php-format
 msgid "Some page builders (Divi in particular) cache compiled CSS that embeds image URLs. After converting images you typically need to purge those caches before the new %s markup appears in the browser."
 msgstr ""
 
-#: includes/AdminPage.php:323
+#: includes/AdminPage.php:322
 msgid "Detecting active caches…"
 msgstr ""
 
-#: includes/AdminPage.php:327
+#: includes/AdminPage.php:326
 msgid "Purge All Caches"
 msgstr ""
 
 #. translators: %s: <code>cf_media_manager_purge_caches</code> filter name.
-#: includes/AdminPage.php:337
+#: includes/AdminPage.php:336
 #, php-format
 msgid "If you use a cache plugin that isn't detected, hook into %s from your theme or a mu-plugin to add it."
 msgstr ""
 
-#: includes/AdminPage.php:346
+#: includes/AdminPage.php:345
 msgid "Verify a Live Page"
 msgstr ""
 
-#: includes/AdminPage.php:347
+#: includes/AdminPage.php:346
 msgid "Fetch a public URL and report how many of its images are being served as WebP/AVIF. Useful for confirming the rewrite works against production caches."
 msgstr ""
 
-#: includes/AdminPage.php:351
-#: assets/admin.js:1171
-#: assets/admin.js:1240
+#: includes/AdminPage.php:350
+#: assets/admin.js:1175
+#: assets/admin.js:1244
 msgid "Verify"
 msgstr ""
 
-#: includes/AdminPage.php:359
+#: includes/AdminPage.php:358
 msgid "Diagnose Attachment"
 msgstr ""
 
-#: includes/AdminPage.php:361
+#: includes/AdminPage.php:360
 msgid "Pass an attachment ID to see the variant-ownership state for that image. Useful when Convert reports \"An unowned WebP exists in the destination slot\" for a file you expected Adopt to claim. The report tells you exactly why and offers a one-click fix."
 msgstr ""
 
-#: includes/AdminPage.php:364
+#: includes/AdminPage.php:363
 msgid "Attachment ID:"
 msgstr ""
 
-#: includes/AdminPage.php:366
-#: assets/admin.js:1369
-#: assets/admin.js:1380
+#: includes/AdminPage.php:365
+#: assets/admin.js:1373
+#: assets/admin.js:1384
 msgid "Diagnose"
 msgstr ""
 
-#: includes/AdminPage.php:380
+#: includes/AdminPage.php:379
 msgid "Alt Text"
 msgstr ""
 
-#: includes/AdminPage.php:381
+#: includes/AdminPage.php:380
 msgid "Reload the current page"
 msgstr ""
 
-#: includes/AdminPage.php:381
+#: includes/AdminPage.php:380
 msgid "Refresh"
 msgstr ""
 
-#: includes/AdminPage.php:384
+#: includes/AdminPage.php:383
 msgid "Audits the attachment-level alt text field (the same one WordPress shows on the Media Library edit screen). Block-level alt overrides set inline on a specific page are not detected."
 msgstr ""
 
-#: includes/AdminPage.php:388
+#: includes/AdminPage.php:387
 msgid "Show:"
 msgstr ""
 
-#: includes/AdminPage.php:390
+#: includes/AdminPage.php:389
 msgid "All images"
 msgstr ""
 
-#: includes/AdminPage.php:391
+#: includes/AdminPage.php:390
 #: includes/AuditAjax.php:125
 msgid "Missing alt text"
 msgstr ""
 
-#: includes/AdminPage.php:393
+#: includes/AdminPage.php:392
 msgid "In-use + missing alt (recommended)"
 msgstr ""
 
-#: includes/AdminPage.php:406
+#: includes/AdminPage.php:396
+#: assets/admin.js:1732
+msgid "Save all changes"
+msgstr ""
+
+#: includes/AdminPage.php:408
 msgid "No images match this filter."
 msgstr ""
 
-#: includes/AdminPage.php:412
+#: includes/AdminPage.php:414
 msgid "Image"
 msgstr ""
 
-#: includes/AdminPage.php:413
+#: includes/AdminPage.php:415
 msgid "File"
 msgstr ""
 
-#: includes/AdminPage.php:414
+#: includes/AdminPage.php:416
 msgid "Alt text"
 msgstr ""
 
-#: includes/AdminPage.php:415
-#: assets/admin.js:1582
-#: assets/admin.js:1711
+#: includes/AdminPage.php:417
+#: assets/admin.js:1650
+#: assets/admin.js:1849
 msgid "Decorative"
 msgstr ""
 
-#: includes/AdminPage.php:416
-#: assets/admin.js:1608
-#: assets/admin.js:1698
-#: assets/admin.js:1716
+#: includes/AdminPage.php:418
+#: assets/admin.js:1687
+#: assets/admin.js:1818
+#: assets/admin.js:1831
 msgid "Save"
 msgstr ""
 
-#: includes/AdminPage.php:423
+#: includes/AdminPage.php:425
 msgid "Previous"
 msgstr ""
 
-#: includes/AdminPage.php:425
+#: includes/AdminPage.php:427
 #: assets/audit.js:653
 msgid "Next"
 msgstr ""
 
-#: includes/AdminPage.php:445
+#: includes/AdminPage.php:433
+msgid "Image preview"
+msgstr ""
+
+#: includes/AdminPage.php:436
+msgid "Close preview"
+msgstr ""
+
+#: includes/AdminPage.php:458
 msgid "The audit subsystem is not initialized."
 msgstr ""
 
-#: includes/AdminPage.php:459
+#: includes/AdminPage.php:472
 msgid "HTML Rewriting"
 msgstr ""
 
-#: includes/AdminPage.php:466
-#: includes/AdminPage.php:469
+#: includes/AdminPage.php:479
+#: includes/AdminPage.php:482
 msgid "Enable HTML rewriting"
 msgstr ""
 
 #. translators: 1: <code>&lt;img&gt;</code>, 2: <code>&lt;picture&gt;</code>.
-#: includes/AdminPage.php:474
+#: includes/AdminPage.php:487
 #, php-format
 msgid "Wrap upload-dir %1$s tags in %2$s with WebP/AVIF sources."
 msgstr ""
 
-#: includes/AdminPage.php:485
+#: includes/AdminPage.php:498
 msgid "Serve modern formats to"
 msgstr ""
 
-#: includes/AdminPage.php:490
+#: includes/AdminPage.php:503
 msgid "All visitors"
 msgstr ""
 
-#: includes/AdminPage.php:490
+#: includes/AdminPage.php:503
 msgid "(recommended)"
 msgstr ""
 
-#: includes/AdminPage.php:494
+#: includes/AdminPage.php:507
 msgid "Logged-out visitors only"
 msgstr ""
 
-#: includes/AdminPage.php:497
+#: includes/AdminPage.php:510
 msgid "Use \"logged-out only\" if admin users or page-builder editors need to see original image URLs."
 msgstr ""
 
-#: includes/AdminPage.php:501
+#: includes/AdminPage.php:514
 msgid "AVIF output"
 msgstr ""
 
-#: includes/AdminPage.php:505
+#: includes/AdminPage.php:518
 msgid "Generate AVIF alongside WebP"
 msgstr ""
 
 #. translators: %s: <code>&lt;picture&gt;</code> markup tag.
-#: includes/AdminPage.php:512
+#: includes/AdminPage.php:525
 #, php-format
 msgid "AVIF is typically 20–30%% smaller than WebP at the same visual quality. Browsers without AVIF receive WebP via %s negotiation."
 msgstr ""
 
-#: includes/AdminPage.php:517
+#: includes/AdminPage.php:530
 msgid "Your Imagick build does not include the AVIF coder. Install ImageMagick with libavif support to enable."
 msgstr ""
 
-#: includes/AdminPage.php:523
+#: includes/AdminPage.php:536
 msgid "Favicon rewriting"
 msgstr ""
 
-#: includes/AdminPage.php:527
+#: includes/AdminPage.php:540
 msgid "Rewrite favicon and touch-icon links to WebP"
 msgstr ""
 
 #. translators: 1: <strong>Recommended:</strong> label, 2: <code>apple-touch-icon</code> rel value.
-#: includes/AdminPage.php:534
+#: includes/AdminPage.php:547
 #, php-format
 msgid "%1$s leave this off. iOS rejects %2$s in WebP for home-screen install, and the conventional multi-format favicon declaration (.ico fallback, PNG 32×32 and 192×192, Apple touch PNG) is still the most compatible pattern. Enable only if you have verified every consumer of your favicons can handle .webp."
 msgstr ""
 
-#: includes/AdminPage.php:537
+#: includes/AdminPage.php:550
 msgid "Recommended:"
 msgstr ""
 
-#: includes/AdminPage.php:545
+#: includes/AdminPage.php:558
+msgid "Alt text fallback"
+msgstr ""
+
+#: includes/AdminPage.php:562
+msgid "Apply Media Library alt text to images that render without it"
+msgstr ""
+
+#: includes/AdminPage.php:565
+msgid "At render time, fills an empty or missing alt attribute on any uploads-folder image from that attachment's alt text (the field the Accessibility tab edits). Page builders like Divi store their own per-module alt and ignore the attachment field, so alt set in the media library otherwise never reaches the page. Only adds alt — never overrides an existing one, and skips images marked decorative or aria-hidden. Requires HTML rewriting (above) to be enabled."
+msgstr ""
+
+#: includes/AdminPage.php:570
 msgid "Page filter"
 msgstr ""
 
-#: includes/AdminPage.php:548
+#: includes/AdminPage.php:573
 msgid "No filter — rewrite on all pages"
 msgstr ""
 
-#: includes/AdminPage.php:549
+#: includes/AdminPage.php:574
 msgid "Blacklist — skip listed pages"
 msgstr ""
 
-#: includes/AdminPage.php:550
+#: includes/AdminPage.php:575
 msgid "Whitelist — only rewrite listed pages"
 msgstr ""
 
 #. translators: 1: <strong>Blacklist:</strong> label, 2: <strong>Whitelist:</strong> label.
-#: includes/AdminPage.php:557
+#: includes/AdminPage.php:582
 #, php-format
 msgid "%1$s rewrite everywhere except the listed pages.<br>%2$s rewrite only on the listed pages."
 msgstr ""
 
-#: includes/AdminPage.php:560
+#: includes/AdminPage.php:585
 msgid "Blacklist:"
 msgstr ""
 
-#: includes/AdminPage.php:561
+#: includes/AdminPage.php:586
 msgid "Whitelist:"
 msgstr ""
 
-#: includes/AdminPage.php:568
+#: includes/AdminPage.php:593
 msgid "Batch size"
 msgstr ""
 
 #. translators: 1: <strong>1</strong>, 2: <strong>5–10</strong>.
-#: includes/AdminPage.php:575
+#: includes/AdminPage.php:600
 #, php-format
 msgid "Attachments processed per AJAX call. %1$s = smoothest progress, %2$s = much faster on large libraries."
 msgstr ""
 
-#: includes/AdminPage.php:584
+#: includes/AdminPage.php:609
 msgid "Max source filesize"
 msgstr ""
 
-#: includes/AdminPage.php:586
+#: includes/AdminPage.php:611
 msgid "MB"
 msgstr ""
 
 #. translators: 1: default cap in MB, 2: hard ceiling in MB.
-#: includes/AdminPage.php:591
+#: includes/AdminPage.php:616
 #, php-format
 msgid "Sources larger than this are skipped (decoder memory cap). Default %1$d MB; hard ceiling %2$d MB. Raise this if you want full-resolution WebP/AVIF for high-megapixel photography — but make sure PHP's memory_limit for image operations can handle the larger decode."
 msgstr ""
 
-#: includes/AdminPage.php:600
+#: includes/AdminPage.php:625
 msgid "URL patterns"
 msgstr ""
 
 #. translators: 1: <code>*</code>, 2: <code>#</code>.
-#: includes/AdminPage.php:609
+#: includes/AdminPage.php:634
 #, php-format
 msgid "One URL path per line. Use %1$s as a wildcard. Lines starting with %2$s are ignored.<br>Examples: <code>/contact/</code> &nbsp;·&nbsp; <code>/shop/*</code> &nbsp;·&nbsp; <code>*/legacy-gallery/*</code>"
 msgstr ""
 
-#: includes/AdminPage.php:623
+#: includes/AdminPage.php:648
 msgid "On uninstall"
 msgstr ""
 
-#: includes/AdminPage.php:627
+#: includes/AdminPage.php:652
 msgid "Delete generated WebP and AVIF files when this plugin is uninstalled"
 msgstr ""
 
-#: includes/AdminPage.php:629
+#: includes/AdminPage.php:654
 msgid "Only files written by this plugin are removed. Original JPEGs and PNGs are never touched. Leave unchecked to keep generated variants on disk after uninstalling."
 msgstr ""
 
-#: includes/AdminPage.php:635
+#: includes/AdminPage.php:660
 msgid "Save Settings"
 msgstr ""
 
-#: includes/AdminPage.php:636
-#: includes/AdminPage.php:652
+#: includes/AdminPage.php:661
+#: includes/AdminPage.php:677
 msgid "Saved."
 msgstr ""
 
-#: includes/AdminPage.php:644
+#: includes/AdminPage.php:669
 msgid "Output quality:"
 msgstr ""
 
-#: includes/AdminPage.php:647
+#: includes/AdminPage.php:672
 msgid "80 matches the default of common image-processing libraries (Sharp, etc.) and is visually lossless for most photos. Lower = smaller files. Applied to both WebP and AVIF."
 msgstr ""
 
-#: includes/AdminPage.php:650
-#: includes/AdminPage.php:659
+#: includes/AdminPage.php:675
+#: includes/AdminPage.php:684
 msgid "Save Quality"
 msgstr ""
 
-#: includes/AdminPage.php:651
-#: includes/AdminPage.php:660
+#: includes/AdminPage.php:676
+#: includes/AdminPage.php:685
 msgid "Save & Apply"
 msgstr ""
 
 #. translators: 1: "Save Quality" button name in <strong>, 2: "Save & Apply" button name in <strong>.
-#: includes/AdminPage.php:658
+#: includes/AdminPage.php:683
 #, php-format
 msgid "%1$s updates the setting only. %2$s re-encodes every existing image at the new quality."
 msgstr ""
 
 #. translators: %s: name of the conversion engine in use (Imagick or GD).
-#: includes/AdminPage.php:674
+#: includes/AdminPage.php:699
 #, php-format
 msgid "Conversion engine: %s"
 msgstr ""
 
-#: includes/AdminPage.php:680
+#: includes/AdminPage.php:705
 msgid "AVIF available"
 msgstr ""
 
-#: includes/AdminPage.php:682
+#: includes/AdminPage.php:707
 msgid "AVIF unavailable"
 msgstr ""
 
 #. translators: 1: plugin version string, 2: WordPress version string.
-#: includes/AdminPage.php:691
+#: includes/AdminPage.php:716
 #, php-format
 msgid "Media Manager %1$s &nbsp;·&nbsp; WordPress %2$s &nbsp;·&nbsp; <a href=\"mailto:bugs@caifrazier.com\">Report a bug</a>"
 msgstr ""
 
 #. translators: %s: "Media Manager:" label in <strong>.
-#: includes/AdminPage.php:729
+#: includes/AdminPage.php:754
 #, php-format
 msgid "%s Conversion complete. If you use a page cache or page builder (Divi, WP Engine, WP Rocket, LiteSpeed, etc.), purge it now so existing cached pages reload with the new markup."
 msgstr ""
 
-#: includes/AdminPage.php:730
+#: includes/AdminPage.php:755
 msgid "Media Manager:"
 msgstr ""
 
-#: includes/AdminPage.php:735
+#: includes/AdminPage.php:760
 msgid "Purge All Caches Now"
 msgstr ""
 
-#: includes/AdminPage.php:747
+#: includes/AdminPage.php:772
 msgid "WebP"
 msgstr ""
 
-#: includes/AdminPage.php:763
+#: includes/AdminPage.php:788
 msgid "WebP converted"
 msgstr ""
 
-#: includes/AdminPage.php:769
+#: includes/AdminPage.php:794
 msgid "Not yet converted"
 msgstr ""
 
-#: includes/Ajax.php:521
+#: includes/Ajax.php:524
 msgid "A backfill run is already in progress (or completed within the last 10 minutes). Wait for it to finish, or try again after the lock expires."
 msgstr ""
 
 #. translators: %d: attachment ID, shown as a fallback when no filename is available.
-#: includes/Ajax.php:631
+#: includes/Ajax.php:634
 #: assets/admin.js:483
 #: assets/admin.js:489
 #: assets/admin.js:490
-#: assets/admin.js:1005
-#: assets/admin.js:1038
+#: assets/admin.js:1007
+#: assets/admin.js:1040
 #, php-format,js-format
 msgid "ID %d"
 msgstr ""
 
-#: includes/Ajax.php:699
+#: includes/Ajax.php:702
 msgid "Missing or invalid URL."
 msgstr ""
 
-#: includes/Ajax.php:708
+#: includes/Ajax.php:711
 #: includes/UrlVerifier.php:179
 msgid "Invalid URL."
 msgstr ""
 
-#: includes/Ajax.php:716
+#: includes/Ajax.php:719
 msgid "Fetch failed."
 msgstr ""
 
-#: includes/Ajax.php:913
-#: includes/Ajax.php:1004
+#: includes/Ajax.php:916
+#: includes/Ajax.php:1007
+#: includes/Ajax.php:1085
 msgid "Invalid attachment ID."
 msgstr ""
 
 #. translators: %s: attachment mime type.
-#: includes/Ajax.php:921
+#: includes/Ajax.php:924
 #, php-format
 msgid "Attachment %s is not a JPEG or PNG."
 msgstr ""
 
-#: includes/Ajax.php:1009
+#: includes/Ajax.php:1012
 msgid "Source file not found on disk."
 msgstr ""
 
-#: includes/Ajax.php:1063
+#: includes/Ajax.php:1090
+msgid "Source is not a JPEG or PNG attachment."
+msgstr ""
+
+#: includes/Ajax.php:1095
+msgid "Source file not found."
+msgstr ""
+
+#: includes/Ajax.php:1121
+msgid "No conflicting variant attachment found for this image. It may already be resolved — try Convert again."
+msgstr ""
+
+#. translators: %s: comma-separated attachment IDs.
+#: includes/Ajax.php:1137
+#, php-format
+msgid "The conflicting attachment (%s) is referenced on the front end. Deleting it would break that reference — update or remove those references first, then retry."
+msgstr ""
+
+#: includes/Ajax.php:1158
+msgid "Failed to delete the conflicting attachment."
+msgstr ""
+
+#: includes/Ajax.php:1178
 msgid "Source file is missing on disk."
 msgstr ""
 
-#: includes/Ajax.php:1066
+#: includes/Ajax.php:1181
 msgid "Source rel path is not in either lookup map — the path in _wp_attached_file likely differs from the on-disk filename (case, encoding, or normalization)."
 msgstr ""
 
 #. translators: 1: this attachment id, 2: id the lookup returned.
-#: includes/Ajax.php:1071
+#: includes/Ajax.php:1186
 #, php-format
 msgid "Source rel path maps to attachment %2$d, not %1$d. Two attachments may share the same _wp_attached_file value."
 msgstr ""
 
-#: includes/Ajax.php:1077
+#: includes/Ajax.php:1192
 msgid "No WebP at destination slot — nothing to adopt; Convert would proceed normally."
 msgstr ""
 
 #. translators: %d: attachment id the .webp is registered as.
-#: includes/Ajax.php:1082
+#: includes/Ajax.php:1197
 #, php-format
-msgid "WebP is itself registered as Media Library attachment %d — Adopt deliberately skipped it. Delete that attachment first if it is stale."
+msgid "WebP is itself registered as Media Library attachment %d — Adopt and Claim deliberately skip it. If it is a stale duplicate, use \"Delete the conflicting variant attachment\" below, then Convert again."
 msgstr ""
 
-#: includes/Ajax.php:1087
+#: includes/Ajax.php:1202
 msgid "WebP exists and is owned by this attachment — Convert should not be blocked. Try Convert again."
 msgstr ""
 
-#: includes/Ajax.php:1089
+#: includes/Ajax.php:1204
 msgid "WebP exists, source resolves correctly, but the manifest row is missing. Click \"Claim this WebP\" to fix."
 msgstr ""
 
-#: includes/AltTextManager.php:172
+#: includes/AltTextManager.php:173
 msgid "Invalid attachment."
 msgstr ""
 
-#: includes/AltTextManager.php:177
+#: includes/AltTextManager.php:178
 msgid "Not an image attachment."
 msgstr ""
 
@@ -848,7 +896,7 @@ msgstr ""
 #: includes/Audit/Reports/GhostAttachments.php:280
 #: includes/Audit/Reports/OversizedOriginals.php:324
 #: includes/Audit/Reports/UnusedAttachments.php:378
-#: assets/admin.js:1395
+#: assets/admin.js:1399
 msgid "Attachment ID"
 msgstr ""
 
@@ -1072,7 +1120,7 @@ msgid "Derived WebP path resolved outside the uploads directory."
 msgstr ""
 
 #: includes/Converter.php:223
-msgid "An unowned WebP exists in the destination slot — run \"Adopt legacy variants\" to claim it, or delete the foreign file."
+msgid "An unowned WebP exists in the destination slot. Open the plugin's \"Diagnose Attachment\" tool (Media → Media Manager → Convert tab) and enter this image's ID for the exact cause and a one-click fix."
 msgstr ""
 
 #: includes/Converter.php:256
@@ -1511,6 +1559,7 @@ msgid "Cancel the background queue? Already-converted files will stay; remaining
 msgstr ""
 
 #: assets/admin.js:771
+#: assets/admin.js:1489
 msgid "Deleting…"
 msgstr ""
 
@@ -1593,359 +1642,414 @@ msgid "Count AJAX request failed (HTTP %d)."
 msgstr ""
 
 #. translators: 1: chunks done, 2: total chunks, 3: files processed so far.
-#: assets/admin.js:911
+#: assets/admin.js:913
 #, js-format
-msgid "Adopting… (subtree %1$d/%2$d, %3$d files)"
+msgid "Claiming… (subtree %1$d/%2$d, %3$d files)"
 msgstr ""
 
 #. translators: %d: HTTP status code.
-#: assets/admin.js:925
+#: assets/admin.js:927
 #, js-format
-msgid "Backfill AJAX request failed (HTTP %d)."
+msgid "Claim AJAX request failed (HTTP %d)."
 msgstr ""
 
-#: assets/admin.js:934
+#: assets/admin.js:936
 msgid ""
-"Adopt all untracked WebP/AVIF files into the plugin manifest?\n"
+"Claim all untracked WebP/AVIF files into the plugin manifest?\n"
 "\n"
-"Files registered as Media Library attachments are skipped automatically. Manually placed files cannot be distinguished from legacy plugin variants and will be adopted.\n"
+"Files registered as Media Library attachments are skipped automatically. Manually placed files cannot be distinguished from legacy plugin variants and will be claimed.\n"
 "\n"
 "This runs through every uploads-folder subtree and may take several minutes on a large site."
 msgstr ""
 
-#: assets/admin.js:938
-msgid "Adopting…"
+#: assets/admin.js:940
+#: assets/admin.js:1452
+msgid "Claiming…"
 msgstr ""
 
-#: assets/admin.js:940
+#: assets/admin.js:942
 msgid "Done"
 msgstr ""
 
-#. translators: %d: number of adopted files.
-#: assets/admin.js:943
+#. translators: %d: number of claimed files.
+#: assets/admin.js:945
 #, js-format
-msgid "Adopted %d file into the manifest."
-msgid_plural "Adopted %d files into the manifest."
+msgid "Claimed %d file into the manifest."
+msgid_plural "Claimed %d files into the manifest."
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/admin.js:956
+#: assets/admin.js:958
 msgid "Quality must be between 1 and 100."
 msgstr ""
 
-#: assets/admin.js:971
+#: assets/admin.js:973
 msgid "Save this quality and re-encode every existing variant at the new setting? This may take a while."
 msgstr ""
 
-#: assets/admin.js:983
+#: assets/admin.js:985
 msgid "Select Images to Convert"
 msgstr ""
 
-#: assets/admin.js:986
+#: assets/admin.js:988
 msgid "Select for Conversion"
 msgstr ""
 
-#: assets/admin.js:1019
+#: assets/admin.js:1021
 msgid "Loading status…"
 msgstr ""
 
-#: assets/admin.js:1027
+#: assets/admin.js:1029
 msgid "Could not load attachment status."
 msgstr ""
 
 #. translators: %s: bolded count of already-converted attachments.
-#: assets/admin.js:1056
+#: assets/admin.js:1058
 #, js-format
 msgid "%s already converted"
 msgstr ""
 
 #. translators: %s: bolded count of pending attachments.
-#: assets/admin.js:1063
+#: assets/admin.js:1065
 #, js-format
 msgid "%s pending"
 msgstr ""
 
 #. translators: 1: count + word "image(s) selected", 2: comma-joined detail like "5 already converted, 3 pending".
-#: assets/admin.js:1069
+#: assets/admin.js:1071
 #, js-format
 msgid "%1$s — %2$s."
 msgstr ""
 
-#: assets/admin.js:1070
+#: assets/admin.js:1072
 #, js-format
 msgid "%d image selected"
 msgid_plural "%d images selected"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/admin.js:1076
+#: assets/admin.js:1078
 msgid "Failed to load attachment status."
 msgstr ""
 
-#: assets/admin.js:1149
+#: assets/admin.js:1153
 msgid "Failed to save settings."
 msgstr ""
 
-#: assets/admin.js:1166
+#: assets/admin.js:1170
 msgid "Fetching…"
 msgstr ""
 
-#: assets/admin.js:1173
+#: assets/admin.js:1177
 msgid "Verification failed."
 msgstr ""
 
-#: assets/admin.js:1176
+#: assets/admin.js:1180
 msgid "Error:"
 msgstr ""
 
 #. translators: 1: HTTP status code, 2: percent of modern-format images, 3: AVIF count, 4: WebP count, 5: legacy JPEG/PNG count.
-#: assets/admin.js:1190
+#: assets/admin.js:1194
 #, js-format
 msgid "<strong>HTTP %1$d</strong> · %2$d%% modern formats — <strong>%3$d</strong> AVIF, <strong>%4$d</strong> WebP, <strong>%5$d</strong> JPEG/PNG outside &lt;picture&gt;."
 msgstr ""
 
 #. translators: %d: number of PNG/ICO favicons kept in their original format by design.
-#: assets/admin.js:1200
+#: assets/admin.js:1204
 #, js-format
 msgid "<strong>%d</strong> favicon PNG kept as PNG by design (excluded from the legacy count)."
 msgid_plural "<strong>%d</strong> favicon PNGs kept as PNG by design (excluded from the legacy count)."
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/admin.js:1213
+#: assets/admin.js:1217
 msgid "✓ modern"
 msgstr ""
 
-#: assets/admin.js:1214
+#: assets/admin.js:1218
 msgid "⚠ legacy format"
 msgstr ""
 
-#: assets/admin.js:1215
+#: assets/admin.js:1219
 msgid "og:image:"
 msgstr ""
 
-#: assets/admin.js:1221
+#: assets/admin.js:1225
 msgid "Sample non-modern URLs (outside <picture>):"
 msgstr ""
 
-#: assets/admin.js:1229
+#: assets/admin.js:1233
 msgid "Favicon PNGs (kept by design):"
 msgstr ""
 
 #. translators: %d: HTTP status code.
-#: assets/admin.js:1245
-#: assets/admin.js:1340
-#: assets/admin.js:1384
+#: assets/admin.js:1249
+#: assets/admin.js:1344
+#: assets/admin.js:1388
 #, js-format
 msgid "Request failed (HTTP %d)."
 msgstr ""
 
-#: assets/admin.js:1272
+#: assets/admin.js:1276
 msgid "Could not detect caches."
 msgstr ""
 
-#: assets/admin.js:1277
+#: assets/admin.js:1281
 msgid "No supported cache layers detected. WordPress object cache will still be flushed."
 msgstr ""
 
-#: assets/admin.js:1280
+#: assets/admin.js:1284
 msgid "Detected:"
 msgstr ""
 
-#: assets/admin.js:1285
+#: assets/admin.js:1289
 msgid "Detection failed."
 msgstr ""
 
-#: assets/admin.js:1291
+#: assets/admin.js:1295
 #: assets/notice.js:27
 msgid "Purging…"
 msgstr ""
 
-#: assets/admin.js:1298
+#: assets/admin.js:1302
 #: assets/notice.js:52
 msgid "Purge failed."
 msgstr ""
 
-#: assets/admin.js:1312
+#: assets/admin.js:1316
 msgid "failed"
 msgstr ""
 
-#: assets/admin.js:1316
+#: assets/admin.js:1320
 msgid "Object cache flushed."
 msgstr ""
 
 #. translators: 1: number purged successfully, 2: number that failed.
-#: assets/admin.js:1321
+#: assets/admin.js:1325
 #, js-format
 msgid "✓ Done. %1$d purged, %2$d failed."
 msgstr ""
 
 #. translators: %d: number of cache layers purged successfully.
-#: assets/admin.js:1327
+#: assets/admin.js:1331
 #, js-format
 msgid "✓ Done. %d purged."
 msgstr ""
 
-#: assets/admin.js:1361
+#: assets/admin.js:1365
 msgid "Enter a valid attachment ID."
 msgstr ""
 
-#: assets/admin.js:1364
+#: assets/admin.js:1368
 msgid "Checking…"
 msgstr ""
 
-#: assets/admin.js:1371
+#: assets/admin.js:1375
 msgid "Diagnostic failed."
 msgstr ""
 
-#: assets/admin.js:1393
+#: assets/admin.js:1397
 msgid "Verdict:"
 msgstr ""
 
-#: assets/admin.js:1396
+#: assets/admin.js:1400
 msgid "MIME type"
 msgstr ""
 
-#: assets/admin.js:1397
+#: assets/admin.js:1401
 msgid "Source path"
 msgstr ""
 
-#: assets/admin.js:1398
+#: assets/admin.js:1402
 msgid "Source exists on disk"
 msgstr ""
 
-#: assets/admin.js:1399
+#: assets/admin.js:1403
 msgid "Source rel → ID (lookup map)"
 msgstr ""
 
-#: assets/admin.js:1399
-#: assets/admin.js:1400
+#: assets/admin.js:1403
+#: assets/admin.js:1404
 msgid "not found"
 msgstr ""
 
-#: assets/admin.js:1400
+#: assets/admin.js:1404
 msgid "Source rel → parent ID (size map)"
 msgstr ""
 
-#: assets/admin.js:1401
+#: assets/admin.js:1405
 msgid "WebP path"
 msgstr ""
 
-#: assets/admin.js:1402
+#: assets/admin.js:1406
 msgid "WebP exists on disk"
 msgstr ""
 
-#: assets/admin.js:1403
+#: assets/admin.js:1407
 msgid "WebP owned by this attachment"
 msgstr ""
 
-#: assets/admin.js:1404
+#: assets/admin.js:1408
 msgid "WebP is a separate Media Library attachment"
 msgstr ""
 
-#: assets/admin.js:1406
+#: assets/admin.js:1410
 msgid "AVIF path"
 msgstr ""
 
-#: assets/admin.js:1407
+#: assets/admin.js:1411
 msgid "AVIF owned by this attachment"
 msgstr ""
 
-#: assets/admin.js:1408
+#: assets/admin.js:1412
 msgid "AVIF is a separate Media Library attachment"
 msgstr ""
 
-#: assets/admin.js:1410
+#: assets/admin.js:1414
 msgid "path_to_id map size"
 msgstr ""
 
-#: assets/admin.js:1411
+#: assets/admin.js:1415
 msgid "size_to_parent map size"
 msgstr ""
 
-#: assets/admin.js:1418
-#: assets/admin.js:1436
-#: assets/admin.js:1449
+#: assets/admin.js:1422
+#: assets/admin.js:1456
+#: assets/admin.js:1469
 msgid "Claim this WebP for this attachment"
 msgstr ""
 
-#: assets/admin.js:1432
-msgid "Claiming…"
+#. translators: %d: the duplicate variant attachment ID.
+#: assets/admin.js:1435
+#, js-format
+msgid "Delete the conflicting variant attachment (ID %d)"
 msgstr ""
 
-#: assets/admin.js:1437
+#: assets/admin.js:1438
+msgid "Permanently removes the duplicate .webp/.avif Media Library attachment occupying this slot, then Convert can regenerate it. Refused automatically if that attachment is referenced on the front end."
+msgstr ""
+
+#: assets/admin.js:1457
 msgid "Claim failed."
 msgstr ""
 
-#: assets/admin.js:1441
+#: assets/admin.js:1461
 msgid "Claimed"
 msgstr ""
 
 #. translators: %s: comma-joined list of formats claimed (e.g. "webp, avif").
-#: assets/admin.js:1444
+#: assets/admin.js:1464
 #, js-format
 msgid "Done — claimed: %s. Re-run Diagnose to verify, or try Convert again."
 msgstr ""
 
-#: assets/admin.js:1445
+#: assets/admin.js:1465
 msgid "(nothing — see Skipped list)"
 msgstr ""
 
 #. translators: %d: HTTP status code.
-#: assets/admin.js:1452
+#: assets/admin.js:1472
 #, js-format
 msgid "Claim request failed (HTTP %d)."
 msgstr ""
 
-#: assets/admin.js:1536
+#: assets/admin.js:1485
+msgid ""
+"Permanently delete the duplicate .webp/.avif Media Library attachment occupying this slot?\n"
+"\n"
+"This cannot be undone. Convert can regenerate the derivative afterward. The deletion is refused automatically if the attachment is referenced on the front end."
+msgstr ""
+
+#: assets/admin.js:1496
+msgid "Delete failed."
+msgstr ""
+
+#: assets/admin.js:1500
+msgid "Deleted"
+msgstr ""
+
+#. translators: %s: comma-joined list of deleted attachment IDs.
+#: assets/admin.js:1503
+#, js-format
+msgid "Done — deleted attachment(s): %s. Re-run Diagnose to verify, or try Convert again."
+msgstr ""
+
+#. translators: %d: HTTP status code.
+#: assets/admin.js:1515
+#, js-format
+msgid "Delete request failed (HTTP %d)."
+msgstr ""
+
+#: assets/admin.js:1602
 msgid "Could not load alt text list."
 msgstr ""
 
 #. translators: %d: HTTP status code.
-#: assets/admin.js:1552
+#: assets/admin.js:1618
 #, js-format
 msgid "Alt text list request failed (HTTP %d)."
 msgstr ""
 
-#: assets/admin.js:1579
-#: assets/admin.js:1708
+#: assets/admin.js:1647
+#: assets/admin.js:1846
 msgid "Missing"
 msgstr ""
 
-#: assets/admin.js:1604
+#: assets/admin.js:1660
+msgid "View full image"
+msgstr ""
+
+#: assets/admin.js:1683
 msgid "Mark as decorative"
 msgstr ""
 
+#. translators: %d: number of rows with unsaved edits.
+#: assets/admin.js:1736
+#, js-format
+msgid "Save all changes (%d)"
+msgstr ""
+
 #. translators: %s: human-readable filter label like "Missing alt text".
-#: assets/admin.js:1627
+#: assets/admin.js:1747
 #, js-format
 msgid "0 images match \"%s\"."
 msgstr ""
 
 #. translators: 1: start row, 2: end row, 3: total matches, 4: filter label.
-#: assets/admin.js:1636
+#: assets/admin.js:1756
 #, js-format
 msgid "Showing %1$d–%2$d of %3$d matching \"%4$s\"."
 msgstr ""
 
 #. translators: 1: current page, 2: total pages.
-#: assets/admin.js:1648
+#: assets/admin.js:1768
 #, js-format
 msgid "Page %1$d of %2$d"
 msgstr ""
 
-#: assets/admin.js:1689
+#: assets/admin.js:1809
+#: assets/admin.js:1879
 msgid "Saving…"
 msgstr ""
 
-#: assets/admin.js:1700
+#: assets/admin.js:1820
 msgid "Save failed."
 msgstr ""
 
 #. translators: %d: HTTP status code.
-#: assets/admin.js:1719
+#: assets/admin.js:1834
 #, js-format
 msgid "Save request failed (HTTP %d)."
+msgstr ""
+
+#: assets/admin.js:1889
+msgid "Bulk save failed."
+msgstr ""
+
+#. translators: %d: HTTP status code.
+#: assets/admin.js:1908
+#, js-format
+msgid "Bulk save request failed (HTTP %d)."
 msgstr ""
 
 #: assets/audit.js:140

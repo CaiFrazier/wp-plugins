@@ -55,6 +55,7 @@ final class AltTextManager {
 	public function register_hooks(): void {
 		add_action( 'wp_ajax_' . Plugin::AJAX_PREFIX . 'alt_list', array( $this, 'ajax_list_alts' ) );
 		add_action( 'wp_ajax_' . Plugin::AJAX_PREFIX . 'alt_save', array( $this, 'ajax_save_alt' ) );
+		add_action( 'wp_ajax_' . Plugin::AJAX_PREFIX . 'alt_save_bulk', array( $this, 'ajax_save_alt_bulk' ) );
 	}
 
 	/**
@@ -187,6 +188,67 @@ final class AltTextManager {
 
 		wp_send_json_success( $this->build_item( $id ) );
 	}
+
+	/**
+	 * POST params (one row per attachment id the user edited on the current
+	 * page — the JS only submits dirty rows):
+	 *   ids[]              — attachment IDs to write
+	 *   alt[<id>]          — new alt text for that id (sanitized per element)
+	 *   decorative[]       — the subset of ids flagged decorative
+	 *
+	 * Bulk counterpart to {@see ajax_save_alt()}, powering the "Save all
+	 * changes" button. Writes every valid image attachment in one request
+	 * and returns a refreshed build_item() row per saved id so the JS can
+	 * swap state in place without re-fetching the page. Non-image / invalid
+	 * ids are skipped (counted in `skipped`) rather than failing the batch.
+	 *
+	 * Response payload:
+	 *   items   — refreshed build_item() rows for every saved id
+	 *   saved   — count of ids written
+	 *   skipped — count of ids rejected (missing, non-attachment, non-image)
+	 */
+	public function ajax_save_alt_bulk(): void {
+		$this->authorize();
+
+		$ids  = Request::post_int_array( 'ids' );
+		$alts = Request::post_string_map( 'alt' );
+		// `decorative[]` carries only the ids the user checked; everything
+		// else is implicitly cleared.
+		$decorative_ids = array_fill_keys( Request::post_int_array( 'decorative' ), true );
+
+		$items   = array();
+		$saved   = 0;
+		$skipped = 0;
+
+		foreach ( $ids as $id ) {
+			if ( 'attachment' !== get_post_type( $id ) ) {
+				$skipped++;
+				continue;
+			}
+			$mime = (string) get_post_mime_type( $id );
+			if ( ! preg_match( '#^image/#', $mime ) ) {
+				$skipped++;
+				continue;
+			}
+
+			update_post_meta( $id, self::META_KEY_ALT, $alts[ $id ] ?? '' );
+
+			if ( isset( $decorative_ids[ $id ] ) ) {
+				update_post_meta( $id, self::META_KEY_DECORATIVE, '1' );
+			} else {
+				delete_post_meta( $id, self::META_KEY_DECORATIVE );
+			}
+
+			$items[] = $this->build_item( $id );
+			$saved++;
+		}
+
+		wp_send_json_success( array(
+			'items'   => $items,
+			'saved'   => $saved,
+			'skipped' => $skipped,
+		) );
+	}
 	// Request::post_* helpers carry their own phpcs:ignore comments so
 	// per-endpoint nonce-verification pragmas are no longer needed.
 
@@ -294,6 +356,10 @@ final class AltTextManager {
 		$alt        = (string) get_post_meta( $id, self::META_KEY_ALT, true );
 		$decorative = (bool) get_post_meta( $id, self::META_KEY_DECORATIVE, true );
 		$thumb_src  = wp_get_attachment_image_src( $id, array( 60, 60 ) );
+		// Full-size source for the "view full image" popup — the cropped
+		// 60×60 thumb is useless for actually reading what an image depicts
+		// while writing alt text.
+		$full_src   = wp_get_attachment_image_src( $id, 'full' );
 		$file       = (string) get_post_meta( $id, '_wp_attached_file', true );
 		$filename   = '' !== $file ? basename( $file ) : '';
 		$edit_url   = get_edit_post_link( $id, 'raw' );
@@ -302,6 +368,7 @@ final class AltTextManager {
 			'id'         => $id,
 			'filename'   => $filename,
 			'thumb'      => is_array( $thumb_src ) && isset( $thumb_src[0] ) ? $thumb_src[0] : '',
+			'full'       => is_array( $full_src ) && isset( $full_src[0] ) ? $full_src[0] : '',
 			'alt'        => $alt,
 			'decorative' => $decorative,
 			// "Missing" is server-computed so the JS doesn't have to encode the

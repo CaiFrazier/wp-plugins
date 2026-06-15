@@ -170,7 +170,7 @@ jQuery( function ( $ ) {
 		if ( ! reasons || ! reasons.length ) {
 			return '.';
 		}
-		return ' — ' + reasons.join( '; ' ) + '.';
+		return ' — ' + reasons.map( function( r ) { return r.replace( /\.$/, '' ); } ).join( '; ' ) + '.';
 	}
 
 	function showError( msg ) {
@@ -886,7 +886,9 @@ jQuery( function ( $ ) {
 	} );
 
 	// -----------------------------------------------------------------------
-	// Backfill manifest — one-time adoption flow for pre-1.2.2 installs.
+	// Claim all untracked variants — bulk adoption of orphan .webp/.avif files
+	// into the ownership manifest. Always available (not just first-run): new
+	// untracked variants recur via media imports and legacy plugins.
 	//
 	// Single-pass: pre-built attachment lookup maps make resolution cheap
 	// enough that a separate dry-run pass isn't worth the round-trip. The
@@ -908,7 +910,7 @@ jQuery( function ( $ ) {
 				if ( data.progress && data.progress.total > 0 ) {
 					$backfillBtn.text( sprintf(
 						/* translators: 1: chunks done, 2: total chunks, 3: files processed so far. */
-						__( 'Adopting… (subtree %1$d/%2$d, %3$d files)', 'cf-media-manager' ),
+						__( 'Claiming… (subtree %1$d/%2$d, %3$d files)', 'cf-media-manager' ),
 						data.progress.index,
 						data.progress.total,
 						totalProcessed
@@ -919,10 +921,10 @@ jQuery( function ( $ ) {
 				onDone( totalClaimed );
 			},
 			function onError( xhr ) {
-				$backfillBtn.prop( 'disabled', false ).text( __( 'Adopt legacy variants…', 'cf-media-manager' ) );
+				$backfillBtn.prop( 'disabled', false ).text( __( 'Claim all untracked variants…', 'cf-media-manager' ) );
 				showError( sprintf(
 					/* translators: %d: HTTP status code. */
-					__( 'Backfill AJAX request failed (HTTP %d).', 'cf-media-manager' ),
+					__( 'Claim AJAX request failed (HTTP %d).', 'cf-media-manager' ),
 					xhr ? xhr.status : 0
 				) );
 			},
@@ -931,16 +933,16 @@ jQuery( function ( $ ) {
 	}
 
 	$backfillBtn.on( 'click', function () {
-		var prompt = __( 'Adopt all untracked WebP/AVIF files into the plugin manifest?\n\nFiles registered as Media Library attachments are skipped automatically. Manually placed files cannot be distinguished from legacy plugin variants and will be adopted.\n\nThis runs through every uploads-folder subtree and may take several minutes on a large site.', 'cf-media-manager' );
+		var prompt = __( 'Claim all untracked WebP/AVIF files into the plugin manifest?\n\nFiles registered as Media Library attachments are skipped automatically. Manually placed files cannot be distinguished from legacy plugin variants and will be claimed.\n\nThis runs through every uploads-folder subtree and may take several minutes on a large site.', 'cf-media-manager' );
 		if ( ! confirm( prompt ) ) {
 			return;
 		}
-		$backfillBtn.prop( 'disabled', true ).text( __( 'Adopting…', 'cf-media-manager' ) );
+		$backfillBtn.prop( 'disabled', true ).text( __( 'Claiming…', 'cf-media-manager' ) );
 		runBackfill( function ( adopted ) {
 			$backfillBtn.prop( 'disabled', true ).text( __( 'Done', 'cf-media-manager' ) );
 			appendLog( sprintf(
-				/* translators: %d: number of adopted files. */
-				_n( 'Adopted %d file into the manifest.', 'Adopted %d files into the manifest.', adopted, 'cf-media-manager' ),
+				/* translators: %d: number of claimed files. */
+				_n( 'Claimed %d file into the manifest.', 'Claimed %d files into the manifest.', adopted, 'cf-media-manager' ),
 				adopted
 			) );
 			loadStatus();
@@ -1107,6 +1109,7 @@ jQuery( function ( $ ) {
 	var $batchSize       = $( '#cf-media-manager-batch-size' );
 	var $enableAvif      = $( '#cf-media-manager-enable-avif' );
 	var $rewriteFavicons = $( '#cf-media-manager-rewrite-favicons' );
+	var $altFallback     = $( '#cf-media-manager-alt-fallback' );
 	var $maxSourceMb     = $( '#cf-media-manager-max-source-mb' );
 	var $saveSettingsBtn = $( '#cf-media-manager-save-settings' );
 	var $settingsSaved   = $( '#cf-media-manager-settings-saved' );
@@ -1128,6 +1131,7 @@ jQuery( function ( $ ) {
 			rewrite         : $rewriteEnabled.is( ':checked' ) ? 1 : 0,
 			enable_avif     : $enableAvif.is( ':checked' ) ? 1 : 0,
 			rewrite_favicons: $rewriteFavicons.is( ':checked' ) ? 1 : 0,
+			alt_fallback    : $altFallback.is( ':checked' ) ? 1 : 0,
 			max_source_mb   : parseInt( $maxSourceMb.val(), 10 ) || 50,
 			scope           : $( 'input[name="cf_media_manager_scope"]:checked' ).val() || 'all',
 			filter_mode     : $filterMode.val(),
@@ -1417,6 +1421,22 @@ jQuery( function ( $ ) {
 		if ( canClaim ) {
 			html += '<p><button type="button" class="button button-primary cf-diag-claim" data-id="' + d.id + '">' + escapeHtml( __( 'Claim this WebP for this attachment', 'cf-media-manager' ) ) + '</button> <span class="cf-diag-claim-status"></span></p>';
 		}
+
+		// When the WebP/AVIF is itself a separate Media Library attachment,
+		// neither Claim nor Adopt can resolve it — the only fix is to remove
+		// the duplicate attachment so Convert can regenerate and own its own
+		// derivative. Offer a guarded one-click delete (the server refuses if
+		// the duplicate is referenced on the front end).
+		var conflictId = d.webp.is_attachment || ( d.avif && d.avif.is_attachment ) || 0;
+		if ( conflictId ) {
+			html += '<p><button type="button" class="button cf-btn-delete cf-diag-delete-conflict" data-id="' + d.id + '">' +
+				escapeHtml( sprintf(
+					/* translators: %d: the duplicate variant attachment ID. */
+					__( 'Delete the conflicting variant attachment (ID %d)', 'cf-media-manager' ),
+					conflictId
+				) ) + '</button> <span class="cf-diag-delete-status"></span></p>';
+			html += '<p class="description">' + escapeHtml( __( 'Permanently removes the duplicate .webp/.avif Media Library attachment occupying this slot, then Convert can regenerate it. Refused automatically if that attachment is referenced on the front end.', 'cf-media-manager' ) ) + '</p>';
+		}
 		html += '</div>';
 		$diagResult.show().html( html );
 	}
@@ -1452,6 +1472,50 @@ jQuery( function ( $ ) {
 					__( 'Claim request failed (HTTP %d).', 'cf-media-manager' ),
 					xhr.status
 				) + '</span>' );
+			} );
+	} );
+
+	$diagResult.on( 'click', '.cf-diag-delete-conflict', function () {
+		var $btn      = $( this );
+		var $status   = $btn.siblings( '.cf-diag-delete-status' );
+		var id        = parseInt( $btn.data( 'id' ), 10 );
+		var origLabel = $btn.text();
+
+		// Destructive + irreversible — confirm before firing.
+		if ( ! window.confirm( __( 'Permanently delete the duplicate .webp/.avif Media Library attachment occupying this slot?\n\nThis cannot be undone. Convert can regenerate the derivative afterward. The deletion is refused automatically if the attachment is referenced on the front end.', 'cf-media-manager' ) ) ) {
+			return;
+		}
+
+		$btn.prop( 'disabled', true ).text( __( 'Deleting…', 'cf-media-manager' ) );
+		$status.empty();
+
+		cfPost( 'delete_conflicting_variant', { id: id } )
+			.done( function ( res ) {
+				if ( ! res || ! res.success ) {
+					$btn.prop( 'disabled', false ).text( origLabel );
+					$status.html( '<span style="color:#b32d2e">' + escapeHtml( ( res && res.data ) || __( 'Delete failed.', 'cf-media-manager' ) ) + '</span>' );
+					return;
+				}
+				var deleted = res.data.deleted || [];
+				$btn.text( __( 'Deleted', 'cf-media-manager' ) );
+				$status.html( '<span style="color:#00a32a">' + escapeHtml( sprintf(
+					/* translators: %s: comma-joined list of deleted attachment IDs. */
+					__( 'Done — deleted attachment(s): %s. Re-run Diagnose to verify, or try Convert again.', 'cf-media-manager' ),
+					deleted.length ? deleted.join( ', ' ) : '—'
+				) ) + '</span>' );
+			} )
+			.fail( function ( xhr ) {
+				$btn.prop( 'disabled', false ).text( origLabel );
+				// 409 carries a specific "it's in use" message in the body;
+				// surface it rather than a bare status code when present.
+				var msg = ( xhr.responseJSON && xhr.responseJSON.data )
+					? xhr.responseJSON.data
+					: sprintf(
+						/* translators: %d: HTTP status code. */
+						__( 'Delete request failed (HTTP %d).', 'cf-media-manager' ),
+						xhr.status
+					);
+				$status.html( '<span style="color:#b32d2e">' + escapeHtml( msg ) + '</span>' );
 			} );
 	} );
 
@@ -1497,6 +1561,8 @@ jQuery( function ( $ ) {
 	var $altPrev       = $( '#cf-alt-prev' );
 	var $altNext       = $( '#cf-alt-next' );
 	var $altPageInfo   = $( '#cf-alt-page-info' );
+	var $altSaveAll    = $( '#cf-alt-save-all' );
+	var $altLightbox   = $( '#cf-alt-lightbox' );
 
 	var altState = {
 		loaded     : false,
@@ -1565,6 +1631,7 @@ jQuery( function ( $ ) {
 		if ( ! items.length ) {
 			$altEmpty.show();
 			$altTable.hide();
+			refreshDirtyState();
 			return;
 		}
 		$altEmpty.hide();
@@ -1572,6 +1639,7 @@ jQuery( function ( $ ) {
 			$altTbody.append( renderAltRow( item ) );
 		} );
 		$altTable.show();
+		refreshDirtyState();
 	}
 
 	function renderAltRow( item ) {
@@ -1581,15 +1649,26 @@ jQuery( function ( $ ) {
 		var decorativeBadge = item.decorative
 			? '<span class="cf-alt-badge cf-alt-badge--decorative">' + escapeHtml( __( 'Decorative', 'cf-media-manager' ) ) + '</span>'
 			: '';
-		var thumb = item.thumb
-			? '<img src="' + escapeHtml( item.thumb ) + '" alt="" loading="lazy">'
-			: '<span class="cf-alt-thumb-fallback">—</span>';
+		// The full-size source drives the click-to-enlarge popup. Fall back to
+		// the thumb when no distinct full source exists so the popup still
+		// shows *something* rather than breaking.
+		var fullSrc = item.full || item.thumb || '';
+		var thumb;
+		if ( item.thumb ) {
+			thumb = '<button type="button" class="cf-alt-thumb-btn" ' +
+				'data-full="' + escapeHtml( fullSrc ) + '" ' +
+				'aria-label="' + escapeHtml( __( 'View full image', 'cf-media-manager' ) ) + '">' +
+				'<img src="' + escapeHtml( item.thumb ) + '" alt="" loading="lazy">' +
+				'</button>';
+		} else {
+			thumb = '<span class="cf-alt-thumb-fallback">—</span>';
+		}
 		var fileLink = item.edit_url
 			? '<a href="' + escapeHtml( item.edit_url ) + '" target="_blank" rel="noopener">' + escapeHtml( item.filename ) + '</a>'
 			: escapeHtml( item.filename );
 
 		var $tr = $(
-			'<tr class="cf-alt-row" data-id="' + item.id + '">' +
+			'<tr class="cf-alt-row" data-id="' + item.id + '" data-filename="' + escapeHtml( item.filename ) + '">' +
 				'<td class="cf-alt-col-thumb"><div class="cf-alt-thumb">' + thumb + '</div></td>' +
 				'<td class="cf-alt-col-meta">' +
 					'<div class="cf-alt-filename">' + fileLink + '</div>' +
@@ -1616,7 +1695,48 @@ jQuery( function ( $ ) {
 		// twice (once for the input value attr, once for the surrounding HTML).
 		$tr.find( '.cf-alt-input' ).val( item.alt );
 		$tr.find( '.cf-alt-decorative' ).prop( 'checked', !! item.decorative );
+		seedRowBaseline( $tr, item );
 		return $tr;
+	}
+
+	// Record the server's current alt/decorative state on the row so we can
+	// detect whether the user has edited it ("dirty"). "Save all changes"
+	// only submits dirty rows.
+	function seedRowBaseline( $row, item ) {
+		$row.data( 'origAlt', item.alt || '' );
+		$row.data( 'origDecorative', !! item.decorative );
+		$row.removeClass( 'cf-alt-row--dirty' );
+	}
+
+	function isRowDirty( $row ) {
+		var alt        = $row.find( '.cf-alt-input' ).val();
+		var decorative = $row.find( '.cf-alt-decorative' ).is( ':checked' );
+		return alt !== $row.data( 'origAlt' ) || decorative !== $row.data( 'origDecorative' );
+	}
+
+	// Recompute per-row dirty flags and toggle the "Save all changes" button.
+	function refreshDirtyState() {
+		var dirty = 0;
+		$altTbody.find( '.cf-alt-row' ).each( function () {
+			var $row = $( this );
+			if ( isRowDirty( $row ) ) {
+				$row.addClass( 'cf-alt-row--dirty' );
+				dirty++;
+			} else {
+				$row.removeClass( 'cf-alt-row--dirty' );
+			}
+		} );
+
+		$altSaveAll.prop( 'disabled', dirty === 0 );
+		if ( dirty === 0 ) {
+			$altSaveAll.text( __( 'Save all changes', 'cf-media-manager' ) );
+		} else {
+			$altSaveAll.text( sprintf(
+				/* translators: %d: number of rows with unsaved edits. */
+				__( 'Save all changes (%d)', 'cf-media-manager' ),
+				dirty
+			) );
+		}
 	}
 
 	function renderAltSummary() {
@@ -1700,16 +1820,11 @@ jQuery( function ( $ ) {
 					altShowError( __( 'Save failed.', 'cf-media-manager' ) );
 					return;
 				}
-				// Refresh row badges from the server-computed state.
+				// Refresh row badges + baseline from the server-computed state.
 				var item = res.data;
-				var $badges = $row.find( '.cf-alt-badges' );
-				$badges.empty();
-				if ( item.missing ) {
-					$badges.append( '<span class="cf-alt-badge cf-alt-badge--missing">' + escapeHtml( __( 'Missing', 'cf-media-manager' ) ) + '</span>' );
-				}
-				if ( item.decorative ) {
-					$badges.append( '<span class="cf-alt-badge cf-alt-badge--decorative">' + escapeHtml( __( 'Decorative', 'cf-media-manager' ) ) + '</span>' );
-				}
+				updateRowBadges( $row, item );
+				seedRowBaseline( $row, item );
+				refreshDirtyState();
 				$indicator.show().delay( 1800 ).fadeOut( 200 );
 			} )
 			.fail( function ( xhr ) {
@@ -1720,6 +1835,111 @@ jQuery( function ( $ ) {
 					xhr.status
 				) );
 			} );
+	} );
+
+	// Replace a row's badge cluster from a server-computed item payload.
+	// Shared by the single-row and bulk save paths.
+	function updateRowBadges( $row, item ) {
+		var $badges = $row.find( '.cf-alt-badges' );
+		$badges.empty();
+		if ( item.missing ) {
+			$badges.append( '<span class="cf-alt-badge cf-alt-badge--missing">' + escapeHtml( __( 'Missing', 'cf-media-manager' ) ) + '</span>' );
+		}
+		if ( item.decorative ) {
+			$badges.append( '<span class="cf-alt-badge cf-alt-badge--decorative">' + escapeHtml( __( 'Decorative', 'cf-media-manager' ) ) + '</span>' );
+		}
+	}
+
+	// Recompute dirty state whenever the user edits an alt input or toggles a
+	// decorative checkbox. Delegated because rows are rendered dynamically.
+	$altTbody.on( 'input', '.cf-alt-input', refreshDirtyState );
+	$altTbody.on( 'change', '.cf-alt-decorative', refreshDirtyState );
+
+	// "Save all changes": collect every dirty row on the current page and
+	// write them in one bulk request.
+	$altSaveAll.on( 'click', function () {
+		var $dirtyRows = $altTbody.find( '.cf-alt-row' ).filter( function () {
+			return isRowDirty( $( this ) );
+		} );
+		if ( ! $dirtyRows.length ) { return; }
+
+		var ids        = [];
+		var alt        = {};
+		var decorative = [];
+		$dirtyRows.each( function () {
+			var $row = $( this );
+			var id   = parseInt( $row.data( 'id' ), 10 );
+			ids.push( id );
+			alt[ id ] = $row.find( '.cf-alt-input' ).val();
+			if ( $row.find( '.cf-alt-decorative' ).is( ':checked' ) ) {
+				decorative.push( id );
+			}
+		} );
+
+		$altSaveAll.prop( 'disabled', true ).text( __( 'Saving…', 'cf-media-manager' ) );
+		$altError.hide().find( 'p' ).empty();
+
+		cfPost( 'alt_save_bulk', {
+			ids        : ids,
+			alt        : alt,
+			decorative : decorative
+		} )
+			.done( function ( res ) {
+				if ( ! res || ! res.success ) {
+					altShowError( __( 'Bulk save failed.', 'cf-media-manager' ) );
+					refreshDirtyState();
+					return;
+				}
+				( res.data.items || [] ).forEach( function ( item ) {
+					var $row = $altTbody.find( '.cf-alt-row[data-id="' + item.id + '"]' );
+					if ( ! $row.length ) { return; }
+					$row.find( '.cf-alt-input' ).val( item.alt );
+					$row.find( '.cf-alt-decorative' ).prop( 'checked', !! item.decorative );
+					updateRowBadges( $row, item );
+					seedRowBaseline( $row, item );
+					$row.find( '.cf-alt-saved-indicator' ).show().delay( 1800 ).fadeOut( 200 );
+				} );
+				refreshDirtyState();
+			} )
+			.fail( function ( xhr ) {
+				refreshDirtyState();
+				altShowError( sprintf(
+					/* translators: %d: HTTP status code. */
+					__( 'Bulk save request failed (HTTP %d).', 'cf-media-manager' ),
+					xhr.status
+				) );
+			} );
+	} );
+
+	// -----------------------------------------------------------------------
+	// Full-image popup. The table thumb is a cropped 60×60 square — useless
+	// for actually reading an image while writing its alt text. Clicking a
+	// thumb opens the full-size source in an overlay.
+	// -----------------------------------------------------------------------
+	function openAltLightbox( src, caption ) {
+		if ( ! src ) { return; }
+		$altLightbox.find( '.cf-alt-lightbox-img' ).attr( 'src', src );
+		$altLightbox.find( '.cf-alt-lightbox-caption' ).text( caption || '' );
+		$altLightbox.prop( 'hidden', false );
+	}
+
+	function closeAltLightbox() {
+		$altLightbox.prop( 'hidden', true );
+		// Drop the src so a large image isn't held in memory while closed.
+		$altLightbox.find( '.cf-alt-lightbox-img' ).attr( 'src', '' );
+	}
+
+	$altTbody.on( 'click', '.cf-alt-thumb-btn', function () {
+		var $btn = $( this );
+		openAltLightbox( $btn.data( 'full' ), $btn.closest( '.cf-alt-row' ).data( 'filename' ) );
+	} );
+
+	$altLightbox.on( 'click', '.cf-alt-lightbox-backdrop, .cf-alt-lightbox-close', closeAltLightbox );
+
+	$( document ).on( 'keydown', function ( e ) {
+		if ( 'Escape' === e.key && ! $altLightbox.prop( 'hidden' ) ) {
+			closeAltLightbox();
+		}
 	} );
 
 	// If the user starts on the Accessibility tab (restored from localStorage),

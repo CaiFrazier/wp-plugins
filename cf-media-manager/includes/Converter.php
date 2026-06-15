@@ -220,7 +220,7 @@ final class Converter {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- WP_DEBUG-gated security event log.
 				error_log( '[cf-media-manager] Refusing to overwrite unowned variant: ' . $webp_dest );
 			}
-			$this->last_skip_reason = __( 'An unowned WebP exists in the destination slot — run "Adopt legacy variants" to claim it, or delete the foreign file.', 'cf-media-manager' );
+			$this->last_skip_reason = __( 'An unowned WebP exists in the destination slot. Open the plugin\'s "Diagnose Attachment" tool (Media → Media Manager → Convert tab) and enter this image\'s ID for the exact cause and a one-click fix.', 'cf-media-manager' );
 			return false;
 		}
 		if ( $avif_blocked ) {

@@ -21,6 +21,7 @@ final class Options {
 	const PURGE_FLAG          = 'cf_media_manager_pending_purge';   // unix timestamp — set after conversion
 	const ENABLE_AVIF         = 'cf_media_manager_enable_avif';     // bool — produce .avif alongside .webp
 	const REWRITE_FAVICONS    = 'cf_media_manager_rewrite_favicons'; // bool — rewrite favicon/touch-icon <link> hrefs to .webp (off by default; iOS does not honor .webp for apple-touch-icon)
+	const ALT_FALLBACK        = 'cf_media_manager_alt_fallback';    // bool — at render time fill empty/missing <img> alt from the attachment's _wp_attachment_image_alt (on by default; rides the rewrite output pass)
 	const MAX_SOURCE_MB       = 'cf_media_manager_max_source_mb';   // int — admin-configurable source filesize cap in MB (clamped to [1, HARD_MAX_SOURCE_MB])
 	const QUEUE_STATE         = 'cf_media_manager_queue_state';     // background queue progress + ids
 	const QUEUE_LOCK          = 'cf_media_manager_queue_lock';      // option (autoload=false) — atomic add_option lock for process_chunk; carries token+expires struct
@@ -100,6 +101,7 @@ final class Options {
 			self::PURGE_FLAG,
 			self::ENABLE_AVIF,
 			self::REWRITE_FAVICONS,
+			self::ALT_FALLBACK,
 			self::MAX_SOURCE_MB,
 			self::QUEUE_STATE,
 			self::QUEUE_LOCK,

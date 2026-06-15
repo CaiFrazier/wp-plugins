@@ -4,7 +4,7 @@ Tags: webp, avif, image optimization, performance, picture
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 2.1.3
+Stable tag: 2.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -117,6 +117,14 @@ Yes:
 4. Background queue card with cancel/dismiss controls.
 
 == Changelog ==
+
+= 2.2.0 =
+* **New: render-time alt-text fallback.** Page builders — Divi's image module above all — store a per-instance alt in the layout, captured when the image was inserted, and never re-read the attachment field afterward. So alt text set in the Media Library or this plugin's Accessibility tab never reaches the page; the image ships with `alt=""`. A new setting (Convert → Settings → "Alt text fallback", on by default) fills any empty or missing `alt` on an uploads-folder image from that attachment's alt text at render time, riding the existing rewrite output pass. It only ever adds an accessible name — never overrides an author-set alt — and skips images flagged decorative, `aria-hidden="true"`, `role="presentation"`, or carrying `data-no-alt`. Resolves builder-hard-coded `.webp`/`.avif` URLs back to their source attachment.
+* **New: "Save all changes" on the Accessibility tab.** Edit alt text across the whole page of results and commit every changed row in a single request. Edited rows are highlighted and the button shows a live count; unchanged rows are never re-written.
+* **New: click-to-enlarge image preview on the Accessibility tab.** The thumbnail is now a button that opens the full-size image in a popup, so you can actually see what you are describing instead of squinting at a cropped 60×60 square. Close with the ✕, the backdrop, or Escape.
+* **New: one-click "Delete conflicting variant attachment" in Diagnose Attachment.** When a `.webp`/`.avif` was imported as its own Media Library attachment (a common migration artifact), it occupies the destination slot and blocks conversion — and neither Adopt nor Claim can resolve it, because both refuse to seize a file that belongs to a real attachment. The diagnostic now offers a guarded one-click delete of that duplicate (re-derived from the source, force-deleted to free the slot, and refused automatically if the duplicate is referenced on the front end).
+* **Change: "Claim all untracked variants" is always available.** The bulk-claim button (formerly "Adopt legacy variants…") was permanently hidden after the first run, leaving no way to claim variants that show up later — e.g. a batch of `.webp` files brought in by a media import or left by a previously-removed plugin. It now stays on the Convert tab and is safe to re-run anytime, so a site with dozens or hundreds of newly-unowned variants can be claimed in one pass instead of one-by-one through Diagnose. Renamed for clarity; the underlying claim/adopt behavior is unchanged (orphan files claimed, attachment-owned files skipped).
+* **Fix: misleading "Adopt legacy variants" skip message.** When conversion was blocked by an unowned WebP, the message told you to run a button that is hidden after the first backfill — and that, even if run, would deliberately skip the file. It now points to the always-available Diagnose Attachment tool, which reports the exact cause and offers the matching fix.
 
 = 2.1.3 =
 * **Fix: a crashed conversion worker could wedge an attachment for up to 5 minutes.** When a php-fpm worker was killed mid-conversion (a native libheif/libaom AVIF crash, or an OOM-kill — neither catchable in PHP), the per-attachment lock's `finally` release never ran, leaking both the object-cache and DB-option lock. The object-cache layer also short-circuited *before* the stale-lock recovery could run, so every retry returned "Conversion already in progress for this attachment" until the full TTL expired. The lock now self-heals: staleness — an expired TTL **or** a dead owner PID (checked via `posix_kill`) — is evaluated before the cache fast-path, so a leaked lock is reclaimed on the very next attempt instead of waiting out the timeout.
@@ -268,6 +276,9 @@ Yes:
 * Full i18n with `.pot` shipped; translations welcome via translate.wordpress.org.
 
 == Upgrade Notice ==
+
+= 2.2.0 =
+Adds a render-time alt-text fallback (on by default) that fills empty/missing image alt from the attachment field — fixing page-builder images (Divi, etc.) that ignore it. Also adds "Save all" + a full-image preview to the Accessibility tab and a one-click fix for duplicate .webp/.avif attachments that block conversion. Purely additive; disable the fallback under Convert → Settings if needed. No breaking changes.
 
 = 2.1.0 =
 Major scope expansion: Media Library list view (40+ columns, CSV export, REST endpoint) and a five-report audit subsystem with the "receipts" pattern. Folds in the standalone cf-media-list-view plugin. No breaking changes.

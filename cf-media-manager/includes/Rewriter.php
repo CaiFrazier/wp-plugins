@@ -43,6 +43,9 @@ final class Rewriter {
 	/** Per-request file-existence cache: path → bool. */
 	private array $exists_cache = [];
 
+	/** Per-request alt-fallback resolution cache: upload-rel path → attachment ID (0 = none). */
+	private array $alt_id_cache = [];
+
 	public function __construct( Paths $paths, ?VariantManifest $manifest = null ) {
 		$this->paths    = $paths;
 		$this->manifest = $manifest ?? new VariantManifest( $paths );
@@ -50,6 +53,7 @@ final class Rewriter {
 
 	public function reset_exists_cache(): void {
 		$this->exists_cache = [];
+		$this->alt_id_cache = [];
 	}
 
 	public function register_hooks(): void {
@@ -189,10 +193,19 @@ final class Rewriter {
 			return $original;
 		}
 
+		// Alt-text fallback: at render time, fill an empty/missing <img> alt
+		// from the attachment's own alt field. Page builders (Divi image
+		// modules, etc.) store their own per-module alt in post_content and
+		// never re-read the attachment field, so alt set in the media library
+		// or this plugin's Accessibility tab otherwise never reaches the page.
+		// Rides this existing single output pass; opt-out via Options::ALT_FALLBACK.
+		$alt_fallback = (bool) get_option( Options::ALT_FALLBACK, true );
+
 		$html = self::safe_preg_replace_callback(
 			'#<img\b[^>]*>#i',
-			function ( $m ) use ( &$masks ) {
-				$result        = $this->maybe_wrap_img( $m[0] );
+			function ( $m ) use ( &$masks, $alt_fallback ) {
+				$tag           = $alt_fallback ? $this->apply_alt_fallback( $m[0] ) : $m[0];
+				$result        = $this->maybe_wrap_img( $tag );
 				$idx           = count( $masks );
 				$masks[ $idx ] = $result;
 				return "\0CFP{$idx}\0";
@@ -325,6 +338,147 @@ final class Rewriter {
 		}
 
 		return '<picture>' . $sources . $tag . '</picture>';
+	}
+
+	/**
+	 * Fill an empty or missing `alt` on an <img> from the attachment's own
+	 * `_wp_attachment_image_alt`. Returns the tag unchanged when there is
+	 * nothing to do.
+	 *
+	 * Why this exists: page builders (notably Divi's image module) store a
+	 * per-instance alt in `post_content`, captured when the image was first
+	 * inserted, and never re-read the attachment field afterward. So alt set
+	 * later in the Media Library — or this plugin's Accessibility tab — never
+	 * reaches the rendered page; the <img> ships with `alt=""`. This render-
+	 * time pass closes that gap for every uploads-dir image.
+	 *
+	 * Deliberately conservative — it only ever ADDS an accessible name, never
+	 * overrides one:
+	 *   - Skips images that already carry a non-empty alt (author intent wins).
+	 *   - Skips `aria-hidden="true"` and `role="presentation"` (correctly
+	 *     decorative — empty alt is the right value).
+	 *   - Skips images the admin flagged decorative in this plugin (same key
+	 *     the Accessibility tab writes).
+	 *   - Honors a `data-no-alt` opt-out attribute.
+	 *   - Does nothing when the attachment itself has no alt to offer.
+	 */
+	public function apply_alt_fallback( string $tag ): string {
+		// Author opt-out + decorative/hidden signals — empty alt is intended.
+		if ( preg_match( '#\bdata-no-alt\b#i', $tag ) ) {
+			return $tag;
+		}
+		if ( preg_match( '#\baria-hidden\s*=\s*["\']?true#i', $tag ) ) {
+			return $tag;
+		}
+		if ( preg_match( '#\brole\s*=\s*["\']?presentation#i', $tag ) ) {
+			return $tag;
+		}
+
+		// Already has a usable alt? Leave it — never override author intent.
+		$existing = self::extract_attr( $tag, 'alt' );
+		if ( null !== $existing && '' !== trim( $existing ) ) {
+			return $tag;
+		}
+
+		$src = self::extract_attr( $tag, 'src' );
+		if ( null === $src || '' === $src ) {
+			return $tag;
+		}
+
+		$id = $this->resolve_attachment_id_for_url( $src );
+		if ( $id <= 0 ) {
+			return $tag;
+		}
+
+		// Respect the plugin's decorative flag (Accessibility tab) — the admin
+		// deliberately chose empty alt for this image.
+		if ( get_post_meta( $id, AltTextManager::META_KEY_DECORATIVE, true ) ) {
+			return $tag;
+		}
+
+		$alt = (string) get_post_meta( $id, AltTextManager::META_KEY_ALT, true );
+		if ( '' === trim( $alt ) ) {
+			return $tag;
+		}
+
+		$alt_attr = 'alt="' . esc_attr( $alt ) . '"';
+
+		// Whether an alt attribute physically exists (even if empty) decides
+		// replace-vs-insert. Callbacks return the literal replacement so any
+		// `$`/`\` in the alt text is never treated as a backreference.
+		$has_alt_attr = (bool) preg_match( '#\balt\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)#i', $tag );
+		if ( $has_alt_attr ) {
+			$new = preg_replace_callback(
+				'#\balt\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)#i',
+				static function () use ( $alt_attr ) {
+					return $alt_attr;
+				},
+				$tag,
+				1
+			);
+		} else {
+			$new = preg_replace_callback(
+				'#<img\b#i',
+				static function () use ( $alt_attr ) {
+					return '<img ' . $alt_attr;
+				},
+				$tag,
+				1
+			);
+		}
+
+		return is_string( $new ) ? $new : $tag;
+	}
+
+	/**
+	 * Resolve a rendered image URL to its Media Library attachment ID, or 0.
+	 *
+	 * Accepts the three upload-URL shapes {@see Paths::normalize_upload_url()}
+	 * handles, strips any query/fragment, and resolves the upload-relative
+	 * path through {@see AttachmentLookup} (which covers both originals and
+	 * WordPress size variants like `foo-300x200.png`). When the URL points at
+	 * one of this plugin's generated `.webp`/`.avif` derivatives — which are
+	 * not attachments themselves — it retries against the likely source
+	 * extensions so a page that hard-codes the variant URL still resolves to
+	 * the original attachment. Memoized per request.
+	 */
+	private function resolve_attachment_id_for_url( string $url ): int {
+		$abs = $this->paths->normalize_upload_url( $url );
+		if ( null === $abs ) {
+			return 0;
+		}
+		$abs = (string) preg_replace( '/[?#].*$/', '', $abs );
+
+		$base = rtrim( $this->paths->upload_url(), '/' ) . '/';
+		if ( 0 !== strpos( $abs, $base ) ) {
+			return 0;
+		}
+		$rel = substr( $abs, strlen( $base ) );
+		if ( '' === $rel ) {
+			return 0;
+		}
+
+		if ( isset( $this->alt_id_cache[ $rel ] ) ) {
+			return $this->alt_id_cache[ $rel ];
+		}
+
+		$candidates = [ $rel ];
+		if ( preg_match( '#\.(?:webp|avif)$#i', $rel ) ) {
+			foreach ( [ 'png', 'jpg', 'jpeg', 'gif' ] as $ext ) {
+				$candidates[] = (string) preg_replace( '#\.(?:webp|avif)$#i', '.' . $ext, $rel );
+			}
+		}
+
+		$id = 0;
+		foreach ( $candidates as $cand ) {
+			$id = AttachmentLookup::resolve_relative_path( $cand );
+			if ( $id > 0 ) {
+				break;
+			}
+		}
+
+		$this->alt_id_cache[ $rel ] = $id;
+		return $id;
 	}
 
 	/**

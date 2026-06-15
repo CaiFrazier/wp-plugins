@@ -682,6 +682,23 @@
 	display: block;
 }
 
+/* The thumb is a button so it can open the full-image popup. Strip the
+   native button chrome so it reads as a plain clickable thumbnail. */
+.cf-alt-thumb-btn {
+	display: block;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: zoom-in;
+}
+
+.cf-alt-thumb-btn:focus-visible {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}
+
 .cf-alt-thumb-fallback {
 	color: #c3c4c7;
 	font-size: 20px;
@@ -765,6 +782,88 @@
 	font-size: 13px;
 	min-width: 110px;
 	text-align: center;
+}
+
+/* "Save all changes" sits at the right end of the controls bar. */
+.cf-alt-save-all {
+	margin-left: auto;
+}
+
+/* Highlight rows with unsaved edits so "Save all" is self-explanatory. */
+.cf-alt-row--dirty td {
+	background: #fcf9e8;
+}
+
+/* ---- Full-image popup (lightbox) ---------------------------------------- */
+.cf-alt-lightbox {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.cf-alt-lightbox[hidden] {
+	display: none;
+}
+
+.cf-alt-lightbox-backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba( 0, 0, 0, 0.75 );
+	cursor: zoom-out;
+}
+
+.cf-alt-lightbox-body {
+	position: relative;
+	max-width: 92vw;
+	max-height: 92vh;
+	background: #fff;
+	border-radius: 6px;
+	padding: 12px;
+	box-shadow: 0 10px 40px rgba( 0, 0, 0, 0.4 );
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.cf-alt-lightbox-img {
+	max-width: 88vw;
+	max-height: 80vh;
+	width: auto;
+	height: auto;
+	object-fit: contain;
+	display: block;
+}
+
+.cf-alt-lightbox-caption {
+	margin-top: 10px;
+	font-family: 'SF Mono', 'Fira Code', monospace;
+	font-size: 12px;
+	color: #50575e;
+	word-break: break-all;
+	text-align: center;
+}
+
+.cf-alt-lightbox-close {
+	position: absolute;
+	top: -14px;
+	right: -14px;
+	width: 32px;
+	height: 32px;
+	border-radius: 99px;
+	border: 0;
+	background: #1d2327;
+	color: #fff;
+	font-size: 22px;
+	line-height: 1;
+	cursor: pointer;
+	box-shadow: 0 2px 6px rgba( 0, 0, 0, 0.4 );
+}
+
+.cf-alt-lightbox-close:hover {
+	background: #2271b1;
 }
 
 /* Diagnose Attachment report */

@@ -173,6 +173,7 @@ final class AltTextManagerTest extends TestCase {
 		$hooks = $GLOBALS['cf_media_manager_test_hooks'] ?? array();
 		self::assertArrayHasKey( 'wp_ajax_cf_media_manager_alt_list', $hooks );
 		self::assertArrayHasKey( 'wp_ajax_cf_media_manager_alt_save', $hooks );
+		self::assertArrayHasKey( 'wp_ajax_cf_media_manager_alt_save_bulk', $hooks );
 	}
 
 	// =========================================================================
@@ -255,6 +256,90 @@ final class AltTextManagerTest extends TestCase {
 			'decorative=0 must delete the flag'
 		);
 		self::assertTrue( $exit->data['missing'], 'empty alt without decorative is missing' );
+	}
+
+	// =========================================================================
+	// alt_save_bulk — multi-row write
+	// =========================================================================
+
+	public function test_bulk_save_writes_alt_and_decorative_across_rows(): void {
+		$this->seed_attachment( 20 );
+		$this->seed_attachment( 21 );
+		$this->seed_attachment( 22 );
+
+		$_POST['ids'] = array( 20, 21, 22 );
+		$_POST['alt'] = array(
+			20 => 'First photo',
+			21 => 'Second photo',
+			22 => '', // left empty, marked decorative below
+		);
+		$_POST['decorative'] = array( 22 );
+
+		$exit = $this->invoke( array( $this->make_manager(), 'ajax_save_alt_bulk' ) );
+
+		self::assertTrue( $exit->success );
+		self::assertSame( 3, $exit->data['saved'] );
+		self::assertSame( 0, $exit->data['skipped'] );
+
+		self::assertSame( 'First photo', get_post_meta( 20, AltTextManager::META_KEY_ALT, true ) );
+		self::assertSame( 'Second photo', get_post_meta( 21, AltTextManager::META_KEY_ALT, true ) );
+		self::assertSame( '', get_post_meta( 22, AltTextManager::META_KEY_ALT, true ) );
+		self::assertSame( '1', get_post_meta( 22, AltTextManager::META_KEY_DECORATIVE, true ) );
+
+		// Returned items mirror build_item() so the JS can swap rows in place.
+		$ids = array_column( $exit->data['items'], 'id' );
+		sort( $ids );
+		self::assertSame( array( 20, 21, 22 ), $ids );
+	}
+
+	public function test_bulk_save_clears_decorative_when_not_listed(): void {
+		$this->seed_attachment( 30, array( 'alt' => '', 'decorative' => true ) );
+
+		// Same id submitted with real alt and NOT in the decorative list —
+		// the flag must be cleared.
+		$_POST['ids']        = array( 30 );
+		$_POST['alt']        = array( 30 => 'Now described' );
+		$_POST['decorative'] = array();
+
+		$exit = $this->invoke( array( $this->make_manager(), 'ajax_save_alt_bulk' ) );
+
+		self::assertTrue( $exit->success );
+		self::assertSame( 'Now described', get_post_meta( 30, AltTextManager::META_KEY_ALT, true ) );
+		self::assertSame(
+			'',
+			get_post_meta( 30, AltTextManager::META_KEY_DECORATIVE, true ),
+			'id absent from decorative[] must clear the flag'
+		);
+	}
+
+	public function test_bulk_save_skips_non_image_and_missing_ids(): void {
+		$this->seed_attachment( 40 );                                       // valid image
+		$this->seed_attachment( 41, array( 'post_mime_type' => 'application/pdf' ) ); // not an image
+		// 42 is never seeded — get_post_type() returns '' so it's skipped.
+
+		$_POST['ids'] = array( 40, 41, 42 );
+		$_POST['alt'] = array(
+			40 => 'Valid',
+			41 => 'Should be skipped',
+			42 => 'Ghost',
+		);
+
+		$exit = $this->invoke( array( $this->make_manager(), 'ajax_save_alt_bulk' ) );
+
+		self::assertTrue( $exit->success );
+		self::assertSame( 1, $exit->data['saved'] );
+		self::assertSame( 2, $exit->data['skipped'] );
+		self::assertSame( 'Valid', get_post_meta( 40, AltTextManager::META_KEY_ALT, true ) );
+		self::assertSame( '', get_post_meta( 41, AltTextManager::META_KEY_ALT, true ) );
+	}
+
+	public function test_bulk_save_with_no_ids_saves_nothing(): void {
+		$_POST['ids'] = array();
+		$exit = $this->invoke( array( $this->make_manager(), 'ajax_save_alt_bulk' ) );
+
+		self::assertTrue( $exit->success );
+		self::assertSame( 0, $exit->data['saved'] );
+		self::assertSame( array(), $exit->data['items'] );
 	}
 
 	// =========================================================================
@@ -392,5 +477,7 @@ final class AltTextManagerTest extends TestCase {
 		self::assertTrue( $item['missing'] );
 		self::assertFalse( $item['decorative'] );
 		self::assertStringContainsString( 'post.php?post=99', $item['edit_url'] );
+		// The full-size source powers the click-to-enlarge popup.
+		self::assertArrayHasKey( 'full', $item );
 	}
 }
