@@ -4,7 +4,7 @@ Tags: webp, avif, image optimization, performance, picture
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 2.2.0
+Stable tag: 2.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -117,6 +117,9 @@ Yes:
 4. Background queue card with cancel/dismiss controls.
 
 == Changelog ==
+
+= 2.2.1 =
+* **Fix: doubled periods in the per-attachment convert "reasons" message.** When `convert_batch` returned reasons that already ended in a period, `formatReasonSuffix` joined them into strings like "… .; ….." Each reason now has any trailing period stripped before the list is joined, so the suffix reads cleanly as " — reason1; reason2.". Display-only; no change to conversion behavior.
 
 = 2.2.0 =
 * **New: render-time alt-text fallback.** Page builders — Divi's image module above all — store a per-instance alt in the layout, captured when the image was inserted, and never re-read the attachment field afterward. So alt text set in the Media Library or this plugin's Accessibility tab never reaches the page; the image ships with `alt=""`. A new setting (Convert → Settings → "Alt text fallback", on by default) fills any empty or missing `alt` on an uploads-folder image from that attachment's alt text at render time, riding the existing rewrite output pass. It only ever adds an accessible name — never overrides an author-set alt — and skips images flagged decorative, `aria-hidden="true"`, `role="presentation"`, or carrying `data-no-alt`. Resolves builder-hard-coded `.webp`/`.avif` URLs back to their source attachment.
@@ -276,6 +279,9 @@ Yes:
 * Full i18n with `.pot` shipped; translations welcome via translate.wordpress.org.
 
 == Upgrade Notice ==
+
+= 2.2.1 =
+Display-only fix: removes doubled periods in the per-attachment convert "reasons" message. No behavior or settings changes.
 
 = 2.2.0 =
 Adds a render-time alt-text fallback (on by default) that fills empty/missing image alt from the attachment field — fixing page-builder images (Divi, etc.) that ignore it. Also adds "Save all" + a full-image preview to the Accessibility tab and a one-click fix for duplicate .webp/.avif attachments that block conversion. Purely additive; disable the fallback under Convert → Settings if needed. No breaking changes.
