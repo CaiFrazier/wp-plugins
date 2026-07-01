@@ -189,6 +189,9 @@ require_once __DIR__ . '/../includes/class-cpt.php';
 // to action hooks and call deeply WP-internal helpers. Destination-safety lives
 // in the shared CFQR_URL helper, so we can test it directly.
 require_once __DIR__ . '/../includes/class-analytics.php';
+// SEO-plugin compat: pure array/boolean transforms, no WP calls — safe to load
+// and test directly. init() only registers filters, which we don't invoke here.
+require_once __DIR__ . '/../includes/class-seo-compat.php';
 
 // Backwards-compat shim: earlier revisions of this harness inlined the
 // is_safe_destination predicate as cfqr_test_is_safe_destination(). Existing
@@ -574,6 +577,38 @@ it( 'wp_json_encode with hex flags neutralizes </script> in destination', functi
 	assert_true( false === strpos( $json, '<' ), 'encoded JSON must not contain a literal < character' );
 	assert_true( false === strpos( $json, '>' ), 'encoded JSON must not contain a literal > character' );
 	assert_true( false !== strpos( $json, '\\u003C' ) || false !== strpos( $json, '\\u003c' ), 'encoded JSON should contain hex-escaped <' );
+} );
+
+echo "\n== SEO-plugin compat (cfqr_code excluded) ==\n";
+
+it( 'remove_from_array drops cfqr_code, keeps others (Yoast/SEOPress shape)', function () {
+	$in  = array( 'post' => 'post', 'page' => 'page', CFQR_POST_TYPE => CFQR_POST_TYPE );
+	$out = CFQR_SEO_Compat::remove_from_array( $in );
+	assert_true( ! array_key_exists( CFQR_POST_TYPE, $out ), 'cfqr_code key must be removed' );
+	assert_true( array_key_exists( 'post', $out ) && array_key_exists( 'page', $out ), 'other post types must survive' );
+} );
+
+it( 'remove_from_array tolerates a non-array (defensive)', function () {
+	assert_equal( false, CFQR_SEO_Compat::remove_from_array( false ), 'non-array passes through unchanged' );
+} );
+
+it( 'remove_from_values drops cfqr_code and reindexes (AIOSEO/Slim SEO shape)', function () {
+	$in  = array( 'post', CFQR_POST_TYPE, 'page' );
+	$out = CFQR_SEO_Compat::remove_from_values( $in );
+	assert_true( ! in_array( CFQR_POST_TYPE, $out, true ), 'cfqr_code must be removed' );
+	assert_equal( array( 'post', 'page' ), $out, 'list must be reindexed without gaps' );
+} );
+
+it( 'tsf_unsupport reports cfqr_code unsupported, leaves others as-is', function () {
+	assert_equal( false, CFQR_SEO_Compat::tsf_unsupport( true, CFQR_POST_TYPE ), 'cfqr_code must be unsupported' );
+	assert_equal( true, CFQR_SEO_Compat::tsf_unsupport( true, 'post' ), 'other supported types stay supported' );
+	assert_equal( false, CFQR_SEO_Compat::tsf_unsupport( false, 'post' ), 'already-unsupported types stay unsupported' );
+} );
+
+it( 'rank_math_exclude excludes cfqr_code from the sitemap, leaves others', function () {
+	assert_equal( true, CFQR_SEO_Compat::rank_math_exclude( false, CFQR_POST_TYPE ), 'cfqr_code must be excluded' );
+	assert_equal( false, CFQR_SEO_Compat::rank_math_exclude( false, 'post' ), 'other types keep incoming value' );
+	assert_equal( true, CFQR_SEO_Compat::rank_math_exclude( true, 'post' ), 'a prior exclusion is preserved' );
 } );
 
 // ---------- Summary --------------------------------------------------------

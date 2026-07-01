@@ -4,7 +4,7 @@ Tags: qr code, redirect, shortlink, analytics, ga4
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 1.1.1
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -138,6 +138,10 @@ For most campaigns, yes — the hit counter uses an atomic `UPDATE meta_value = 
 4. Bulk export progress — generating PNGs in the browser and bundling to a single ZIP.
 
 == Changelog ==
+
+= 1.2.0 =
+
+* Compatibility: QR codes (`cfqr_code`) are now hidden from third-party SEO plugins so they never appear in an XML sitemap or carry an SEO metabox on the editor screen. The post type must stay public for the `/r/{slug}` rewrite to resolve, which previously led SEO plugins to treat each QR code as indexable content and list its redirect URL in their sitemap — the opposite of the `noindex` the router already sends on every scan. Covers Yoast SEO, Rank Math, All in One SEO, The SEO Framework, SEOPress, and Slim SEO. Each plugin's own exclusion filter is used, so nothing is touched when a given plugin is not installed.
 
 = 1.1.1 =
 
