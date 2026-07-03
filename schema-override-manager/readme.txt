@@ -1,9 +1,9 @@
 === Schema Override Manager ===
 Contributors: caifrazier
 Tags: schema, structured data, json-ld, seo, schema.org
-Requires at least: 6.0
-Tested up to: 6.7
-Requires PHP: 7.4
+Requires at least: 6.2
+Tested up to: 7.0
+Requires PHP: 8.0
 Stable tag: 1.0.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -24,7 +24,7 @@ Schema Override Manager gives editors full control over the structured data on t
 
 **Suppression:** Surgically suppress specific schema types from Yoast, Rank Math, or theme output — globally or per page.
 
-**Supported schema types (Phase 1):**
+**First-class schema types:**
 WebSite, Organization, LocalBusiness, WebPage, Article, FAQPage, BreadcrumbList, Person, Product, Service
 
 **Output buffering note:** The "Suppress theme/other JSON-LD" option uses output buffering scoped to `wp_head` to strip `<script type="application/ld+json">` blocks from theme and plugin output. This option is **disabled by default** and must be explicitly enabled. It is applied only on pages where a suppression rule for "theme" is active, minimizing performance impact.
@@ -62,6 +62,34 @@ Saved schema is run through a strict sanitizer before it reaches the database, s
 * `@type` must look like a schema.org identifier (`https://schema.org/Foo` is normalized to `Foo`); values with HTML or special characters are dropped
 
 Values exceeding a limit are truncated or dropped silently rather than rejecting the whole save. The `som_sanitizer_url_keys` filter lets you add additional URL-shaped property names if you use a schema type that needs them.
+
+= How do I validate a page's schema? =
+
+On the per-page **Existing** tab, use the **Validate in Google Rich Results Test** and **Validate at schema.org** links. They open each validator against the post's public URL in a new tab. The links appear only once the post has a resolvable permalink (published, or a draft with a permalink).
+
+= The suppression checkboxes don't list a type my SEO plugin emits. Can I add it? =
+
+The per-type suppression checkboxes come from what the plugin detects on the page plus a built-in list of the types each SEO plugin commonly emits. If your Yoast or Rank Math configuration emits an additional type (for example `Service` or `LocalBusiness`), add it with a filter:
+
+`add_filter( 'som_yoast_emitted_types', fn( $types ) => [ ...$types, 'Service' ] );`
+`add_filter( 'som_rankmath_emitted_types', fn( $types ) => [ ...$types, 'Service' ] );`
+
+= What are the `_som_scope` and `_som_mode` values? (advanced) =
+
+The plugin stores per-block flags in the `_som_schema` postmeta and the global/template options. They are managed by the UI; this is for developers reading or writing the meta directly.
+
+**`_som_mode`** — how a per-page block combines with schema of the same `@type` from other layers (Site Identity, CPT template, Yoast/Rank Math):
+
+* `extend` (default) — deep-merge this block's properties on top of the existing schema of that type. Sibling keys from every layer are preserved.
+* `replace` — emit only this block for that type, and suppress the same `@type` from Yoast and Rank Math for the page.
+
+**`_som_scope`** — which requests a **global (Site Identity)** block emits on. Per-page and template blocks are inherently singular-scoped and ignore this flag:
+
+* `all` (default) — every page.
+* `home` — only the front page or blog home.
+* `singular` — only singular posts/pages.
+
+An empty or unrecognized value is treated as the default (`extend` / `all`).
 
 == Screenshots ==
 

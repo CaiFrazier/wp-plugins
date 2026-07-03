@@ -1,7 +1,7 @@
 import { useState } from '@wordpress/element';
 import {
 	Button, CheckboxControl, ToggleControl, Notice, Spinner,
-	PanelBody, RangeControl,
+	PanelBody, RangeControl, Modal, Flex, FlexItem,
 } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
@@ -21,10 +21,26 @@ export default function PluginSettings() {
 	const [ settings, setSettings ] = useState( initial );
 	const [ saving, setSaving ]     = useState( false );
 	const [ notice, setNotice ]     = useState( null );
+	const [ confirmingOb, setConfirmingOb ] = useState( false );
 
 	const allPostTypes = window.somSettings?.allPostTypes ?? [];
 
 	const update = ( key, value ) => setSettings( prev => ( { ...prev, [ key ]: value } ) );
+
+	// Turning OB on is the risky direction (it can break a page's <head>), so
+	// it goes through a confirmation modal. Turning it off is immediate.
+	const onToggleOb = ( next ) => {
+		if ( next ) {
+			setConfirmingOb( true );
+		} else {
+			update( 'theme_suppression_ob', false );
+		}
+	};
+
+	const confirmOb = () => {
+		update( 'theme_suppression_ob', true );
+		setConfirmingOb( false );
+	};
 
 	const togglePostType = ( slug ) => {
 		const current = settings.enabled_post_types ?? [];
@@ -87,16 +103,43 @@ export default function PluginSettings() {
 				/>
 			</PanelBody>
 
-			<PanelBody title={ __( 'Theme Suppression (Output Buffering)', 'schema-override-manager' ) } initialOpen>
+			<PanelBody title={ __( 'Advanced', 'schema-override-manager' ) } initialOpen={ false }>
+				<h4>{ __( 'Theme Suppression (Output Buffering)', 'schema-override-manager' ) }</h4>
 				<Notice status="warning" isDismissible={ false }>
 					{ __( 'This is the master switch for output-buffering-based suppression of theme/plugin JSON-LD. It is required for any "Suppress all theme JSON-LD" rule to take effect. Output buffering has a small performance cost — leave off unless you need it. If something on your site breaks, return here and turn it off.', 'schema-override-manager' ) }
 				</Notice>
 				<ToggleControl
 					label={ __( 'Enable theme-suppression output buffering', 'schema-override-manager' ) }
 					checked={ !! settings.theme_suppression_ob }
-					onChange={ v => update( 'theme_suppression_ob', v ) }
+					onChange={ onToggleOb }
 				/>
 			</PanelBody>
+
+			{ confirmingOb && (
+				<Modal
+					title={ __( 'Enable output buffering?', 'schema-override-manager' ) }
+					onRequestClose={ () => setConfirmingOb( false ) }
+				>
+					<p>
+						{ __( 'Output buffering captures your entire page <head> so foreign JSON-LD can be stripped from it. On most sites this is safe, but a theme or plugin that manipulates the same buffer can, in rare cases, break page output. The plugin detects a corrupted buffer and bails to protect the page, but you should verify your site after enabling — especially the front page and a typical post.', 'schema-override-manager' ) }
+					</p>
+					<p>
+						{ __( 'You can turn this off again here at any time. The change takes effect after you click "Save Plugin Settings".', 'schema-override-manager' ) }
+					</p>
+					<Flex justify="flex-end">
+						<FlexItem>
+							<Button variant="tertiary" onClick={ () => setConfirmingOb( false ) }>
+								{ __( 'Cancel', 'schema-override-manager' ) }
+							</Button>
+						</FlexItem>
+						<FlexItem>
+							<Button variant="primary" onClick={ confirmOb }>
+								{ __( 'Enable output buffering', 'schema-override-manager' ) }
+							</Button>
+						</FlexItem>
+					</Flex>
+				</Modal>
+			) }
 
 			<div className="som-save-row">
 				<Button variant="primary" onClick={ save } isBusy={ saving } disabled={ saving }>

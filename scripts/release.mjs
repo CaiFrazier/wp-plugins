@@ -91,10 +91,16 @@ const plugins = {
 	'schema-override-manager': {
 		entry: 'schema-override-manager.php',
 		zipSlug: 'schema-override-manager',
-		rootFiles: [ 'schema-override-manager.php', 'uninstall.php', 'readme.txt' ],
+		// composer.json ships alongside the bundled vendor/ (shared CFShared is a
+		// runtime dependency): Plugin Check warns about a vendor/ without a
+		// composer.json next to it, and the dev-artifact guard honours
+		// composerRuntime to allow it. Matches the cf-bulk-meta-editor pattern.
+		rootFiles: [ 'schema-override-manager.php', 'uninstall.php', 'readme.txt', 'composer.json' ],
 		rootDirs: [ 'includes', 'languages', 'build', 'vendor' ],
 		npmBuild: true,
 		composerRuntime: true,
+		composerTest: true,
+		potDomain: 'schema-override-manager',
 	},
 	'cf-media-manager': {
 		entry: 'cf-media-manager.php',

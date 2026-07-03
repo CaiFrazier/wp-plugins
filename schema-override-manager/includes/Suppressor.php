@@ -4,6 +4,8 @@ namespace SchemaOverrideManager;
 defined( 'ABSPATH' ) || exit;
 
 use SchemaOverrideManager\SchemaOutput;
+use SchemaOverrideManager\Integrations\YoastIntegration;
+use SchemaOverrideManager\Integrations\RankMathIntegration;
 
 class Suppressor {
 
@@ -19,6 +21,8 @@ class Suppressor {
 	 * that causes "my page is missing the footer" bug reports.
 	 *
 	 * -1 means "no buffer recorded yet".
+	 *
+	 * @var int
 	 */
 	private int $ob_level = -1;
 
@@ -52,11 +56,15 @@ class Suppressor {
 		$this->apply_theme_suppression( $rules );
 
 		if ( $this->has_any_rules( $rules ) ) {
-			Logger::instance()->debug( 'suppression', 'Registered suppression rules', [
-				'rules'       => $rules,
-				'is_singular' => is_singular(),
-				'post_id'     => is_singular() ? get_queried_object_id() : null,
-			] );
+			Logger::instance()->debug(
+				'suppression',
+				'Registered suppression rules',
+				[
+					'rules'       => $rules,
+					'is_singular' => is_singular(),
+					'post_id'     => is_singular() ? get_queried_object_id() : null,
+				]
+			);
 		}
 	}
 
@@ -71,6 +79,10 @@ class Suppressor {
 	/**
 	 * Per-page schema blocks with mode = "replace" cause the same @type
 	 * to be suppressed from Yoast and Rank Math output.
+	 *
+	 * @param array $rules   Merged suppression rules to extend.
+	 * @param int   $post_id Post whose page schema is inspected.
+	 * @return array Rules with implied type suppressions added.
 	 */
 	private function add_replace_mode_suppression( array $rules, int $post_id ): array {
 		$page_schema = $this->settings->get_page_schema( $post_id );
@@ -80,12 +92,24 @@ class Suppressor {
 
 		foreach ( $page_schema as $block ) {
 			$mode = $block['_som_mode'] ?? 'extend';
-			$type = $block['@type']     ?? '';
-			if ( 'replace' !== $mode || '' === $type ) {
+			if ( 'replace' !== $mode ) {
 				continue;
 			}
-			$rules['yoast_types'][]     = $type;
-			$rules['rank_math_types'][] = $type;
+			// @type may be a string or an array (multi-typed nodes). Normalize
+			// to the bare name at push time so a URL-form type stored in the
+			// block ("https://schema.org/Article") suppresses the same as a
+			// bare one. The apply_* methods still normalize at comparison time
+			// as the compat layer for rows stored before this existed.
+			$raw   = $block['@type'] ?? '';
+			$types = is_array( $raw ) ? $raw : [ $raw ];
+			foreach ( $types as $t ) {
+				$type = Util::normalize_schema_type( $t );
+				if ( '' === $type ) {
+					continue;
+				}
+				$rules['yoast_types'][]     = $type;
+				$rules['rank_math_types'][] = $type;
+			}
 		}
 
 		$rules['yoast_types']     = array_values( array_unique( $rules['yoast_types'] ?? [] ) );
@@ -95,67 +119,29 @@ class Suppressor {
 	}
 
 	private function apply_yoast_suppression( array $rules ): void {
-		if ( ! class_exists( 'WPSEO_Options' ) && ! defined( 'WPSEO_VERSION' ) ) {
+		if ( ! YoastIntegration::is_active() ) {
 			return;
 		}
 
 		if ( ! empty( $rules['yoast_all'] ) ) {
-			add_filter( 'wpseo_json_ld_output', '__return_empty_array', 20 );
+			YoastIntegration::suppress_all();
 			return;
 		}
 
-		$suppressed_types = array_map( [ Util::class, 'normalize_schema_type' ], $rules['yoast_types'] ?? [] );
-		if ( ! empty( $suppressed_types ) ) {
-			add_filter( 'wpseo_schema_graph', function ( $pieces ) use ( $suppressed_types ) {
-				return array_values( array_filter( $pieces, function ( $piece ) use ( $suppressed_types ) {
-					$raw  = $piece['@type'] ?? '';
-					// @type may be a string or an array of strings (multi-typed nodes).
-					$types = is_array( $raw ) ? $raw : [ $raw ];
-					foreach ( $types as $t ) {
-						if ( in_array( Util::normalize_schema_type( $t ), $suppressed_types, true ) ) {
-							return false;
-						}
-					}
-					return true;
-				} ) );
-			}, 20 );
-		}
+		YoastIntegration::suppress_types( $rules['yoast_types'] ?? [] );
 	}
 
 	private function apply_rank_math_suppression( array $rules ): void {
-		if ( ! class_exists( 'RankMath' ) && ! function_exists( 'rank_math' ) ) {
+		if ( ! RankMathIntegration::is_active() ) {
 			return;
 		}
 
 		if ( ! empty( $rules['rank_math_all'] ) ) {
-			add_filter( 'rank_math/json_ld', '__return_false', 20 );
+			RankMathIntegration::suppress_all();
 			return;
 		}
 
-		$suppressed_types = array_map( [ Util::class, 'normalize_schema_type' ], $rules['rank_math_types'] ?? [] );
-		if ( ! empty( $suppressed_types ) ) {
-			add_filter( 'rank_math/json_ld', function ( $data ) use ( $suppressed_types ) {
-				if ( ! is_array( $data ) ) {
-					return $data;
-				}
-				// Rank Math keys by short slug; the keys are usually already normalized,
-				// but also remove any entries whose own @type matches when fully qualified.
-				foreach ( array_keys( $data ) as $key ) {
-					$key_norm = Util::normalize_schema_type( (string) $key );
-					if ( in_array( $key_norm, $suppressed_types, true ) ) {
-						unset( $data[ $key ] );
-						continue;
-					}
-					if ( is_array( $data[ $key ] ) && isset( $data[ $key ]['@type'] ) ) {
-						$node_type = Util::normalize_schema_type( (string) $data[ $key ]['@type'] );
-						if ( in_array( $node_type, $suppressed_types, true ) ) {
-							unset( $data[ $key ] );
-						}
-					}
-				}
-				return $data;
-			}, 20 );
-		}
+		RankMathIntegration::suppress_types( $rules['rank_math_types'] ?? [] );
 	}
 
 	private function apply_theme_suppression( array $rules ): void {
@@ -170,15 +156,23 @@ class Suppressor {
 		add_action( 'wp_head', [ $this, 'end_ob_and_strip' ], 999 );
 	}
 
-	/** @internal */
+	/**
+	 * Open the wp_head output buffer for the theme-suppression strip.
+	 *
+	 * @internal
+	 */
 	public function start_ob(): void {
 		ob_start();
 		$this->ob_active = true;
 		// Snapshot AFTER ob_start so $ob_level is the level our buffer occupies.
-		$this->ob_level  = ob_get_level();
+		$this->ob_level = ob_get_level();
 	}
 
-	/** @internal */
+	/**
+	 * Close the wp_head buffer and strip foreign JSON-LD from it.
+	 *
+	 * @internal
+	 */
 	public function end_ob_and_strip(): void {
 		if ( ! $this->ob_active ) {
 			return;
@@ -210,7 +204,7 @@ class Suppressor {
 		}
 
 		try {
-			$marker  = preg_quote( SchemaOutput::OUTPUT_MARKER, '#' );
+			$marker = preg_quote( SchemaOutput::OUTPUT_MARKER, '#' );
 
 			// Strip JSON-LD blocks that do NOT contain our marker comment.
 			// This preserves our own output regardless of priority ordering.
@@ -220,14 +214,14 @@ class Suppressor {
 			// (configured in Global Suppression / per-page Suppression panels).
 			$cleaned = preg_replace_callback(
 				'#<script\s+type=["\']application/ld\+json["\'][^>]*>(.*?)</script>#is',
-				function ( $match ) use ( $marker ) {
-					return preg_match( '#' . $marker . '#', $match[1] ) ? $match[0] : '';
+				function ( $m ) use ( $marker ) {
+					return preg_match( '#' . $marker . '#', $m[1] ) ? $m[0] : '';
 				},
 				$output
 			);
 
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered HTML; already escaped by upstream renderers.
-			echo $cleaned !== null ? $cleaned : $output;
+			echo null !== $cleaned ? $cleaned : $output;
 		} catch ( \Throwable $e ) {
 			// preg_replace_callback can hit a backtrack limit on pathological
 			// inputs and return null with the callback never invoked; we'd echo
@@ -248,18 +242,25 @@ class Suppressor {
 		}
 	}
 
-	private function merge_rules( array $global, array $page ): array {
-		$merged = $global;
+	/**
+	 * Merge global and per-page suppression rules.
+	 *
+	 * @param array $global_rules Site-wide suppression rules.
+	 * @param array $page_rules   Per-page suppression rules.
+	 * @return array Booleans OR'd, type lists unioned.
+	 */
+	private function merge_rules( array $global_rules, array $page_rules ): array {
+		$merged = $global_rules;
 
 		// Boolean OR: if either layer suppresses all, suppress all.
 		foreach ( [ 'yoast_all', 'rank_math_all', 'theme_all' ] as $key ) {
-			$merged[ $key ] = ! empty( $global[ $key ] ) || ! empty( $page[ $key ] );
+			$merged[ $key ] = ! empty( $global_rules[ $key ] ) || ! empty( $page_rules[ $key ] );
 		}
 
 		// Array union for type-level suppression.
 		foreach ( [ 'yoast_types', 'rank_math_types' ] as $key ) {
-			$global_types  = $global[ $key ] ?? [];
-			$page_types    = $page[ $key ] ?? [];
+			$global_types   = $global_rules[ $key ] ?? [];
+			$page_types     = $page_rules[ $key ] ?? [];
 			$merged[ $key ] = array_unique( array_merge( $global_types, $page_types ) );
 		}
 

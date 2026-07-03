@@ -27,7 +27,14 @@ function SchemaBlock( { source, type, data } ) {
 }
 
 export default function ExistingSchemaViewer( { detected } ) {
-	const { restUrl, postId } = window.somMetaBox ?? {};
+	const { restUrl, postId, postUrl } = window.somMetaBox ?? {};
+
+	const richResultsUrl = postUrl
+		? `https://search.google.com/test/rich-results?url=${ encodeURIComponent( postUrl ) }`
+		: null;
+	const schemaOrgUrl = postUrl
+		? `https://validator.schema.org/?url=${ encodeURIComponent( postUrl ) }`
+		: null;
 
 	const [ live, setLive ]               = useState( null );
 	const [ liveLoading, setLiveLoading ] = useState( false );
@@ -64,6 +71,18 @@ export default function ExistingSchemaViewer( { detected } ) {
 			<p className="description">
 				{ __( 'Schema currently active on this page from other sources.', 'schema-override-manager' ) }
 			</p>
+
+			{ richResultsUrl && (
+				<p className="som-validate-links">
+					<Button variant="link" href={ richResultsUrl } target="_blank" rel="noopener noreferrer">
+						{ __( 'Validate in Google Rich Results Test ↗', 'schema-override-manager' ) }
+					</Button>
+					<span aria-hidden="true"> · </span>
+					<Button variant="link" href={ schemaOrgUrl } target="_blank" rel="noopener noreferrer">
+						{ __( 'Validate at schema.org ↗', 'schema-override-manager' ) }
+					</Button>
+				</p>
+			) }
 
 			{ filterEmpty && (
 				<Notice status="info" isDismissible={ false }>

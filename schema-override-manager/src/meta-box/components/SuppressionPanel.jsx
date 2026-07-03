@@ -1,16 +1,28 @@
 import { useState } from '@wordpress/element';
 import { Button, CheckboxControl, ToggleControl, Notice, Spinner } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 export default function SuppressionPanel( { postId, suppression, detected, onChange } ) {
 	const [ saving, setSaving ] = useState( false );
 	const [ notice, setNotice ] = useState( null );
 
-	const { restUrl } = window.somMetaBox ?? {};
+	const { restUrl, knownTypes } = window.somMetaBox ?? {};
 
-	const yoastTypes = ( detected?.yoast ?? [] ).map( b => b.type );
-	const rmTypes    = ( detected?.rank_math ?? [] ).map( b => b.type );
+	// Offer a checkbox for every type live detection surfaced AND every known
+	// type for the active SEO plugin, so per-type suppression is available even
+	// when the filter-based detector returns nothing (common in the editor).
+	// A type still ticked in stored rules but absent from both lists is kept so
+	// the user can see and clear it.
+	const unionTypes = ( group ) => {
+		const live   = ( detected?.[ group ] ?? [] ).map( b => b.type );
+		const known  = knownTypes?.[ group ] ?? [];
+		const stored = suppression[ `${ group }_types` ] ?? [];
+		return [ ...new Set( [ ...live, ...known, ...stored ].filter( Boolean ) ) ];
+	};
+
+	const yoastTypes = unionTypes( 'yoast' );
+	const rmTypes    = unionTypes( 'rank_math' );
 
 	const toggle = ( key ) => onChange( { ...suppression, [ key ]: ! suppression[ key ] } );
 
@@ -61,7 +73,8 @@ export default function SuppressionPanel( { postId, suppression, detected, onCha
 				{ ! suppression.yoast_all && yoastTypes.map( type => (
 					<CheckboxControl
 						key={ type }
-						label={ `Suppress ${ type }` }
+						/* translators: %s is a schema.org type name, e.g. Article. */
+						label={ sprintf( __( 'Suppress %s', 'schema-override-manager' ), type ) }
 						checked={ ( suppression.yoast_types ?? [] ).includes( type ) }
 						onChange={ () => toggleType( 'yoast_types', type ) }
 					/>
@@ -78,7 +91,8 @@ export default function SuppressionPanel( { postId, suppression, detected, onCha
 				{ ! suppression.rank_math_all && rmTypes.map( type => (
 					<CheckboxControl
 						key={ type }
-						label={ `Suppress ${ type }` }
+						/* translators: %s is a schema.org type name, e.g. Article. */
+						label={ sprintf( __( 'Suppress %s', 'schema-override-manager' ), type ) }
 						checked={ ( suppression.rank_math_types ?? [] ).includes( type ) }
 						onChange={ () => toggleType( 'rank_math_types', type ) }
 					/>

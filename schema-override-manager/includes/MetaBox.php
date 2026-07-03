@@ -20,8 +20,8 @@ class MetaBox {
 	}
 
 	public function register_meta_box(): void {
-		$settings    = $this->settings->get_settings();
-		$post_types  = $settings['enabled_post_types'] ?? [ 'post', 'page' ];
+		$settings   = $this->settings->get_settings();
+		$post_types = $settings['enabled_post_types'] ?? [ 'post', 'page' ];
 
 		foreach ( $post_types as $post_type ) {
 			add_meta_box(
@@ -63,7 +63,8 @@ class MetaBox {
 		if ( $post instanceof \WP_Post ) {
 			return $post;
 		}
-		$id = isset( $_GET['post'] ) ? (int) $_GET['post'] : 0;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only screen detection; no state change.
+		$id = isset( $_GET['post'] ) ? absint( wp_unslash( $_GET['post'] ) ) : 0;
 		return $id ? get_post( $id ) : null;
 	}
 
@@ -71,7 +72,10 @@ class MetaBox {
 		$asset_file = SOM_DIR . 'build/meta-box/index.asset.php';
 		$asset      = file_exists( $asset_file )
 			? require $asset_file
-			: [ 'dependencies' => [], 'version' => SOM_VERSION ];
+			: [
+				'dependencies' => [],
+				'version'      => SOM_VERSION,
+			];
 
 		wp_enqueue_script(
 			'som-meta-box',
@@ -88,14 +92,43 @@ class MetaBox {
 			$asset['version']
 		);
 
-		wp_localize_script( 'som-meta-box', 'somMetaBox', [
-			'restUrl'     => esc_url_raw( rest_url( 'som/v1' ) ),
-			'nonce'       => wp_create_nonce( 'wp_rest' ),
-			'postId'      => $post->ID,
-			'postType'    => $post->post_type,
-			'schema'      => $this->settings->get_page_schema( $post->ID ),
-			'suppression' => $this->settings->get_page_suppression( $post->ID ),
-			'template'    => $this->settings->get_template_schema( $post->post_type ),
-		] );
+		// wp-scripts lists wp-i18n in the built asset's dependencies, so point WP
+		// at the .json language files it serves for this handle.
+		wp_set_script_translations( 'som-meta-box', 'schema-override-manager', SOM_DIR . 'languages' );
+
+		$settings = $this->settings->get_settings();
+		$detector = new SchemaDetector();
+		// Only expose a URL the external validators can actually fetch. A draft/
+		// pending/private post has a permalink, but Google's Rich Results Test
+		// and validator.schema.org fetch anonymously and would 404, so leave it
+		// empty (the sidebar hides the validate links) until the post is public.
+		$permalink = is_post_publicly_viewable( $post ) ? get_permalink( $post->ID ) : '';
+
+		wp_localize_script(
+			'som-meta-box',
+			'somMetaBox',
+			[
+				'restUrl'          => esc_url_raw( rest_url( 'som/v1' ) ),
+				'nonce'            => wp_create_nonce( 'wp_rest' ),
+				'postId'           => $post->ID,
+				'postType'         => $post->post_type,
+				// Consumed by the Block Editor entry point to gate PluginSidebar
+				// registration to enabled types (defense in depth: the script is
+				// already only enqueued on enabled types, see enqueue_assets).
+				'enabledPostTypes' => array_values( $settings['enabled_post_types'] ?? [ 'post', 'page' ] ),
+				// Public URL for the "Validate in Google Rich Results Test" link.
+				// Empty (link hidden) when the post has no resolvable permalink.
+				'postUrl'          => $permalink ? esc_url_raw( $permalink ) : '',
+				'schema'           => $this->settings->get_page_schema( $post->ID ),
+				'suppression'      => $this->settings->get_page_suppression( $post->ID ),
+				'template'         => $this->settings->get_template_schema( $post->post_type ),
+				// Known suppressible types per SEO plugin, so per-type checkboxes
+				// appear even when live filter detection returns nothing.
+				'knownTypes'       => [
+					'yoast'     => $detector->get_yoast_types(),
+					'rank_math' => $detector->get_rank_math_types(),
+				],
+			]
+		);
 	}
 }

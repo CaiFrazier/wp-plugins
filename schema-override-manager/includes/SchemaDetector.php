@@ -16,7 +16,7 @@ class SchemaDetector {
 		$detected = [];
 
 		$detected['yoast']     = $this->detect_yoast( $post_id );
-		$detected['rank_math'] = $this->detect_rank_math( $post_id );
+		$detected['rank_math'] = $this->detect_rank_math();
 
 		return $detected;
 	}
@@ -32,18 +32,20 @@ class SchemaDetector {
 			try {
 				$schema = YoastSEO()->meta->for_post( $post_id )->schema ?? null;
 				if ( is_array( $schema ) && ! empty( $schema['@graph'] ) ) {
-					return array_values( array_map(
-						static function ( $node ) {
-							return [
-								'type' => Util::normalize_schema_type( $node['@type'] ?? '' ),
-								'data' => $node,
-							];
-						},
-						$schema['@graph']
-					) );
+					return array_values(
+						array_map(
+							static function ( $node ) {
+								return [
+									'type' => Util::normalize_schema_type( $node['@type'] ?? '' ),
+									'data' => $node,
+								];
+							},
+							$schema['@graph']
+						)
+					);
 				}
-			} catch ( \Throwable $e ) {
-				// Fall through to filter-based best-effort below.
+			} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- fall through to the filter-based best-effort below.
+				unset( $e );
 			}
 		}
 
@@ -62,7 +64,7 @@ class SchemaDetector {
 		return $types;
 	}
 
-	private function detect_rank_math( int $post_id ): array {
+	private function detect_rank_math(): array {
 		if ( ! RankMathIntegration::is_active() ) {
 			return [];
 		}
@@ -79,15 +81,20 @@ class SchemaDetector {
 	}
 
 	/**
-	 * Returns schema type slugs detectable from Yoast for use in suppression checkboxes.
+	 * Known Yoast graph node types, offered as suppression checkboxes even when
+	 * live filter detection returns nothing (common in the editor's REST
+	 * context). Filterable via `som_yoast_emitted_types` so a site whose Yoast
+	 * config emits extra types — Service, LocalBusiness, and the like — can
+	 * surface them without forking the plugin.
+	 *
+	 * @return string[] Normalized bare type names, empty when Yoast is inactive.
 	 */
 	public function get_yoast_types(): array {
-		if ( ! class_exists( 'WPSEO_Options' ) && ! defined( 'WPSEO_VERSION' ) ) {
+		if ( ! YoastIntegration::is_active() ) {
 			return [];
 		}
 
-		// Common Yoast graph node types.
-		return [
+		$types = [
 			'WebSite',
 			'WebPage',
 			'Article',
@@ -95,17 +102,23 @@ class SchemaDetector {
 			'Person',
 			'Organization',
 		];
+
+		return $this->normalize_type_list( apply_filters( 'som_yoast_emitted_types', $types ) );
 	}
 
 	/**
-	 * Returns schema type slugs detectable from Rank Math for use in suppression checkboxes.
+	 * Known Rank Math node types, offered as suppression checkboxes even when
+	 * live filter detection returns nothing. Filterable via
+	 * `som_rankmath_emitted_types`.
+	 *
+	 * @return string[] Normalized bare type names, empty when Rank Math is inactive.
 	 */
 	public function get_rank_math_types(): array {
-		if ( ! class_exists( 'RankMath' ) && ! function_exists( 'rank_math' ) ) {
+		if ( ! RankMathIntegration::is_active() ) {
 			return [];
 		}
 
-		return [
+		$types = [
 			'WebSite',
 			'WebPage',
 			'Article',
@@ -115,5 +128,27 @@ class SchemaDetector {
 			'Product',
 			'FAQPage',
 		];
+
+		return $this->normalize_type_list( apply_filters( 'som_rankmath_emitted_types', $types ) );
+	}
+
+	/**
+	 * Coerce a filtered type list back to a clean, unique, normalized array of
+	 * bare type names — filters can hand back anything.
+	 *
+	 * @param mixed $types Filtered value.
+	 * @return string[]
+	 */
+	private function normalize_type_list( $types ): array {
+		if ( ! is_array( $types ) ) {
+			return [];
+		}
+		$normalized = array_map(
+			static function ( $type ): string {
+				return Util::normalize_schema_type( is_string( $type ) ? $type : '' );
+			},
+			$types
+		);
+		return array_values( array_unique( array_filter( $normalized ) ) );
 	}
 }

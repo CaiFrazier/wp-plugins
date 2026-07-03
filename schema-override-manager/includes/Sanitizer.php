@@ -35,8 +35,17 @@ final class Sanitizer {
 	/** Hard depth cap. Real-world JSON-LD rarely exceeds 5 levels. */
 	public const MAX_DEPTH = 8;
 
-	/** Total array entries across the whole tree (root + every nested level). */
-	public const MAX_NODE_COUNT = 200;
+	/**
+	 * Total array entries across the whole tree (root + every nested level).
+	 * Counts every scalar property, not just object nodes, so this is set well
+	 * above any realistic hand-authored graph: a rich LocalBusiness with a full
+	 * openingHoursSpecification, address, geo, aggregateRating, and a dozen
+	 * sameAs entries is ~60 entries. 2000 leaves generous headroom while still
+	 * stopping a node-count bomb. When the cap trips the current level is
+	 * truncated silently — acceptable only because legitimate content never
+	 * reaches it.
+	 */
+	public const MAX_NODE_COUNT = 2000;
 
 	/** Per-string-value byte cap. 8 KB fits any legitimate description / FAQ answer. */
 	public const MAX_STRING_BYTES = 8192;
@@ -70,6 +79,9 @@ final class Sanitizer {
 	 * the goal is "store what we can safely render" not "fail closed and lose
 	 * the user's edits". The boundary checks at the editor save are the
 	 * place to surface user-facing rejection notices.
+	 *
+	 * @param array $data Parsed JSON-LD payload.
+	 * @return array Cleaned payload.
 	 */
 	public static function sanitize_schema( array $data ): array {
 		$count = 0;
@@ -81,9 +93,9 @@ final class Sanitizer {
 	 * Recursive walker. $count is by-ref so node-count cap is global across
 	 * the whole tree, not per-branch.
 	 *
-	 * @param mixed $value
-	 * @param int   $depth
-	 * @param int   $count
+	 * @param mixed $value Value to sanitize.
+	 * @param int   $depth Current recursion depth.
+	 * @param int   $count Running node count across the whole tree.
 	 * @return mixed Sanitized value, or null if the value was rejected.
 	 */
 	private static function walk( $value, int $depth, int &$count ) {
@@ -97,18 +109,18 @@ final class Sanitizer {
 				if ( $count >= self::MAX_NODE_COUNT ) {
 					break;
 				}
-				$count++;
+				++$count;
 
 				$key = self::sanitize_key( $k );
 				if ( null === $key ) {
 					continue;
 				}
 
-				$cleanV = self::sanitize_value_for_key( $key, $v, $depth + 1, $count );
-				if ( null === $cleanV ) {
+				$clean_v = self::sanitize_value_for_key( $key, $v, $depth + 1, $count );
+				if ( null === $clean_v ) {
 					continue;
 				}
-				$clean[ $key ] = $cleanV;
+				$clean[ $key ] = $clean_v;
 			}
 			return $clean;
 		}
@@ -121,6 +133,12 @@ final class Sanitizer {
 	 * Sanitize a value with awareness of which key it lives under. URL-shaped
 	 * keys get esc_url_raw; @type gets the identifier check; @context is left
 	 * as-is (it's almost always the literal "https://schema.org" string).
+	 *
+	 * @param string $key   Parent key the value lives under.
+	 * @param mixed  $value Value to sanitize.
+	 * @param int    $depth Current recursion depth.
+	 * @param int    $count Running node count across the whole tree.
+	 * @return mixed Sanitized value, or null if rejected.
 	 */
 	private static function sanitize_value_for_key( string $key, $value, int $depth, int &$count ) {
 		// Nested object or list — recurse.
@@ -134,6 +152,10 @@ final class Sanitizer {
 	/**
 	 * Sanitize a scalar value (string, int, float, bool). $key informs the
 	 * choice of sanitizer (URL vs free-text vs @type identifier).
+	 *
+	 * @param string $key   Parent key the value lives under.
+	 * @param mixed  $value Scalar to sanitize.
+	 * @return mixed Sanitized scalar, or null if rejected.
 	 */
 	private static function sanitize_scalar( string $key, $value ) {
 		// JSON-LD `null` is structural noise after sanitization — drop it.
@@ -189,6 +211,9 @@ final class Sanitizer {
 	/**
 	 * Sanitize an array key. Allows JSON-LD reserved keys (@type, @id, etc.),
 	 * sanitize_text_field for everything else, drops keys that look unsafe.
+	 *
+	 * @param mixed $key Raw array key.
+	 * @return string|null Sanitized key, or null to drop it.
 	 */
 	private static function sanitize_key( $key ): ?string {
 		if ( is_int( $key ) ) {

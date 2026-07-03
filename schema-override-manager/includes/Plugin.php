@@ -21,7 +21,10 @@ final class Plugin {
 	}
 
 	public function init(): void {
-		$this->load_textdomain();
+		// No load_plugin_textdomain() call: since WP 4.6, WordPress.org loads
+		// translations for .org-hosted plugins automatically based on the Text
+		// Domain header. wp_set_script_translations() (Admin.php, MetaBox.php)
+		// handles JS strings independently and doesn't depend on this.
 
 		$this->settings   = new Settings();
 		$this->suppressor = new Suppressor( $this->settings );
@@ -51,37 +54,26 @@ final class Plugin {
 		}
 	}
 
-	private function load_textdomain(): void {
-		load_plugin_textdomain(
-			'schema-override-manager',
-			false,
-			dirname( plugin_basename( SOM_FILE ) ) . '/languages'
-		);
-	}
-
-	/** @internal */
+	/**
+	 * Log the current post's suppression rules to the PHP error log.
+	 * Gated on the plugin-specific SOM_DEBUG constant (in addition to the
+	 * WP_DEBUG gate on hook registration) so a WP_DEBUG-on production site
+	 * doesn't leak rule contents into error.log.
+	 *
+	 * @internal
+	 */
 	public function debug_log_suppression(): void {
+		if ( ! defined( 'SOM_DEBUG' ) || ! SOM_DEBUG ) {
+			return;
+		}
 		global $post;
 		if ( ! $post ) {
 			return;
 		}
 		$rules = get_post_meta( $post->ID, '_som_suppression', true );
 		if ( $rules ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- opt-in debug output, double-gated on WP_DEBUG + SOM_DEBUG.
 			error_log( '[SOM] Suppression rules for post ' . $post->ID . ': ' . wp_json_encode( $rules ) );
 		}
-	}
-
-	public static function activate(): void {
-		if ( ! get_option( 'som_settings' ) ) {
-			update_option( 'som_settings', [
-				'enabled_post_types'    => [ 'post', 'page' ],
-				'output_priority'       => 5,
-				'theme_suppression_ob'  => false,
-			] );
-		}
-	}
-
-	public static function deactivate(): void {
-		// Intentionally empty — data is preserved on deactivation.
 	}
 }

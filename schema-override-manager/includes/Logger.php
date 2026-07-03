@@ -19,15 +19,17 @@ final class Logger {
 
 	public static function instance(): SharedLogger {
 		if ( null === self::$instance ) {
-			self::$instance = SharedLogger::for_plugin( [
-				'slug'               => 'schema-override-manager',
-				'debug_constant'     => 'SOM_DEBUG',
-				'threshold_resolver' => static function () {
-					$opts  = get_option( 'som_settings', [] );
-					$debug = is_array( $opts ) && ! empty( $opts['debug_mode'] );
-					return $debug ? SharedLogger::LEVEL_DEBUG : SharedLogger::LEVEL_WARN;
-				},
-			] );
+			self::$instance = SharedLogger::for_plugin(
+				[
+					'slug'               => 'schema-override-manager',
+					'debug_constant'     => 'SOM_DEBUG',
+					'threshold_resolver' => static function () {
+						$opts  = get_option( 'som_settings', [] );
+						$debug = is_array( $opts ) && ! empty( $opts['debug_mode'] );
+						return $debug ? SharedLogger::LEVEL_DEBUG : SharedLogger::LEVEL_WARN;
+					},
+				]
+			);
 		}
 		return self::$instance;
 	}

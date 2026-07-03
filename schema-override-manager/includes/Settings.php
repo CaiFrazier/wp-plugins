@@ -15,9 +15,12 @@ class Settings {
 	private array $cache = [];
 
 	public function get_global_schema(): array {
-		return $this->cached( 'global_schema', function () {
-			return $this->get_option( 'som_global_schema', [] );
-		} );
+		return $this->cached(
+			'global_schema',
+			function () {
+				return $this->get_option( 'som_global_schema', [] );
+			}
+		);
 	}
 
 	public function save_global_schema( array $data ): bool {
@@ -26,9 +29,12 @@ class Settings {
 	}
 
 	public function get_global_suppression(): array {
-		return $this->cached( 'global_suppression', function () {
-			return $this->get_option( 'som_global_suppression', [] );
-		} );
+		return $this->cached(
+			'global_suppression',
+			function () {
+				return $this->get_option( 'som_global_suppression', [] );
+			}
+		);
 	}
 
 	public function save_global_suppression( array $data ): bool {
@@ -38,9 +44,12 @@ class Settings {
 
 	public function get_template_schema( string $post_type ): array {
 		$slug = sanitize_key( $post_type );
-		return $this->cached( "template_{$slug}", function () use ( $slug ) {
-			return $this->get_option( 'som_template_' . $slug, [] );
-		} );
+		return $this->cached(
+			"template_{$slug}",
+			function () use ( $slug ) {
+				return $this->get_option( 'som_template_' . $slug, [] );
+			}
+		);
 	}
 
 	public function save_template_schema( string $post_type, array $data ): bool {
@@ -53,13 +62,19 @@ class Settings {
 	}
 
 	public function get_settings(): array {
-		return $this->cached( 'settings', function () {
-			return $this->get_option( 'som_settings', [
-				'enabled_post_types'   => [ 'post', 'page' ],
-				'output_priority'      => 5,
-				'theme_suppression_ob' => false,
-			] );
-		} );
+		return $this->cached(
+			'settings',
+			function () {
+				return $this->get_option(
+					'som_settings',
+					[
+						'enabled_post_types'   => [ 'post', 'page' ],
+						'output_priority'      => 5,
+						'theme_suppression_ob' => false,
+					]
+				);
+			}
+		);
 	}
 
 	public function save_settings( array $data ): bool {
@@ -73,10 +88,13 @@ class Settings {
 	}
 
 	public function get_page_schema( int $post_id ): array {
-		return $this->cached( "page_schema_{$post_id}", function () use ( $post_id ) {
-			$raw = get_post_meta( $post_id, '_som_schema', true );
-			return is_array( $raw ) ? $raw : [];
-		} );
+		return $this->cached(
+			"page_schema_{$post_id}",
+			function () use ( $post_id ) {
+				$raw = get_post_meta( $post_id, '_som_schema', true );
+				return is_array( $raw ) ? $raw : [];
+			}
+		);
 	}
 
 	public function save_page_schema( int $post_id, array $data ): void {
@@ -85,10 +103,13 @@ class Settings {
 	}
 
 	public function get_page_suppression( int $post_id ): array {
-		return $this->cached( "page_suppression_{$post_id}", function () use ( $post_id ) {
-			$raw = get_post_meta( $post_id, '_som_suppression', true );
-			return is_array( $raw ) ? $raw : [];
-		} );
+		return $this->cached(
+			"page_suppression_{$post_id}",
+			function () use ( $post_id ) {
+				$raw = get_post_meta( $post_id, '_som_suppression', true );
+				return is_array( $raw ) ? $raw : [];
+			}
+		);
 	}
 
 	public function save_page_suppression( int $post_id, array $data ): void {
@@ -103,9 +124,9 @@ class Settings {
 		return $this->cache[ $key ];
 	}
 
-	private function get_option( string $key, $default = [] ) {
-		$value = get_option( $key, $default );
-		return is_array( $value ) ? $value : $default;
+	private function get_option( string $key, $default_value = [] ) {
+		$value = get_option( $key, $default_value );
+		return is_array( $value ) ? $value : $default_value;
 	}
 
 	/**
@@ -116,6 +137,9 @@ class Settings {
 	 * The previous implementation here was a wp_json_encode → json_decode
 	 * round-trip — that's a no-op for sanitization and let HTML, malformed
 	 * URLs, and oversized values through to the rendered <script> tag.
+	 *
+	 * @param array $data Parsed schema payload.
+	 * @return array Cleaned payload.
 	 */
 	private function sanitize_schema_array( array $data ): array {
 		return Sanitizer::sanitize_schema( $data );
@@ -123,8 +147,10 @@ class Settings {
 
 	private function sanitize_suppression( array $data ): array {
 		$allowed_keys = [
-			'yoast_all', 'yoast_types',
-			'rank_math_all', 'rank_math_types',
+			'yoast_all',
+			'yoast_types',
+			'rank_math_all',
+			'rank_math_types',
 			'theme_all',
 		];
 
@@ -136,7 +162,21 @@ class Settings {
 			if ( in_array( $key, [ 'yoast_all', 'rank_math_all', 'theme_all' ], true ) ) {
 				$clean[ $key ] = (bool) $data[ $key ];
 			} else {
-				$clean[ $key ] = array_map( 'sanitize_text_field', (array) $data[ $key ] );
+				// Normalize type names at write time (URL and prefix forms →
+				// bare name) so stored rules compare cleanly. Comparison-time
+				// normalization in Suppressor covers rows saved before this.
+				$clean[ $key ] = array_values(
+					array_unique(
+						array_filter(
+							array_map(
+								static function ( $type ): string {
+									return Util::normalize_schema_type( sanitize_text_field( (string) $type ) );
+								},
+								(array) $data[ $key ]
+							)
+						)
+					)
+				);
 			}
 		}
 		return $clean;

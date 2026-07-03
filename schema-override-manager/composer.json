@@ -11,10 +11,11 @@
         }
     ],
     "require": {
-        "php": ">=7.4",
+        "php": ">=8.0",
         "caifrazier/wp-plugins-shared": "*"
     },
     "require-dev": {
+        "phpunit/phpunit": "^9.6",
         "wp-coding-standards/wpcs": "^3.0",
         "phpcompatibility/phpcompatibility-wp": "*",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0"
@@ -23,6 +24,15 @@
         "psr-4": {
             "SchemaOverrideManager\\": "includes/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SchemaOverrideManager\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "lint": "phpcs"
     },
     "config": {
         "allow-plugins": {

@@ -18,6 +18,9 @@ final class Util {
 	 * to the bare type name `Article`. This matters because some plugins emit
 	 * fully qualified schema URLs in the `@type` field; if we suppress
 	 * `Article` without normalizing, those blocks slip through.
+	 *
+	 * @param mixed $value Raw @type value.
+	 * @return string Bare type name, or '' when not a usable string.
 	 */
 	public static function normalize_schema_type( $value ): string {
 		if ( ! is_string( $value ) || '' === $value ) {
@@ -43,7 +46,7 @@ final class Util {
 	 * detector so Yoast's single `@graph` wrapper surfaces as individual
 	 * Article/BreadcrumbList/Person entries in the viewer.
 	 *
-	 * @param mixed $node
+	 * @param mixed $node  Parsed JSON-LD payload or sub-node.
 	 * @param int   $depth Recursion guard.
 	 * @return array[] List of associative arrays, each one a JSON-LD node.
 	 */
@@ -101,40 +104,98 @@ final class Util {
 		}
 		$types = [
 			// Content types.
-			'Article', 'NewsArticle', 'BlogPosting', 'WebPage', 'WebSite',
-			'TechArticle', 'ScholarlyArticle', 'ClaimReview',
+			'Article',
+			'NewsArticle',
+			'BlogPosting',
+			'WebPage',
+			'WebSite',
+			'TechArticle',
+			'ScholarlyArticle',
+			'ClaimReview',
 			// E-commerce.
-			'Product', 'Offer', 'AggregateOffer', 'Review', 'AggregateRating',
+			'Product',
+			'Offer',
+			'AggregateOffer',
+			'Review',
+			'AggregateRating',
 			'ProductCollection',
 			// Organization (general).
-			'Organization', 'Corporation', 'LocalBusiness', 'Store',
+			'Organization',
+			'Corporation',
+			'LocalBusiness',
+			'Store',
 			// Organization (domain-specific).
-			'GovernmentOrganization', 'EducationalOrganization', 'MedicalOrganization',
-			'NGO', 'PerformingGroup', 'SportsOrganization',
+			'GovernmentOrganization',
+			'EducationalOrganization',
+			'MedicalOrganization',
+			'NGO',
+			'PerformingGroup',
+			'SportsOrganization',
 			// Local business types.
-			'Restaurant', 'Hotel', 'Hospital', 'School', 'Library', 'Museum',
-			'ShoppingCenter', 'TouristAttraction', 'FoodEstablishment', 'LodgingBusiness',
+			'Restaurant',
+			'Hotel',
+			'Hospital',
+			'School',
+			'Library',
+			'Museum',
+			'ShoppingCenter',
+			'TouristAttraction',
+			'FoodEstablishment',
+			'LodgingBusiness',
 			// People.
-			'Person', 'ProfilePage',
+			'Person',
+			'ProfilePage',
 			// Events.
-			'Event', 'EventSeries', 'SportsEvent', 'MusicEvent', 'BusinessEvent',
+			'Event',
+			'EventSeries',
+			'SportsEvent',
+			'MusicEvent',
+			'BusinessEvent',
 			// Creative work.
-			'Book', 'Movie', 'VideoObject', 'ImageObject', 'Recipe',
-			'MusicRecording', 'Podcast', 'TVSeries', 'TVEpisode',
-			'SoftwareApplication', 'MobileApplication', 'WebApplication',
+			'Book',
+			'Movie',
+			'VideoObject',
+			'ImageObject',
+			'Recipe',
+			'MusicRecording',
+			'Podcast',
+			'TVSeries',
+			'TVEpisode',
+			'SoftwareApplication',
+			'MobileApplication',
+			'WebApplication',
 			// Medical/Health.
-			'MedicalCondition', 'Drug', 'MedicalWebPage', 'HealthTopicContent',
+			'MedicalCondition',
+			'Drug',
+			'MedicalWebPage',
+			'HealthTopicContent',
 			// Educational.
-			'Course', 'LearningResource', 'Quiz', 'EducationalOccupationalProgram',
+			'Course',
+			'LearningResource',
+			'Quiz',
+			'EducationalOccupationalProgram',
 			'Dataset',
 			// Other useful.
-			'FAQPage', 'HowTo', 'JobPosting', 'BreadcrumbList', 'SearchAction',
-			'ContactPage', 'AboutPage', 'CheckoutPage', 'CollectionPage',
-			'RealEstateListing', 'Residence', 'Apartment',
-			'Vehicle', 'Car', 'Motorcycle',
-			'Speakable', 'SpeakableSpecification',
+			'FAQPage',
+			'HowTo',
+			'JobPosting',
+			'BreadcrumbList',
+			'SearchAction',
+			'ContactPage',
+			'AboutPage',
+			'CheckoutPage',
+			'CollectionPage',
+			'RealEstateListing',
+			'Residence',
+			'Apartment',
+			'Vehicle',
+			'Car',
+			'Motorcycle',
+			'Speakable',
+			'SpeakableSpecification',
 			// Page subtypes.
-			'ItemPage', 'SearchResultsPage',
+			'ItemPage',
+			'SearchResultsPage',
 			// Service.
 			'Service',
 		];
