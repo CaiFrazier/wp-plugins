@@ -122,4 +122,114 @@ final class ChunkReceiverTest extends TestCase {
 		self::assertTrue( $res['data']['complete'] );
 		self::assertSame( 0, $res['data']['remaining'] );
 	}
+
+	// --- SEC-9: quota enforced against ACTUAL bytes (spoofed fileSize bypass) ---
+
+	public function test_quota_counts_actual_bytes_and_ignores_declared_filesize(): void {
+		// Quota of 10 bytes. The client "declares" fileSize 0 (the classic spoof
+		// that used to grant a free pass) but the real body is 8 bytes, which is
+		// what must be counted. The session's persisted size and the per-user
+		// tally both reflect the ACTUAL 8 bytes, not the declared 0.
+		$rx  = new ChunkReceiver( new Paths( $this->sandbox ), fn() => true, 10 );
+		$res = $rx->receive(
+			$this->input( 'hello---', [ 'owner_id' => 1, 'file_size' => 0 ] ),
+			$this->tmp_with( 'hello---' )
+		);
+
+		self::assertTrue( $res['ok'] );
+		$s = new UploadSession( new Paths( $this->sandbox ), self::ID );
+		self::assertSame( 8, (int) $s->meta()['file_size'] );
+		self::assertSame( 8, (int) get_option( 'cf_cu_quota_1', 0 ) );
+	}
+
+	public function test_quota_rejects_when_actual_bytes_exceed_limit(): void {
+		// First 8-byte chunk fits a 10-byte quota; the second pushes the ACTUAL
+		// total to 16 > 10 and is rejected with 507 even though fileSize is
+		// understated. The rejected chunk is never written, and the tally only
+		// ever counts what actually landed on disk.
+		$rx = new ChunkReceiver( new Paths( $this->sandbox ), fn() => true, 10 );
+
+		$ok = $rx->receive(
+			$this->input( 'aaaaaaaa', [ 'owner_id' => 1, 'chunk_index' => 0, 'file_size' => 0 ] ),
+			$this->tmp_with( 'aaaaaaaa' )
+		);
+		self::assertTrue( $ok['ok'] );
+
+		$res = $rx->receive(
+			$this->input( 'bbbbbbbb', [ 'owner_id' => 1, 'chunk_index' => 1, 'file_size' => 0 ] ),
+			$this->tmp_with( 'bbbbbbbb' )
+		);
+		self::assertFalse( $res['ok'] );
+		self::assertSame( 507, $res['status'] );
+		self::assertSame( 'quota_exceeded', $res['error'] );
+
+		$s = new UploadSession( new Paths( $this->sandbox ), self::ID );
+		self::assertSame( [ 0 ], $s->received_indices() );
+		self::assertSame( 8, (int) get_option( 'cf_cu_quota_1', 0 ) );
+	}
+
+	public function test_idempotent_retry_does_not_double_count_quota(): void {
+		// Re-sending the same index nets zero new bytes, so the tally must not
+		// grow on the retry.
+		$rx = new ChunkReceiver( new Paths( $this->sandbox ), fn() => true, 100 );
+		$rx->receive( $this->input( 'aaaaaaaa', [ 'owner_id' => 1 ] ), $this->tmp_with( 'aaaaaaaa' ) );
+		$rx->receive( $this->input( 'aaaaaaaa', [ 'owner_id' => 1 ] ), $this->tmp_with( 'aaaaaaaa' ) );
+
+		self::assertSame( 8, (int) get_option( 'cf_cu_quota_1', 0 ) );
+	}
+
+	public function test_quota_disabled_when_limit_is_zero(): void {
+		// Default constructor (quota 0 = unlimited): large bytes, no owner tally.
+		$res = $this->rx->receive( $this->input( 'hello---', [ 'owner_id' => 1 ] ), $this->tmp_with( 'hello---' ) );
+		self::assertTrue( $res['ok'] );
+		self::assertSame( 0, (int) get_option( 'cf_cu_quota_1', 0 ) );
+	}
+
+	// --- SEC-9: disk-exhaustion guard ---
+
+	public function test_disk_guard_rejects_when_free_space_below_minimum(): void {
+		// Injected probe reports 5 bytes free; with an 8-byte chunk and a
+		// 1000-byte minimum, the receive is refused with 507 and nothing is
+		// written to disk.
+		$probe = static fn( string $dir ) => 5;
+		$rx    = new ChunkReceiver( new Paths( $this->sandbox ), fn() => true, 0, 0, 1000, $probe );
+
+		$res = $rx->receive( $this->input( 'hello---' ), $this->tmp_with( 'hello---' ) );
+		self::assertFalse( $res['ok'] );
+		self::assertSame( 507, $res['status'] );
+		self::assertSame( 'insufficient_disk', $res['error'] );
+
+		$s = new UploadSession( new Paths( $this->sandbox ), self::ID );
+		self::assertSame( [], $s->received_indices() );
+	}
+
+	public function test_disk_guard_allows_when_space_is_ample(): void {
+		$probe = static fn( string $dir ) => 1000000000;
+		$rx    = new ChunkReceiver( new Paths( $this->sandbox ), fn() => true, 0, 0, 1000, $probe );
+
+		$res = $rx->receive( $this->input( 'hello---' ), $this->tmp_with( 'hello---' ) );
+		self::assertTrue( $res['ok'] );
+	}
+
+	// --- SEC-9: per-session absolute ceiling ---
+
+	public function test_session_ceiling_rejects_oversized_upload(): void {
+		// Ceiling of 5 bytes; an 8-byte chunk exceeds it and is refused with 413
+		// independently of any quota (quota disabled here).
+		$rx  = new ChunkReceiver( new Paths( $this->sandbox ), fn() => true, 0, 5 );
+		$res = $rx->receive( $this->input( 'hello---' ), $this->tmp_with( 'hello---' ) );
+
+		self::assertFalse( $res['ok'] );
+		self::assertSame( 413, $res['status'] );
+		self::assertSame( 'session_too_large', $res['error'] );
+
+		$s = new UploadSession( new Paths( $this->sandbox ), self::ID );
+		self::assertSame( [], $s->received_indices() );
+	}
+
+	public function test_session_ceiling_allows_upload_within_limit(): void {
+		$rx  = new ChunkReceiver( new Paths( $this->sandbox ), fn() => true, 0, 1000 );
+		$res = $rx->receive( $this->input( 'hello---' ), $this->tmp_with( 'hello---' ) );
+		self::assertTrue( $res['ok'] );
+	}
 }

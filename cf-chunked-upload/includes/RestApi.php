@@ -122,14 +122,16 @@ final class RestApi {
 			);
 		}
 
-		// New-session guards — run only when the session dir doesn't exist yet.
-		// Existing sessions already passed these checks on their first chunk.
+		// New-session guard — runs only when the session dir doesn't exist yet.
+		// Existing sessions already passed this on their first chunk. The per-user
+		// storage quota is NOT reserved here: it is enforced per chunk inside
+		// ChunkReceiver against actual on-disk bytes (SEC-9), so a spoofed or
+		// zero fileSize cannot bypass it at session creation.
 		$upload_id_param = (string) $request->get_param( 'uploadId' );
 		if ( UploadSession::is_valid_id( $upload_id_param ) ) {
 			$probe = new UploadSession( $this->paths, $upload_id_param );
 			if ( ! $probe->exists() ) {
-				// FEAT-8: per-user concurrent upload cap. Checked before the quota
-				// reserve so we never need to undo a reservation on rejection.
+				// FEAT-8: per-user concurrent upload cap.
 				$max_concurrent = $this->settings->max_concurrent_uploads_per_user();
 				if ( $max_concurrent > 0 && $user_id > 0
 					&& UploadSession::count_user_sessions( $this->paths, $user_id ) >= $max_concurrent ) {
@@ -139,22 +141,19 @@ final class RestApi {
 						[ 'status' => 429 ]
 					);
 				}
-				// SEC-2: per-user quota check.
-				$file_bytes = (int) $request->get_param( 'fileSize' );
-				if ( ! UserQuota::check_and_reserve( $user_id, $file_bytes, $this->settings->per_user_quota_bytes() ) ) {
-					return new \WP_Error(
-						'cf_cu_quota_exceeded',
-						__( 'Storage quota exceeded. Wait for in-progress uploads to finish or contact your administrator.', 'cf-chunked-upload' ),
-						[ 'status' => 507 ]
-					);
-				}
 			}
 		}
 
 		$files = $request->get_file_params();
 		$tmp   = isset( $files['chunk']['tmp_name'] ) ? (string) $files['chunk']['tmp_name'] : '';
 
-		$receiver = new ChunkReceiver( $this->paths, $this->settings->mime_gate() );
+		$receiver = new ChunkReceiver(
+			$this->paths,
+			$this->settings->mime_gate(),
+			$this->settings->per_user_quota_bytes(),
+			$this->settings->per_session_max_bytes(),
+			$this->settings->min_free_disk_bytes()
+		);
 		$result   = $receiver->receive(
 			[
 				'upload_id'    => $request->get_param( 'uploadId' ),
@@ -165,7 +164,6 @@ final class RestApi {
 				'destination'  => $request->get_param( 'destination' ),
 				'chunk_sha256' => $request->get_param( 'chunkSha256' ),
 				'total_sha256' => $request->get_param( 'totalSha256' ),
-				'file_size'    => $request->get_param( 'fileSize' ),
 				// Server-trusted, never from the request body — binds the
 				// session to its creator for the ownership checks below.
 				'owner_id'     => $user_id,

@@ -68,6 +68,12 @@ final class Settings {
 			'max_concurrent_uploads_per_user' => 5,
 			// FEAT-5: 0 = never auto-delete imported files.
 			'imports_retention_days'         => 0,
+			// SEC-9: per-session absolute byte ceiling, stored as GB. 0 = unlimited.
+			// Independent of the per-user quota; caps a single upload on its own.
+			'per_session_max_gb'             => 0,
+			// SEC-9: free disk (MB) to preserve during chunk receive. 0 = disabled.
+			// Guards against filling the volume before finalize's own disk check.
+			'min_free_disk_mb'               => 512,
 		];
 	}
 
@@ -97,6 +103,8 @@ final class Settings {
 		$out['per_user_quota_gb']              = self::clamp_int( $input['per_user_quota_gb'] ?? $current['per_user_quota_gb'], 0, 10000, 50 );
 		$out['max_concurrent_uploads_per_user'] = self::clamp_int( $input['max_concurrent_uploads_per_user'] ?? $current['max_concurrent_uploads_per_user'], 0, 20, 5 );
 		$out['imports_retention_days']         = self::clamp_int( $input['imports_retention_days'] ?? $current['imports_retention_days'], 0, 365, 0 );
+		$out['per_session_max_gb']             = self::clamp_int( $input['per_session_max_gb'] ?? $current['per_session_max_gb'], 0, 10000, 0 );
+		$out['min_free_disk_mb']               = self::clamp_int( $input['min_free_disk_mb'] ?? $current['min_free_disk_mb'], 0, 1048576, 512 );
 
 		$requested_mb = self::clamp_int( $input['chunk_size_mb'] ?? $current['chunk_size_mb'], 1, 1024, 8 );
 		$ceiling      = HostInfo::chunk_ceiling_bytes();
@@ -202,6 +210,28 @@ final class Settings {
 	public function per_user_quota_bytes(): int {
 		$gb = (int) $this->get()['per_user_quota_gb'];
 		return $gb > 0 ? $gb * 1073741824 : 0;
+	}
+
+	/**
+	 * SEC-9: per-session absolute byte ceiling. 0 = unlimited. Converts the
+	 * stored GB value to bytes at read time.
+	 *
+	 * @return int
+	 */
+	public function per_session_max_bytes(): int {
+		$gb = (int) $this->get()['per_session_max_gb'];
+		return $gb > 0 ? $gb * 1073741824 : 0;
+	}
+
+	/**
+	 * SEC-9: minimum free disk space to keep available during chunk receive.
+	 * 0 = disabled. Converts the stored MB value to bytes at read time.
+	 *
+	 * @return int
+	 */
+	public function min_free_disk_bytes(): int {
+		$mb = (int) $this->get()['min_free_disk_mb'];
+		return $mb > 0 ? $mb * 1048576 : 0;
 	}
 
 	/**

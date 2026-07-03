@@ -3,7 +3,7 @@
  * Plugin Name:       CF Chunked Upload
  * Plugin URI:        https://github.com/caifrazier/cf-chunked-upload
  * Description:       Splits large files client-side and reassembles them server-side, bypassing PHP upload_max_filesize / post_max_size limits. Two surfaces: Media Library and a standalone large-file importer. Integrity-verified with per-chunk and whole-file SHA-256.
- * Version:           1.1.4
+ * Version:           1.2.0
  * Requires at least: 6.2
  * Requires PHP:      7.4
  * Author:            Cai Frazier
@@ -16,7 +16,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CF_CHUNKED_UPLOAD_VERSION', '1.1.4' );
+define( 'CF_CHUNKED_UPLOAD_VERSION', '1.2.0' );
 define( 'CF_CHUNKED_UPLOAD_FILE', __FILE__ );
 define( 'CF_CHUNKED_UPLOAD_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CF_CHUNKED_UPLOAD_URL', plugin_dir_url( __FILE__ ) );

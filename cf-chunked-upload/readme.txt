@@ -4,7 +4,7 @@ Tags: uploads, media, large files, chunked upload
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.1.4
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -68,6 +68,12 @@ Not yet. Plugin/theme ZIP installation support is deferred.
 
 == Changelog ==
 
+= 1.2.0 =
+* Security: The per-user storage quota is now enforced against the actual bytes received by the server, not the file size the browser reports. A client that understated or zeroed out the declared size could previously write real chunk data to disk without it counting toward the quota. The quota is now re-checked on every chunk, so an over-limit upload is stopped as it happens rather than only at session start.
+* Security: Added a disk-space guard to the chunk endpoint. Chunk uploads are refused when free disk space would fall below a configurable minimum (default 512 MB), and an optional per-session size ceiling can cap a single upload independently of the quota. This closes a denial-of-service path where a large upload could exhaust the disk before the finalize-time check ran.
+* Compatibility: Corrected the "Tested up to" WordPress version, which previously named a release that does not exist.
+* Two new settings: "Per-session maximum (GB)" and "Minimum free disk (MB)".
+
 = 1.1.4 =
 * Fix: Plugin Check no longer reports `NonPrefixedConstantFound` warnings for `CF_CHUNKED_UPLOAD_*` constants. Root cause was a missing `PrefixAllGlobals` prefix declaration in `phpcs.xml.dist` — Plugin Check runs PHPCS with `--ignore-annotations`, so the inline `phpcs:disable` workaround added in 1.1.3 had no effect. The fix declares the canonical prefix allowlist (`cf_chunked_upload`, `CFChunkedUpload`, `CF_CHUNKED_UPLOAD`) in the ruleset and removes the now-redundant suppression comments. No functional changes.
 
@@ -96,6 +102,9 @@ Not yet. Plugin/theme ZIP installation support is deferred.
 * Background finalization, cleanup jobs, and integrity verification.
 
 == Upgrade Notice ==
+
+= 1.2.0 =
+Security hardening. Closes a quota bypass via a spoofed file size and adds a disk-space guard against upload-driven disk exhaustion. Upgrade recommended.
 
 = 1.1.3 =
 Maintenance release for WordPress.org Plugin Check compliance. No functional changes.

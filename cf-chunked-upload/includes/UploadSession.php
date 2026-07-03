@@ -321,6 +321,32 @@ final class UploadSession {
 	}
 
 	/**
+	 * SEC-2/SEC-9: persist the running ACTUAL byte total this session has
+	 * reserved against the owner's quota. Called after each chunk is stored so
+	 * the value tracks parts_total_bytes() rather than the client-declared
+	 * fileSize (which is spoofable). Every quota-release site reads this field,
+	 * so keeping it accurate keeps releases exact — a session that stored 40 MB
+	 * releases 40 MB, no matter what fileSize the client claimed.
+	 *
+	 * Uses LOCK_EX read-modify-write like set_finalize_job_id(): a concurrent
+	 * chunk for the same id may lose an update (last writer wins), which is the
+	 * documented best-effort accounting trade-off in UserQuota.
+	 *
+	 * @param int $bytes Actual bytes reserved so far for this session.
+	 * @return void
+	 */
+	public function set_file_size( int $bytes ): void {
+		$meta = $this->meta();
+		if ( null === $meta ) {
+			return;
+		}
+		$meta['file_size'] = max( 0, $bytes );
+		$path              = $this->dir . '/' . self::META_FILE;
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		@file_put_contents( $path, (string) wp_json_encode( $meta ), LOCK_EX );
+	}
+
+	/**
 	 * Newest mtime across every file in the session dir (parts, .meta,
 	 * .heartbeat). Cleanup ages a session by its NEWEST file so a long upload
 	 * sitting at the retention boundary is never wiped mid-transfer. Returns 0

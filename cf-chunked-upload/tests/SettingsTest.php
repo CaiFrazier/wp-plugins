@@ -130,4 +130,33 @@ final class SettingsTest extends TestCase {
 		$this->settings->update( [ 'importer_capability' => 'administrator' ] );
 		self::assertSame( 'manage_options', $this->settings->importer_capability() );
 	}
+
+	// --- SEC-9: per-session ceiling + disk-free guard settings ---
+
+	public function test_min_free_disk_defaults_to_512_mb(): void {
+		self::assertSame( 512, $this->settings->get()['min_free_disk_mb'] );
+		self::assertSame( 512 * 1048576, $this->settings->min_free_disk_bytes() );
+	}
+
+	public function test_per_session_max_defaults_to_unlimited(): void {
+		self::assertSame( 0, $this->settings->get()['per_session_max_gb'] );
+		self::assertSame( 0, $this->settings->per_session_max_bytes() );
+	}
+
+	public function test_per_session_max_converts_gb_to_bytes(): void {
+		$this->settings->update( [ 'per_session_max_gb' => 2 ] );
+		self::assertSame( 2 * 1073741824, $this->settings->per_session_max_bytes() );
+	}
+
+	public function test_disk_and_session_settings_are_clamped(): void {
+		$res = $this->settings->update(
+			[
+				'per_session_max_gb' => -5,
+				'min_free_disk_mb'   => 99999999,
+			]
+		);
+		$s = $res['settings'];
+		self::assertSame( 0, $s['per_session_max_gb'] );       // min 0
+		self::assertSame( 1048576, $s['min_free_disk_mb'] );   // max 1048576
+	}
 }
