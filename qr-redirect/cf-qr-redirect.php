@@ -3,7 +3,7 @@
  * Plugin Name:       CF QR Redirect
  * Plugin URI:        https://github.com/caifrazier/cf-qr-redirect
  * Description:       Self-hosted QR code generator and redirect manager with native GA4 analytics integration. Generates branded QR codes pointing to /r/{slug} short URLs on your own domain, plus a standard source→destination redirect manager.
- * Version:           1.2.0
+ * Version:           1.3.0
  * Requires at least: 6.2
  * Requires PHP:      8.0
  * Author:            Cai Frazier
@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CFQR_VERSION', '1.2.0' );
+define( 'CFQR_VERSION', '1.3.0' );
 define( 'CFQR_PLUGIN_FILE', __FILE__ );
 define( 'CFQR_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CFQR_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

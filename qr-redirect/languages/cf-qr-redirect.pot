@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: CF QR Redirect 1.1.1\n"
+"Project-Id-Version: CF QR Redirect 1.2.0\n"
 "Report-Msgid-Bugs-To: bugs@caifrazier.com\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-02T05:12:39+00:00\n"
+"POT-Creation-Date: 2026-07-01T16:38:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: cf-qr-redirect\n"
@@ -39,7 +39,7 @@ msgstr ""
 msgid "https://github.com/caifrazier"
 msgstr ""
 
-#: cf-qr-redirect.php:149
+#: cf-qr-redirect.php:150
 #: includes/class-admin.php:1042
 msgid "Settings"
 msgstr ""

@@ -30,6 +30,16 @@ class CFQR_Redirect_Router {
 	const CACHE_KEY_EXACT    = 'redirect_exact_map';
 	const CACHE_KEY_PATTERNS = 'redirect_pattern_list';
 
+	// Autoloaded option flag: '1' while at least one published redirect exists,
+	// '0' otherwise. Maintained on every redirect save/trash/untrash/delete so
+	// the front-end router can skip the exact-map and pattern-list pivot queries
+	// entirely when there is nothing to route. Without a persistent object cache
+	// those pivots are rebuilt per request, so this flag is what keeps a
+	// QR-only (or brand-new) install from paying two postmeta queries on every
+	// uncached front-end GET. Read via get_option, which is autoloaded and so
+	// costs no query of its own.
+	const OPTION_HAS_REDIRECTS = 'cfqr_has_redirects';
+
 	// Hard ceiling on how many hops we walk when checking a proposed exact-mode
 	// redirect for a chain that loops back to its own source. Chains this long
 	// are pathological; if one exists we fail open (allow the save) and let the
@@ -91,6 +101,14 @@ class CFQR_Redirect_Router {
 		$first_segment = explode( '/', $first_segment, 2 )[0];
 		$reserved      = array( 'wp-admin', 'wp-login.php', 'wp-content', 'wp-includes', 'wp-json', 'wp-cron.php', 'xmlrpc.php' );
 		if ( in_array( $first_segment, $reserved, true ) ) {
+			return;
+		}
+
+		// Nothing to route: bail before touching the DB. When no published
+		// redirect exists the exact-map and pattern-list pivot queries would
+		// return empty every time, yet without an object cache they run on
+		// every request. The autoloaded flag lets us skip them outright.
+		if ( ! self::has_redirects() ) {
 			return;
 		}
 
@@ -393,6 +411,11 @@ class CFQR_Redirect_Router {
 	 * @return array<string,array{id:int,from:string,until:string}>
 	 */
 	public static function get_exact_map() {
+		// Bail before the pivot query when no published redirect exists.
+		if ( ! self::has_redirects() ) {
+			return array();
+		}
+
 		$cached = wp_cache_get( self::CACHE_KEY_EXACT, self::CACHE_GROUP );
 		if ( is_array( $cached ) ) {
 			return $cached;
@@ -468,6 +491,11 @@ class CFQR_Redirect_Router {
 	 * @return array<int,array{id:int,mode:string,source:string}>
 	 */
 	public static function get_pattern_list() {
+		// Bail before the pivot query when no published redirect exists.
+		if ( ! self::has_redirects() ) {
+			return array();
+		}
+
 		$cached = wp_cache_get( self::CACHE_KEY_PATTERNS, self::CACHE_GROUP );
 		if ( is_array( $cached ) ) {
 			return $cached;
@@ -563,6 +591,11 @@ class CFQR_Redirect_Router {
 	public static function invalidate_cache() {
 		wp_cache_delete( self::CACHE_KEY_EXACT, self::CACHE_GROUP );
 		wp_cache_delete( self::CACHE_KEY_PATTERNS, self::CACHE_GROUP );
+		// Any redirect mutation can flip whether the site has routable
+		// redirects at all, so recompute the short-circuit flag here. This
+		// runs on admin save/trash/untrash/delete, never on the hot request
+		// path, so the one small existence query it costs is fine.
+		self::refresh_has_redirects_flag();
 	}
 
 	public static function invalidate_cache_if_redirect( $post_id ) {
@@ -571,6 +604,40 @@ class CFQR_Redirect_Router {
 			return;
 		}
 		self::invalidate_cache();
+	}
+
+	/**
+	 * Whether at least one published redirect exists, per the autoloaded flag.
+	 *
+	 * The flag is absent on installs that predate it; in that case we compute
+	 * and persist it once so a site with existing redirects keeps routing
+	 * instead of silently short-circuiting after the upgrade.
+	 *
+	 * @return bool
+	 */
+	public static function has_redirects() {
+		$flag = get_option( self::OPTION_HAS_REDIRECTS, null );
+		if ( null === $flag ) {
+			self::refresh_has_redirects_flag();
+			$flag = get_option( self::OPTION_HAS_REDIRECTS, '0' );
+		}
+		return '1' === (string) $flag;
+	}
+
+	/**
+	 * Recompute the cfqr_has_redirects flag from the current post table and
+	 * persist it (autoloaded). Cheap existence probe — LIMIT 1, no meta join.
+	 */
+	public static function refresh_has_redirects_flag() {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$exists = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT ID FROM {$wpdb->posts} WHERE post_type = %s AND post_status = 'publish' LIMIT 1",
+				CFQR_REDIRECT_POST_TYPE
+			)
+		);
+		update_option( self::OPTION_HAS_REDIRECTS, $exists ? '1' : '0' );
 	}
 
 	/**

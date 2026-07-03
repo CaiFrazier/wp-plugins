@@ -1178,8 +1178,8 @@ class CFQR_Admin {
 						<tr>
 							<th scope="row"><label for="cfqr_length"><?php esc_html_e( 'Short code length', 'cf-qr-redirect' ); ?></label></th>
 							<td>
-								<input type="number" id="cfqr_length" name="<?php echo esc_attr( CFQR_OPTION_KEY ); ?>[short_code_length]" value="<?php echo esc_attr( $settings['short_code_length'] ); ?>" min="4" max="12" class="small-text">
-								<span class="description"><?php esc_html_e( 'Characters in auto-generated slugs. Range 4–12, default 6.', 'cf-qr-redirect' ); ?></span>
+								<input type="number" id="cfqr_length" name="<?php echo esc_attr( CFQR_OPTION_KEY ); ?>[short_code_length]" value="<?php echo esc_attr( $settings['short_code_length'] ); ?>" min="6" max="12" class="small-text">
+								<span class="description"><?php esc_html_e( 'Characters in auto-generated slugs. Range 6 to 12, default 8.', 'cf-qr-redirect' ); ?></span>
 							</td>
 						</tr>
 					</table>

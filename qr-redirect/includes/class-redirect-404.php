@@ -36,6 +36,23 @@ class CFQR_Redirect_404 {
 	// we don't want it filling our datastore.
 	const MAX_PATH_LENGTH = 512;
 
+	// Write-throttle guards for the 404 recorder. Each novel 404 path mints one
+	// CPT row plus its meta, so a bot enumerating unique paths (/aaa1, /aaa2,
+	// ...) could bloat wp_posts/wp_postmeta in a single burst. These bound that,
+	// and they apply ONLY to new-row inserts: repeat hits on an existing path
+	// still increment its counter, which touches no new rows.
+	//
+	// INSERT_WINDOW + MAX_INSERTS_PER_WINDOW cap new-row inserts per time window,
+	// reusing the same transient pattern the QR and redirect routers use for
+	// their hit-counter writes (best-effort without a persistent object cache).
+	// MAX_ROWS is a global ceiling: once reached we stop inserting new paths
+	// until retention prunes the table back down, while existing rows keep
+	// incrementing so the high-traffic 404s stay accurate.
+	const INSERT_WINDOW          = MINUTE_IN_SECONDS;
+	const MAX_INSERTS_PER_WINDOW = 30;
+	const MAX_ROWS               = 5000;
+	const INSERT_RATE_KEY        = 'cfqr_404_insert_rate';
+
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register' ) );
 		add_action( 'template_redirect', array( __CLASS__, 'maybe_capture' ), 999 );
@@ -214,7 +231,15 @@ class CFQR_Redirect_404 {
 			return;
 		}
 
-		// New row.
+		// New row. Throttle inserts so a burst of novel paths can't bloat the
+		// datastore: skip the insert when the per-window rate limit is hit or
+		// the global row ceiling is reached. Excess novel 404s are simply not
+		// recorded; the ones that matter (repeat hits) still count via the
+		// existing-row branch above.
+		if ( self::insert_rate_limited() || self::at_row_ceiling() ) {
+			return;
+		}
+
 		$post_id = wp_insert_post(
 			array(
 				'post_type'   => CFQR_404_POST_TYPE,
@@ -234,6 +259,39 @@ class CFQR_Redirect_404 {
 		if ( '' !== $referer ) {
 			update_post_meta( $post_id, self::META_REFERER, $referer );
 		}
+	}
+
+	/**
+	 * Per-window cap on new-row inserts. Mirrors the routers' transient rate
+	 * limit: a shared counter with a fixed TTL. Once the counter reaches
+	 * MAX_INSERTS_PER_WINDOW we stop seeding it, so the transient expires
+	 * INSERT_WINDOW seconds after the last accepted insert and the window
+	 * resets on its own.
+	 *
+	 * @return bool True when the current window is already at its insert cap.
+	 */
+	private static function insert_rate_limited() {
+		$count = (int) get_transient( self::INSERT_RATE_KEY );
+		if ( $count >= self::MAX_INSERTS_PER_WINDOW ) {
+			return true;
+		}
+		set_transient( self::INSERT_RATE_KEY, $count + 1, self::INSERT_WINDOW );
+		return false;
+	}
+
+	/**
+	 * Whether the stored capture rows have hit the global ceiling. Counts only
+	 * published rows (the status every capture is inserted with).
+	 *
+	 * @return bool True when at or above MAX_ROWS.
+	 */
+	private static function at_row_ceiling() {
+		$counts = wp_count_posts( CFQR_404_POST_TYPE );
+		if ( ! is_object( $counts ) ) {
+			return false;
+		}
+		$total = (int) ( $counts->publish ?? 0 );
+		return $total >= self::MAX_ROWS;
 	}
 
 	// ---------- Retention / cleanup -----------------------------------------
@@ -487,7 +545,7 @@ class CFQR_Redirect_404 {
 		(function(){
 			var input = document.getElementById('cfqr_rd_source');
 			if (input && !input.value) {
-				input.value = <?php echo wp_json_encode( $source ); ?>;
+				input.value = <?php echo wp_json_encode( $source, JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 			}
 			var dest = document.getElementById('cfqr_rd_dest');
 			if (dest) dest.focus();

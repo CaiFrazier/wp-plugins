@@ -122,7 +122,15 @@ function cfqr_uninstall_cleanup() {
 }
 
 if ( is_multisite() ) {
-	foreach ( get_sites( [ 'fields' => 'ids' ] ) as $blog_id ) {
+	// 'number' => 0 lifts the default 100-site cap so every blog on a large
+	// network is cleaned. get_sites() with fields=ids returns a flat id list.
+	$blog_ids = get_sites(
+		array(
+			'fields' => 'ids',
+			'number' => 0,
+		)
+	);
+	foreach ( $blog_ids as $blog_id ) {
 		switch_to_blog( $blog_id );
 		cfqr_uninstall_cleanup();
 		restore_current_blog();

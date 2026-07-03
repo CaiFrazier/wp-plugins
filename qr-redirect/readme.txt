@@ -4,7 +4,7 @@ Tags: qr code, redirect, shortlink, analytics, ga4
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,9 +37,10 @@ QR codes printed on physical media outlive the campaigns they're created for. Ho
 
 = Requirements =
 
-* WordPress 6.0+
-* PHP 7.4+
+* WordPress 6.2+
+* PHP 8.0+
 * Modern browsers in the admin (the QR preview and bulk-ZIP export use client-side Canvas + JS).
+* A persistent object cache (Redis or Memcached) is recommended, but not required, for high-volume routing. See "Will it hold up for high-volume campaigns?" in the FAQ for what it affects.
 
 = Capability gating =
 
@@ -130,6 +131,8 @@ No. The plugin makes no outbound requests of its own and contains no telemetry. 
 
 For most campaigns, yes — the hit counter uses an atomic `UPDATE meta_value = CAST(meta_value AS UNSIGNED) + 1` so concurrent scans never lose increments. **For sustained loads above roughly 50 scans/sec on a single code**, install a persistent object cache (Redis or Memcached) on the host. The two-tap dedupe and rate-limit guards rely on WordPress transients, which are atomic-ish only when an object cache is present. On vanilla database-backed transients under heavy concurrent scans, those guards become best-effort: the worst-case outcome is "a few duplicate increments slip through during a burst," not data corruption. If you don't run an object cache and a single code is doing print-campaign volume, expect counts to be approximately right, not exactly right.
 
+The standard redirect manager depends on the object cache the same way. Its routing decision reads two small lookup tables (an exact-match map and a pattern list), each built from a single postmeta pivot query. With a persistent object cache those tables are primed once and reused across requests. Without one they are rebuilt on every uncached front-end page load, adding two queries per request while any published redirect exists. Sites that define no redirects pay nothing either way: the router checks a lightweight flag and skips both queries entirely, so a QR-only install carries no routing overhead. If you run the redirect manager at scale, install an object cache for the same reason you would for the scan counters.
+
 == Screenshots ==
 
 1. Edit screen — short URL, live QR preview, destination URL, analytics-mode picker, and per-code stats.
@@ -138,6 +141,17 @@ For most campaigns, yes — the hit counter uses an atomic `UPDATE meta_value = 
 4. Bulk export progress — generating PNGs in the browser and bundling to a single ZIP.
 
 == Changelog ==
+
+= 1.3.0 =
+
+Hardening and correctness release closing the remaining must-fix items from the 1.1.1 code audit.
+
+* Abuse resistance: The 404 capture recorder now throttles new-row inserts. A per-window insert rate limit (reusing the same transient guard the QR and redirect routers use for hit-counter writes) plus a global row ceiling stop a bot that enumerates unique missing paths from bloating wp_posts and wp_postmeta in a single burst. Repeat hits on a path already recorded still increment its counter as before, so the 404s that matter stay accurate.
+* Performance: The redirect router short-circuits before its lookup queries when no published redirect exists. A cfqr_has_redirects flag is maintained on every redirect save, trash, untrash, and delete, so a QR-only install (or one that has not created a redirect yet) no longer pays two postmeta pivot queries on each uncached front-end request.
+* Docs: The requirements and the high-volume FAQ now explain that the redirect routing tables, like the dedupe and rate-limit transients, are only cached across requests when a persistent object cache is installed.
+* Security: The one-click "Create redirect" prefill now encodes its injected value with JSON_HEX_TAG and JSON_HEX_AMP, matching every other inline-script payload in the plugin.
+* Fix: Multisite uninstall now cleans every site on networks with more than 100 blogs. The site query no longer stops at the default 100-site page.
+* Docs: Reconciled the stated PHP and WordPress floors (PHP 8.0, WordPress 6.2) between the plugin header and the readme body, and corrected the short-code-length help text to match the sanitizer (range 6 to 12, default 8).
 
 = 1.2.0 =
 
@@ -232,6 +246,10 @@ Initial public release.
 * Full i18n with `cf-qr-redirect.pot` shipped; translations welcome via translate.wordpress.org.
 
 == Upgrade Notice ==
+
+= 1.3.0 =
+
+Hardening and correctness. Throttles 404-capture writes against path-enumeration abuse, skips redirect lookups when no redirects exist, and fixes multisite uninstall on networks with more than 100 sites. Recommended for all installs.
 
 = 1.1.1 =
 

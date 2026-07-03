@@ -194,23 +194,134 @@ if ( ! function_exists( 'get_post_meta' ) ) {
 		return $single ? $val : array( $val );
 	}
 }
+// Stateful transient store so the throttle/rate-limit logic can be exercised
+// (the earlier no-op mocks always missed, which was fine for the pure matchers
+// but not for the 404 insert rate limiter added in 1.3.0).
+if ( ! isset( $GLOBALS['cfqr_test_transients'] ) ) {
+	$GLOBALS['cfqr_test_transients'] = array();
+}
 if ( ! function_exists( 'get_transient' ) ) {
 	function get_transient( $key ) {
-		return false;
+		return $GLOBALS['cfqr_test_transients'][ $key ] ?? false;
 	}
 }
 if ( ! function_exists( 'set_transient' ) ) {
 	function set_transient( $key, $value, $ttl = 0 ) {
+		$GLOBALS['cfqr_test_transients'][ $key ] = $value;
 		return true;
 	}
 }
-if ( ! function_exists( 'gmdate' ) && false ) {
-	// gmdate is native; the false guard keeps the block as documentation only.
+if ( ! function_exists( 'delete_transient' ) ) {
+	function delete_transient( $key ) {
+		unset( $GLOBALS['cfqr_test_transients'][ $key ] );
+		return true;
+	}
+}
+
+// Option store — needed by the router's cfqr_has_redirects short-circuit flag.
+if ( ! isset( $GLOBALS['cfqr_test_options'] ) ) {
+	$GLOBALS['cfqr_test_options'] = array();
+}
+if ( ! function_exists( 'get_option' ) ) {
+	function get_option( $key, $default = false ) {
+		return array_key_exists( $key, $GLOBALS['cfqr_test_options'] ) ? $GLOBALS['cfqr_test_options'][ $key ] : $default;
+	}
+}
+if ( ! function_exists( 'update_option' ) ) {
+	function update_option( $key, $value, $autoload = null ) {
+		$GLOBALS['cfqr_test_options'][ $key ] = $value;
+		return true;
+	}
+}
+if ( ! function_exists( 'update_post_meta' ) ) {
+	function update_post_meta( $post_id, $key, $value ) {
+		$GLOBALS['cfqr_test_postmeta'][ $post_id ][ $key ] = $value;
+		return true;
+	}
+}
+if ( ! function_exists( 'is_wp_error' ) ) {
+	function is_wp_error( $thing ) {
+		return $thing instanceof WP_Error;
+	}
+}
+// 404-capture helpers. get_page_by_path / wp_insert_post / wp_count_posts are
+// driven by configurable globals so the throttle tests can steer the branch
+// record() takes without a real database.
+if ( ! isset( $GLOBALS['cfqr_test_pagebypath'] ) ) {
+	$GLOBALS['cfqr_test_pagebypath'] = null;
+}
+if ( ! isset( $GLOBALS['cfqr_test_insert_return'] ) ) {
+	$GLOBALS['cfqr_test_insert_return'] = 4242;
+}
+if ( ! isset( $GLOBALS['cfqr_test_insert_count'] ) ) {
+	$GLOBALS['cfqr_test_insert_count'] = 0;
+}
+if ( ! isset( $GLOBALS['cfqr_test_404_publish_count'] ) ) {
+	$GLOBALS['cfqr_test_404_publish_count'] = 0;
+}
+if ( ! function_exists( 'get_page_by_path' ) ) {
+	function get_page_by_path( $slug, $output = OBJECT, $post_type = 'page' ) {
+		return $GLOBALS['cfqr_test_pagebypath'];
+	}
+}
+if ( ! function_exists( 'wp_insert_post' ) ) {
+	function wp_insert_post( $args, $wp_error = false ) {
+		++$GLOBALS['cfqr_test_insert_count'];
+		return $GLOBALS['cfqr_test_insert_return'];
+	}
+}
+if ( ! function_exists( 'wp_count_posts' ) ) {
+	function wp_count_posts( $type = 'post' ) {
+		return (object) array( 'publish' => (int) $GLOBALS['cfqr_test_404_publish_count'] );
+	}
+}
+if ( ! defined( 'OBJECT' ) ) {
+	define( 'OBJECT', 'OBJECT' );
+}
+if ( ! defined( 'MINUTE_IN_SECONDS' ) ) {
+	define( 'MINUTE_IN_SECONDS', 60 );
+}
+if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
+	define( 'HOUR_IN_SECONDS', 3600 );
+}
+if ( ! defined( 'DAY_IN_SECONDS' ) ) {
+	define( 'DAY_IN_SECONDS', 86400 );
+}
+
+// $wpdb spy: counts the routing pivot queries (get_results) so we can assert
+// the no-redirect short-circuit performs zero of them, and answers get_var for
+// the has_redirects existence probe.
+if ( ! isset( $GLOBALS['cfqr_pivot_query_count'] ) ) {
+	$GLOBALS['cfqr_pivot_query_count'] = 0;
+}
+if ( ! isset( $GLOBALS['cfqr_test_getvar'] ) ) {
+	$GLOBALS['cfqr_test_getvar'] = null;
+}
+if ( ! isset( $GLOBALS['wpdb'] ) ) {
+	class CFQR_RD_Test_WPDB {
+		public $posts    = 'wp_posts';
+		public $postmeta = 'wp_postmeta';
+		public function prepare( $sql, ...$args ) {
+			return $sql;
+		}
+		public function get_results( $sql ) {
+			++$GLOBALS['cfqr_pivot_query_count'];
+			return array();
+		}
+		public function get_var( $sql ) {
+			return $GLOBALS['cfqr_test_getvar'];
+		}
+		public function query( $sql ) {
+			return 0;
+		}
+	}
+	$GLOBALS['wpdb'] = new CFQR_RD_Test_WPDB();
 }
 
 require_once dirname( __DIR__ ) . '/includes/class-url.php';
 require_once dirname( __DIR__ ) . '/includes/class-redirect-cpt.php';
 require_once dirname( __DIR__ ) . '/includes/class-redirect-router.php';
+require_once dirname( __DIR__ ) . '/includes/class-redirect-404.php';
 
 // ---------- Tiny test framework --------------------------------------------
 
@@ -520,6 +631,9 @@ cfqr_rd_section( 'CFQR_Redirect_Router::would_create_loop' );
 // Prime the exact-match map and the per-post destinations the walker reads.
 // Map keys are normalized source paths; values carry the post id. The walker
 // follows each hop's destination meta to the next normalized path.
+// get_exact_map() now short-circuits to [] unless the has-redirects flag is
+// set, which is exactly the state this scenario models (redirects exist).
+$GLOBALS['cfqr_test_options'][ CFQR_Redirect_Router::OPTION_HAS_REDIRECTS ] = '1';
 $GLOBALS['cfqr_test_cache'][ CFQR_Redirect_Router::CACHE_GROUP ][ CFQR_Redirect_Router::CACHE_KEY_EXACT ] = array(
 	'/b' => array( 'id' => 2, 'from' => '', 'until' => '' ),
 	'/c' => array( 'id' => 3, 'from' => '', 'until' => '' ),
@@ -553,6 +667,99 @@ cfqr_rd_assert(
 	'destination path equal to source (trailing slash) still detected after normalization',
 	CFQR_Redirect_Router::would_create_loop( '/a', 'https://example.test/a/' )
 );
+
+cfqr_rd_section( 'CFQR_Redirect_Router no-redirect short-circuit' );
+
+// Flag off: neither pivot query may run.
+$GLOBALS['cfqr_test_options'][ CFQR_Redirect_Router::OPTION_HAS_REDIRECTS ] = '0';
+// Clear any primed lookup caches so a query would run if the guard failed.
+unset( $GLOBALS['cfqr_test_cache'][ CFQR_Redirect_Router::CACHE_GROUP ][ CFQR_Redirect_Router::CACHE_KEY_EXACT ] );
+unset( $GLOBALS['cfqr_test_cache'][ CFQR_Redirect_Router::CACHE_GROUP ][ CFQR_Redirect_Router::CACHE_KEY_PATTERNS ] );
+$GLOBALS['cfqr_pivot_query_count'] = 0;
+
+cfqr_rd_assert( 'has_redirects() is false when the flag is "0"', ! CFQR_Redirect_Router::has_redirects() );
+cfqr_rd_assert_equal( 'get_exact_map() returns [] when the flag is "0"', array(), CFQR_Redirect_Router::get_exact_map() );
+cfqr_rd_assert_equal( 'get_pattern_list() returns [] when the flag is "0"', array(), CFQR_Redirect_Router::get_pattern_list() );
+cfqr_rd_assert_equal( 'zero pivot queries fire when cfqr_has_redirects is false', 0, $GLOBALS['cfqr_pivot_query_count'] );
+
+// Flag on with a cold cache: the pivot query MUST run, proving the guard (not
+// the cache) is what suppressed the query above.
+$GLOBALS['cfqr_test_options'][ CFQR_Redirect_Router::OPTION_HAS_REDIRECTS ] = '1';
+$GLOBALS['cfqr_pivot_query_count'] = 0;
+CFQR_Redirect_Router::get_exact_map();
+cfqr_rd_assert( 'a pivot query DOES fire when the flag is "1" and the cache is cold', $GLOBALS['cfqr_pivot_query_count'] >= 1 );
+
+// Lazy init: an install predating the flag (option absent) must compute it, not
+// silently short-circuit. get_var returning a row id means redirects exist.
+unset( $GLOBALS['cfqr_test_options'][ CFQR_Redirect_Router::OPTION_HAS_REDIRECTS ] );
+$GLOBALS['cfqr_test_getvar'] = 99;
+cfqr_rd_assert( 'has_redirects() lazily computes true when a redirect row exists', CFQR_Redirect_Router::has_redirects() );
+cfqr_rd_assert_equal( 'lazy compute persists the flag as "1"', '1', $GLOBALS['cfqr_test_options'][ CFQR_Redirect_Router::OPTION_HAS_REDIRECTS ] ?? null );
+
+unset( $GLOBALS['cfqr_test_options'][ CFQR_Redirect_Router::OPTION_HAS_REDIRECTS ] );
+$GLOBALS['cfqr_test_getvar'] = null;
+cfqr_rd_assert( 'has_redirects() lazily computes false when no redirect row exists', ! CFQR_Redirect_Router::has_redirects() );
+cfqr_rd_assert_equal( 'lazy compute persists the flag as "0"', '0', $GLOBALS['cfqr_test_options'][ CFQR_Redirect_Router::OPTION_HAS_REDIRECTS ] ?? null );
+
+cfqr_rd_section( 'CFQR_Redirect_404 write throttle' );
+
+$rl = function () {
+	return cfqr_rd_invoke_private( 'CFQR_Redirect_404', 'insert_rate_limited', array() );
+};
+$ceil = function () {
+	return cfqr_rd_invoke_private( 'CFQR_Redirect_404', 'at_row_ceiling', array() );
+};
+
+// Insert rate limit: the first MAX_INSERTS_PER_WINDOW calls pass; the next is
+// blocked.
+$GLOBALS['cfqr_test_transients'] = array();
+$max     = CFQR_Redirect_404::MAX_INSERTS_PER_WINDOW;
+$allowed = 0;
+for ( $i = 0; $i < $max; $i++ ) {
+	if ( ! $rl() ) {
+		++$allowed;
+	}
+}
+cfqr_rd_assert_equal( 'first MAX_INSERTS_PER_WINDOW inserts are allowed', $max, $allowed );
+cfqr_rd_assert( 'the insert past the window cap is rate-limited', $rl() );
+
+// Global row ceiling.
+$GLOBALS['cfqr_test_404_publish_count'] = CFQR_Redirect_404::MAX_ROWS - 1;
+cfqr_rd_assert( 'below the row ceiling is not blocked', ! $ceil() );
+$GLOBALS['cfqr_test_404_publish_count'] = CFQR_Redirect_404::MAX_ROWS;
+cfqr_rd_assert( 'at the row ceiling is blocked', $ceil() );
+
+// record(): a novel path is NOT inserted while the window is at its cap.
+$GLOBALS['cfqr_test_pagebypath']        = null;
+$GLOBALS['cfqr_test_404_publish_count'] = 0;
+$GLOBALS['cfqr_test_transients']        = array( CFQR_Redirect_404::INSERT_RATE_KEY => CFQR_Redirect_404::MAX_INSERTS_PER_WINDOW );
+$GLOBALS['cfqr_test_insert_count']      = 0;
+CFQR_Redirect_404::record( '/aaa1', sha1( '/aaa1' ), '' );
+cfqr_rd_assert_equal( 'novel 404 is not inserted when the window is at its cap', 0, $GLOBALS['cfqr_test_insert_count'] );
+
+// record(): the global row ceiling also blocks a novel path.
+$GLOBALS['cfqr_test_transients']        = array();
+$GLOBALS['cfqr_test_404_publish_count'] = CFQR_Redirect_404::MAX_ROWS;
+$GLOBALS['cfqr_test_insert_count']      = 0;
+CFQR_Redirect_404::record( '/aaa2', sha1( '/aaa2' ), '' );
+cfqr_rd_assert_equal( 'novel 404 is not inserted at the global row ceiling', 0, $GLOBALS['cfqr_test_insert_count'] );
+
+// record(): a novel path IS inserted when under both limits.
+$GLOBALS['cfqr_test_transients']        = array();
+$GLOBALS['cfqr_test_404_publish_count'] = 0;
+$GLOBALS['cfqr_test_insert_count']      = 0;
+CFQR_Redirect_404::record( '/aaa3', sha1( '/aaa3' ), '' );
+cfqr_rd_assert_equal( 'novel 404 under both limits is inserted exactly once', 1, $GLOBALS['cfqr_test_insert_count'] );
+
+// record(): a repeat hit on an EXISTING path increments in place and is never
+// gated by the insert throttle, even with the window capped and rows at ceiling.
+$GLOBALS['cfqr_test_pagebypath']        = (object) array( 'ID' => 777 );
+$GLOBALS['cfqr_test_postmeta'][777]     = array();
+$GLOBALS['cfqr_test_transients']        = array( CFQR_Redirect_404::INSERT_RATE_KEY => CFQR_Redirect_404::MAX_INSERTS_PER_WINDOW );
+$GLOBALS['cfqr_test_404_publish_count'] = CFQR_Redirect_404::MAX_ROWS;
+$GLOBALS['cfqr_test_insert_count']      = 0;
+CFQR_Redirect_404::record( '/existing', sha1( '/existing' ), '' );
+cfqr_rd_assert_equal( 'repeat hit on an existing path never inserts a new row', 0, $GLOBALS['cfqr_test_insert_count'] );
 
 // ---------- Report ---------------------------------------------------------
 
