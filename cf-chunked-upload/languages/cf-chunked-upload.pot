@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: CF Chunked Upload 1.1.4\n"
+"Project-Id-Version: CF Chunked Upload 1.2.0\n"
 "Report-Msgid-Bugs-To: bugs@caifrazier.com\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-02T05:13:54+00:00\n"
+"POT-Creation-Date: 2026-07-03T03:31:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: cf-chunked-upload\n"
@@ -107,61 +107,57 @@ msgstr ""
 msgid "Too many chunk requests. Please wait a moment before retrying."
 msgstr ""
 
-#: includes/RestApi.php:138
+#: includes/RestApi.php:140
 msgid "You have reached the maximum number of concurrent uploads. Finish or cancel an existing upload before starting another."
 msgstr ""
 
-#: includes/RestApi.php:147
-msgid "Storage quota exceeded. Wait for in-progress uploads to finish or contact your administrator."
-msgstr ""
-
-#: includes/RestApi.php:188
+#: includes/RestApi.php:186
 msgid "Invalid destination."
 msgstr ""
 
-#: includes/RestApi.php:191
-#: includes/RestApi.php:197
-#: includes/RestApi.php:281
-#: includes/RestApi.php:305
+#: includes/RestApi.php:189
+#: includes/RestApi.php:195
+#: includes/RestApi.php:279
+#: includes/RestApi.php:303
 msgid "Malformed upload id."
 msgstr ""
 
-#: includes/RestApi.php:202
-#: includes/RestApi.php:285
+#: includes/RestApi.php:200
+#: includes/RestApi.php:283
 msgid "Upload session not found."
 msgstr ""
 
-#: includes/RestApi.php:209
+#: includes/RestApi.php:207
 msgid "Finalize destination does not match the session."
 msgstr ""
 
-#: includes/RestApi.php:214
+#: includes/RestApi.php:212
 msgid "Not all chunks have been received yet."
 msgstr ""
 
-#: includes/RestApi.php:242
+#: includes/RestApi.php:240
 msgid "totalSha256 must be a 64-char hex digest."
 msgstr ""
 
-#: includes/RestApi.php:269
+#: includes/RestApi.php:267
 msgid "Malformed job id."
 msgstr ""
 
-#: includes/RestApi.php:273
+#: includes/RestApi.php:271
 msgid "No such job (it may have expired)."
 msgstr ""
 
-#: includes/RestApi.php:375
+#: includes/RestApi.php:373
 msgid "This upload belongs to another user."
 msgstr ""
 
 #. translators: 1: requested MB 2: capped MB
-#: includes/Settings.php:107
+#: includes/Settings.php:115
 #, php-format
 msgid "Chunk size reduced from %1$d MB to %2$d MB — your host caps a single request below the requested size."
 msgstr ""
 
-#: includes/Settings.php:323
+#: includes/Settings.php:353
 msgid "Imports directory must be inside wp-content; the default location was used instead."
 msgstr ""
 
