@@ -1,6 +1,6 @@
 {
     "name": "cf-content-calendar",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "CF Content Calendar WordPress plugin",
     "private": true,
     "scripts": {

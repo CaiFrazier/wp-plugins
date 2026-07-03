@@ -546,7 +546,7 @@ class RestControllerTest extends TestCase {
 		$this->assertSame( '2026-05-25 14:30:00', $GLOBALS['cfcal_test_posts'][21]->post_date );
 	}
 
-	public function test_reschedule_draft_does_not_write_post_date_gmt(): void {
+	public function test_reschedule_draft_writes_zeroed_post_date_gmt(): void {
 		$post              = new WP_Post();
 		$post->ID          = 30;
 		$post->post_status = 'draft';
@@ -561,9 +561,37 @@ class RestControllerTest extends TestCase {
 		$controller = new RestController();
 		$controller->reschedule_post( $request );
 
-		// A draft must keep WP's 0000-00-00 GMT convention — no gmt key sent.
-		$this->assertArrayNotHasKey( 'post_date_gmt', $GLOBALS['cfcal_test_last_update'] );
+		// A draft must keep WP's 0000-00-00 GMT convention — explicitly zeroed,
+		// not merely omitted (omission would let a stale value survive a
+		// future/publish -> draft downgrade; see the next test).
+		$this->assertSame( '0000-00-00 00:00:00', $GLOBALS['cfcal_test_last_update']['post_date_gmt'] );
 		$this->assertTrue( $GLOBALS['cfcal_test_last_update']['edit_date'] );
+	}
+
+	public function test_reschedule_future_to_draft_resets_stale_post_date_gmt(): void {
+		// Regression test for CCAL-P0-003: found during the caifrazier.com live
+		// smoke test. wp_update_post() merges $update with the post's EXISTING
+		// row before saving, so if post_date_gmt were merely omitted (rather
+		// than explicitly zeroed) when downgrading to draft, the post would
+		// keep the stale GMT date from when it was still scheduled.
+		$post                = new WP_Post();
+		$post->ID            = 32;
+		$post->post_status   = 'future';
+		$post->post_date     = '2027-02-20 09:00:00';
+		$post->post_date_gmt = '2027-02-20 09:00:00';
+
+		$GLOBALS['cfcal_test_posts'][32]     = $post;
+		$GLOBALS['cfcal_test_current_time']  = '2026-05-25 12:00:00';
+
+		$request = new WP_REST_Request();
+		$request->set_param( 'id', 32 );
+		$request->set_param( 'post_date', '2026-01-01' ); // date in the past
+
+		$controller = new RestController();
+		$controller->reschedule_post( $request );
+
+		$this->assertSame( 'draft', $GLOBALS['cfcal_test_posts'][32]->post_status );
+		$this->assertSame( '0000-00-00 00:00:00', $GLOBALS['cfcal_test_posts'][32]->post_date_gmt );
 	}
 
 	public function test_reschedule_future_writes_post_date_gmt(): void {

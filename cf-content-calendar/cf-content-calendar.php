@@ -3,7 +3,7 @@
  * Plugin Name:       CF Content Calendar
  * Plugin URI:        https://github.com/caifrazier/cf-content-calendar
  * Description:       A modern editorial calendar. Drag to reschedule, create drafts from empty day slots, and see your full content picture across post types.
- * Version:           0.1.0
+ * Version:           0.1.1
  * Requires at least: 6.2
  * Requires PHP:      7.4
  * Author:            Cai Frazier
@@ -15,7 +15,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CFCAL_VERSION', '0.1.0' );
+define( 'CFCAL_VERSION', '0.1.1' );
 define( 'CFCAL_FILE', __FILE__ );
 define( 'CFCAL_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CFCAL_URL', plugin_dir_url( __FILE__ ) );

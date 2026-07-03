@@ -353,6 +353,12 @@ class RestController {
 		// unscheduled draft as having a publish date.
 		if ( 'future' === $new_status || 'publish' === $new_status ) {
 			$update['post_date_gmt'] = get_gmt_from_date( $new_post_date );
+		} else {
+			// wp_update_post() merges $update with the post's EXISTING row
+			// before saving, so a scheduled post downgrading to draft would
+			// otherwise keep its old (now stale) post_date_gmt from when it
+			// was still future/publish.
+			$update['post_date_gmt'] = '0000-00-00 00:00:00';
 		}
 
 		$result = wp_update_post(
