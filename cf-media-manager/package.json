@@ -1,6 +1,6 @@
 {
     "name": "cf-media-manager",
-    "version": "2.2.1",
+    "version": "2.3.0",
     "description": "CF Media Manager release wrapper.",
     "private": true,
     "scripts": {

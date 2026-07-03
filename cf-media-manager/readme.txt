@@ -4,7 +4,7 @@ Tags: webp, avif, image optimization, performance, picture
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 2.2.1
+Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -117,6 +117,13 @@ Yes:
 4. Background queue card with cancel/dismiss controls.
 
 == Changelog ==
+
+= 2.3.0 =
+* **Fix: unused-attachment scan false positives.** The in-use scanner now examines content in `future` (scheduled), `private`, `pending`, and `draft` states, not just `publish`, so an image used only on not-yet-public content is no longer classed as unused. It also resolves ACF gallery / repeater fields (serialized ID arrays) and URL-stored ACF fields, and strips WordPress's `-scaled` and `-e{timestamp}` filename suffixes so scaled and edited-image URLs resolve back to the parent attachment. The Unused Attachments report copy now states plainly that the scan is best-effort: verify before deleting. Items are still sent to Trash (recoverable), never permanently deleted.
+* **Fix: `<picture>` sources no longer advertise a partial srcset.** When a WebP/AVIF variant was missing for one descriptor in an image's `srcset`, the `<source>` used to list fewer resolutions than the original `<img>`, so a browser could pick a lower resolution than was actually available. A per-format `<source>` srcset is now emitted only when the whole ladder exists; otherwise it falls back to the single primary variant or to no `<source>`, leaving the full resolution set on the `<img>`.
+* **Fix: "force rescan" now actually forces a rescan, and report thresholds are reachable.** The Audit tab's scan config is threaded through to each report, so a forced rescan refreshes the in-use scan and the Oversized Originals size and dimension thresholds apply instead of always using the defaults.
+* **Change: heavy scans are gentler on large libraries.** The Orphan Files walk no longer follows symlinks (a symlink loop or a link pointing outside uploads can no longer surface external files or hang the walk) and is bounded so a runaway uploads tree cannot exhaust memory. The in-use scan can now run in the background through the same cron / Action Scheduler model the converter queue uses, warming its cache off the request path on sites that use the audit reports.
+* **Housekeeping.** Corrected the "Tested up to" WordPress version.
 
 = 2.2.1 =
 * **Fix: doubled periods in the per-attachment convert "reasons" message.** When `convert_batch` returned reasons that already ended in a period, `formatReasonSuffix` joined them into strings like "… .; ….." Each reason now has any trailing period stripped before the list is joined, so the suffix reads cleanly as " — reason1; reason2.". Display-only; no change to conversion behavior.

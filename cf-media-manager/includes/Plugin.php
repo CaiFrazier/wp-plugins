@@ -91,13 +91,13 @@ final class Plugin {
 		$this->audit_runner->register(
 			new Audit\Reports\UnusedAttachments(
 				$this->audit_ignored,
-				array( $this->in_use_scanner, 'get' )
+				array( $this->in_use_scanner, 'get_for_report' )
 			)
 		);
 		$this->audit_runner->register(
 			new Audit\Reports\DuplicateOriginals(
 				$this->audit_ignored,
-				array( $this->in_use_scanner, 'get' )
+				array( $this->in_use_scanner, 'get_for_report' )
 			)
 		);
 		$this->audit_runner->register( new Audit\Reports\OversizedOriginals( $this->audit_ignored ) );

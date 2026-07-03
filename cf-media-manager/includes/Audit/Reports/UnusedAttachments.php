@@ -86,7 +86,7 @@ final class UnusedAttachments implements AuditReportInterface, AuditReportCsvExp
 	}
 
 	public function description(): string {
-		return __( 'Media Library entries the in-use scanner found nowhere on the front end. Receipts list every place we looked.', 'cf-media-manager' );
+		return __( 'Media Library entries the in-use scanner did not find referenced anywhere it looked. This is a best-effort scan, not a guarantee. Open each item and verify before deleting; items are sent to Trash (recoverable), never permanently deleted.', 'cf-media-manager' );
 	}
 
 	// =====================================================================

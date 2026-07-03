@@ -31,15 +31,18 @@ defined( 'ABSPATH' ) || exit;
  *   8. Block theme templates and template parts (wp_template,
  *      wp_template_part — site-wide layout images on block-theme sites)
  *   9. Widget areas (text, image, block, gallery, and custom HTML widgets)
- *  10. ACF image fields — gated on ACF being active; detected by finding
- *      postmeta values that are bare attachment IDs matching a known
- *      JPEG/PNG attachment, on keys without the underscore-prefix convention
+ *  10. ACF fields — gated on ACF being active. Covers bare-integer image
+ *      fields (postmeta values that are attachment IDs on keys without the
+ *      underscore-prefix convention), serialized ID arrays (gallery /
+ *      repeater fields), and URL-stored fields (image "Image URL" return
+ *      format, file/link fields)
  *  11. WooCommerce product gallery images (_product_image_gallery) — gated
  *      on WooCommerce being active
  *
  * URL→ID resolution uses a single indexed query over `_wp_attached_file`
- * postmeta. Size suffixes (`-300x200`) are stripped so thumbnail URLs
- * resolve back to the parent attachment.
+ * postmeta. Size suffixes (`-300x200`), WP's `-scaled` auto-scale suffix, and
+ * `-e{timestamp}` "Edit Image" suffixes are stripped so thumbnail, scaled, and
+ * edited-image URLs resolve back to the parent attachment.
  *
  * Result is cached in a transient until {@see invalidate_cache()} is
  * called (on post save / attachment update) or the user clicks Rescan.
@@ -56,6 +59,35 @@ final class InUseScanner {
 	 */
 	const TRANSIENT_KEY = 'cf_media_manager_in_use_scan';
 	const TRANSIENT_TTL = 12 * HOUR_IN_SECONDS;
+
+	/**
+	 * Post statuses whose content is treated as capable of referencing a live
+	 * image. Restricting the scan to `publish` alone (the prior behavior)
+	 * classed images used ONLY on scheduled (`future`), private, pending, or
+	 * draft content as unused — and the Unused Attachments report turns each
+	 * miss into a "delete me" suggestion for an image that is, or is about to
+	 * be, live. Password-protected posts have `post_status = publish`, so they
+	 * are already covered by including `publish`.
+	 */
+	const SCANNED_POST_STATUSES = array( 'publish', 'future', 'private', 'pending', 'draft' );
+
+	/**
+	 * Action Scheduler / WP-Cron hook that runs a background in-use scan so the
+	 * whole-library scan (heavy on 50k-300k-attachment sites) happens off the
+	 * request that triggered it, mirroring the converter queue's model.
+	 */
+	const CRON_HOOK  = 'cf_media_manager_in_use_scan_bg';
+	const AS_GROUP   = 'cf-media-manager';
+
+	/** Coalescing guard so rapid invalidations schedule at most one background scan. */
+	const WARM_PENDING_TRANSIENT = 'cf_media_manager_in_use_warm_pending';
+
+	/**
+	 * How long after the last audit-report read we keep proactively warming the
+	 * cache in the background. Bounds background work to sites actively using
+	 * the audit reports.
+	 */
+	const WARM_WANTED_TTL = 30 * DAY_IN_SECONDS;
 
 	/**
 	 * Post types whose post_content holds the *builder's* layout data
@@ -171,6 +203,21 @@ final class InUseScanner {
 		$flush_all = array( $this, 'invalidate_all_fingerprinted_caches' );
 		add_action( 'activated_plugin', $flush_all );
 		add_action( 'deactivated_plugin', $flush_all );
+
+		// Background scan driver — the same cron / Action Scheduler model the
+		// converter queue uses. A cache invalidation (below) schedules this so
+		// the heavy whole-library scan runs off the request that triggered it,
+		// keeping subsequent audit reads warm instead of blocking.
+		add_action( self::CRON_HOOK, array( $this, 'run_scheduled_scan' ) );
+	}
+
+	/**
+	 * True when Action Scheduler is available (bundled with WooCommerce and
+	 * many other plugins). Mirrors Queue::action_scheduler_available().
+	 */
+	public static function action_scheduler_available(): bool {
+		return function_exists( 'as_schedule_single_action' )
+			&& function_exists( 'as_unschedule_all_actions' );
 	}
 
 	/**
@@ -202,6 +249,76 @@ final class InUseScanner {
 		// activation) auto-expire via TTL and are bulk-deleted on the
 		// activated_plugin / deactivated_plugin hooks.
 		delete_transient( $this->cache_key() );
+
+		// If the audit reports have been used recently, warm the cache in the
+		// background so the next report read doesn't pay for a full rescan
+		// synchronously. Sites that never open the reports never trigger this.
+		$this->maybe_schedule_warm();
+	}
+
+	/**
+	 * Schedule a background rescan when a report read has occurred within
+	 * WARM_WANTED_TTL. Coalesced so bursts of invalidations (bulk edits,
+	 * imports) don't pile up scans.
+	 */
+	private function maybe_schedule_warm(): void {
+		if ( ! function_exists( 'get_option' ) ) {
+			return;
+		}
+		$wanted = (int) get_option( Options::IN_USE_WARM_WANTED, 0 );
+		if ( $wanted <= 0 || ( time() - $wanted ) > self::WARM_WANTED_TTL ) {
+			return;
+		}
+		$this->schedule_scan();
+	}
+
+	/**
+	 * Queue a background in-use scan via Action Scheduler (preferred) or
+	 * WP-Cron. Idempotent within the coalescing window — a pending scan short-
+	 * circuits repeat calls so a burst of invalidations schedules one scan.
+	 */
+	public function schedule_scan(): void {
+		if ( get_transient( self::WARM_PENDING_TRANSIENT ) ) {
+			return;
+		}
+		set_transient( self::WARM_PENDING_TRANSIENT, 1, HOUR_IN_SECONDS );
+
+		if ( self::action_scheduler_available() ) {
+			as_schedule_single_action( time() + 30, self::CRON_HOOK, array(), self::AS_GROUP );
+			return;
+		}
+		if ( function_exists( 'wp_schedule_single_event' )
+			&& ( ! function_exists( 'wp_next_scheduled' ) || ! wp_next_scheduled( self::CRON_HOOK ) )
+		) {
+			wp_schedule_single_event( time() + 30, self::CRON_HOOK );
+		}
+	}
+
+	/**
+	 * Cron/Action Scheduler handler: run a fresh whole-library scan and cache
+	 * it under the current builder fingerprint. Clears the coalescing guard so
+	 * a later invalidation can schedule the next warm.
+	 */
+	public function run_scheduled_scan(): void {
+		delete_transient( self::WARM_PENDING_TRANSIENT );
+		$this->get( true );
+	}
+
+	/**
+	 * Cache-aware entry point for the audit reports. Records that a report read
+	 * happened (so cache invalidations start warming the cache in the
+	 * background) and returns the in-use scan result. The synchronous scan on a
+	 * cold cache is intentional: the Unused Attachments report must never flag
+	 * against an incomplete in-use set, so it always reads a COMPLETE result.
+	 *
+	 * @param bool $force_refresh Bypass the cache and rescan.
+	 * @return array Scan result (see {@see get()}).
+	 */
+	public function get_for_report( bool $force_refresh = false ): array {
+		if ( function_exists( 'update_option' ) ) {
+			update_option( Options::IN_USE_WARM_WANTED, time(), false );
+		}
+		return $this->get( $force_refresh );
 	}
 
 	/**
@@ -406,9 +523,14 @@ final class InUseScanner {
 		// 9. Widget areas.
 		$by_source['widgets'] = $this->scan_widget_areas();
 
-		// 10. ACF image fields (bare attachment IDs in postmeta).
+		// 10. ACF fields: bare attachment IDs (image field, default return),
+		// serialized ID arrays (gallery / repeater), and URL-stored values
+		// (image field with URL return, file/link fields).
 		if ( $builders['acf'] ?? false ) {
-			$by_source['acf'] = $this->scan_acf_postmeta();
+			$by_source['acf'] = $this->merge_unique(
+				$this->scan_acf_postmeta(),
+				$this->scan_acf_galleries_and_urls()
+			);
 		}
 
 		// 11. WooCommerce product gallery images.
@@ -569,7 +691,19 @@ final class InUseScanner {
 			if ( ! preg_match( '/\.(jpe?g|png)$/i', $rel ) ) {
 				continue;
 			}
-			$map[ $rel ] = (int) $row['post_id'];
+			$id          = (int) $row['post_id'];
+			$map[ $rel ] = $id;
+
+			// For a `-scaled` attachment `_wp_attached_file` holds the scaled
+			// path (photo-scaled.jpg); the full-resolution original sits at the
+			// parent path (photo.jpg) but has no postmeta row of its own. Index
+			// the parent form too so content referencing the ORIGINAL URL still
+			// resolves to this attachment. Never clobber a distinct attachment
+			// that legitimately owns the parent path.
+			$parent = self::strip_edit_suffixes( $rel );
+			if ( $parent !== $rel && ! isset( $map[ $parent ] ) ) {
+				$map[ $parent ] = $id;
+			}
 		}
 		return $map;
 	}
@@ -598,8 +732,38 @@ final class InUseScanner {
 			return null;
 		}
 		// Strip size suffix: photo-300x200.jpg -> photo.jpg.
-		$rel = preg_replace( '/-\d+x\d+(\.(jpe?g|png))$/i', '$1', $rel );
+		$rel = preg_replace( '/-\d+x\d+(\.(jpe?g|png))$/i', '$1', (string) $rel );
+		// Strip WP's -scaled / -e{timestamp} suffixes so a raw URL pointing at
+		// the auto-scaled copy or an "Edit Image" derivative resolves back to
+		// the parent attachment. See strip_edit_suffixes() for why the parent
+		// form is what the filename map indexes.
+		$rel = self::strip_edit_suffixes( (string) $rel );
 		return ltrim( (string) $rel, '/' );
+	}
+
+	/**
+	 * Strip WordPress's `-scaled` and `-e{timestamp}` filename suffixes,
+	 * returning the parent (base) upload-relative path.
+	 *
+	 *   - `-scaled` is appended when an upload wider than the big-image
+	 *     threshold (2560px) is auto-scaled; the full-resolution original is
+	 *     kept alongside as `original_image`.
+	 *   - `-e{timestamp}` is appended to the copy WP writes when an admin uses
+	 *     "Edit Image" (crop/rotate/scale). The timestamp is a unix time, so we
+	 *     require at least nine digits to avoid mangling legitimate filenames
+	 *     that merely end in `-e5.jpg`.
+	 *
+	 * {@see build_filename_map()} indexes BOTH the stored path and this parent
+	 * form, so a reference to either the derivative or the base URL resolves to
+	 * the same attachment. Pure string op — static + used by tests.
+	 *
+	 * @param string $rel Upload-relative path (already size-suffix stripped).
+	 * @return string Parent upload-relative path.
+	 */
+	public static function strip_edit_suffixes( string $rel ): string {
+		$rel = preg_replace( '/-scaled(\.(?:jpe?g|png))$/i', '$1', $rel );
+		$rel = preg_replace( '/-e\d{9,}(\.(?:jpe?g|png))$/i', '$1', (string) $rel );
+		return (string) $rel;
 	}
 
 	/**
@@ -787,6 +951,7 @@ final class InUseScanner {
 		}
 
 		$placeholders = implode( ',', array_fill( 0, count( $post_types ), '%s' ) );
+		$status_ph    = implode( ',', array_fill( 0, count( self::SCANNED_POST_STATUSES ), '%s' ) );
 		$batch_size   = 200;
 		$offset       = 0;
 		$found        = array();
@@ -798,12 +963,12 @@ final class InUseScanner {
 			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 			$sql = $wpdb->prepare(
 				"SELECT post_content FROM {$wpdb->posts}
-				 WHERE post_status = 'publish'
+				 WHERE post_status IN ($status_ph)
 				   AND post_type IN ($placeholders)
 				   AND post_content <> ''
 				 ORDER BY ID
 				 LIMIT %d OFFSET %d",
-				array_merge( $post_types, array( $batch_size, $offset ) )
+				array_merge( self::SCANNED_POST_STATUSES, $post_types, array( $batch_size, $offset ) )
 			);
 			// phpcs:enable
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
@@ -835,13 +1000,18 @@ final class InUseScanner {
 			return array();
 		}
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$rows = $wpdb->get_col(
+		$status_ph = implode( ',', array_fill( 0, count( self::SCANNED_POST_STATUSES ), '%s' ) );
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $status_ph is a server-built %s list (the query's only placeholders); all values flow through prepare().
+		$sql = $wpdb->prepare(
 			"SELECT pm.meta_value FROM {$wpdb->postmeta} pm
 			 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
 			 WHERE pm.meta_key = '_thumbnail_id'
-			   AND p.post_status = 'publish'"
+			   AND p.post_status IN ($status_ph)",
+			self::SCANNED_POST_STATUSES
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		$rows = $wpdb->get_col( $sql );
 		if ( ! $rows ) {
 			return array();
 		}
@@ -871,16 +1041,18 @@ final class InUseScanner {
 			return array();
 		}
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$rows = $wpdb->get_col(
-			$wpdb->prepare(
-				"SELECT pm.meta_value FROM {$wpdb->postmeta} pm
-				 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-				 WHERE pm.meta_key = %s
-				   AND p.post_status = 'publish'",
-				$meta_key
-			)
+		$status_ph = implode( ',', array_fill( 0, count( self::SCANNED_POST_STATUSES ), '%s' ) );
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- $status_ph is a server-built %s list; all values flow through prepare().
+		$sql = $wpdb->prepare(
+			"SELECT pm.meta_value FROM {$wpdb->postmeta} pm
+			 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+			 WHERE pm.meta_key = %s
+			   AND p.post_status IN ($status_ph)",
+			array_merge( array( $meta_key ), self::SCANNED_POST_STATUSES )
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		$rows = $wpdb->get_col( $sql );
 		if ( ! $rows ) {
 			return array();
 		}
@@ -998,6 +1170,121 @@ final class InUseScanner {
 		}
 
 		return array_map( 'intval', array_keys( $found ) );
+	}
+
+	/**
+	 * Scan ACF gallery fields and URL-stored fields for attachment references.
+	 *
+	 * {@see scan_acf_postmeta()} only catches image fields that store a bare
+	 * attachment ID. It misses two very common ACF shapes:
+	 *
+	 *   - Gallery / repeater fields, which store a SERIALIZED PHP array of
+	 *     attachment IDs (e.g. `a:3:{i:0;s:2:"11";...}`).
+	 *   - Image fields set to the "Image URL" return format, and file/link
+	 *     fields, which store a full uploads URL string.
+	 *
+	 * Both are surfaced here so galleries and URL-stored images don't get
+	 * mis-flagged as unused. Gated on ACF being active (checked by the caller).
+	 * The two LIKE scans hit the unindexed meta_value column, but the in-use
+	 * scan runs off the request path (cache/rescan/cron), so the cost is
+	 * acceptable in exchange for correctness — the alternative is telling a
+	 * user their gallery images are safe to delete.
+	 *
+	 * As with the bare-ID scan, this errs toward marking IDs in-use (a false
+	 * "in use" only wastes a conversion; a false "unused" risks a deletion).
+	 *
+	 * @return int[]
+	 */
+	private function scan_acf_galleries_and_urls(): array {
+		global $wpdb;
+		if ( ! isset( $wpdb ) || empty( $this->valid_id_set ) ) {
+			return array();
+		}
+
+		$found          = array();
+		$private_prefix = $wpdb->esc_like( '_' ) . '%';
+
+		// (a) URL-stored ACF fields — the shared text extractor resolves any
+		// uploads URL (and wp-image-{id} refs) through the filename map.
+		$url_like = '%' . $wpdb->esc_like( '/wp-content/uploads/' ) . '%';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+		$url_rows = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT meta_value FROM {$wpdb->postmeta}
+				  WHERE meta_key NOT LIKE %s
+				    AND meta_value LIKE %s",
+				$private_prefix,
+				$url_like
+			)
+		);
+		if ( $url_rows ) {
+			foreach ( $url_rows as $blob ) {
+				foreach ( $this->extract_attachment_ids_from_text( (string) $blob ) as $id ) {
+					$found[ $id ] = true;
+				}
+			}
+		}
+
+		// (b) Serialized ID arrays — ACF gallery / repeater store attachment
+		// IDs as a serialized PHP array. Collect numeric leaves that map to a
+		// known JPEG/PNG attachment.
+		$serialized_like = $wpdb->esc_like( 'a:' ) . '%';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+		$serialized_rows = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT meta_value FROM {$wpdb->postmeta}
+				  WHERE meta_key NOT LIKE %s
+				    AND meta_value LIKE %s",
+				$private_prefix,
+				$serialized_like
+			)
+		);
+		if ( $serialized_rows ) {
+			foreach ( $serialized_rows as $blob ) {
+				foreach ( self::extract_ids_from_serialized_ids( (string) $blob ) as $id ) {
+					if ( $this->is_target_attachment( $id ) ) {
+						$found[ $id ] = true;
+					}
+				}
+			}
+		}
+
+		return array_map( 'intval', array_keys( $found ) );
+	}
+
+	/**
+	 * Pull every positive-integer leaf out of a serialized PHP array (the
+	 * shape ACF gallery/repeater fields use to store attachment IDs). Returns
+	 * an empty array for anything that doesn't unserialize to an array.
+	 *
+	 * Static + public so tests can exercise it without a class instance. The
+	 * caller filters the result through {@see is_target_attachment()} so only
+	 * real JPEG/PNG attachment IDs survive.
+	 *
+	 * @param string $blob Serialized PHP value.
+	 * @return int[] Unique positive integers found as scalar leaves.
+	 */
+	public static function extract_ids_from_serialized_ids( string $blob ): array {
+		if ( '' === $blob || 0 !== strpos( $blob, 'a:' ) ) {
+			return array();
+		}
+		$data = maybe_unserialize( $blob );
+		if ( ! is_array( $data ) ) {
+			return array();
+		}
+		$ids = array();
+		array_walk_recursive(
+			$data,
+			static function ( $value ) use ( &$ids ) {
+				if ( is_int( $value ) || ( is_string( $value ) && ctype_digit( $value ) ) ) {
+					$id = (int) $value;
+					if ( $id > 0 ) {
+						$ids[ $id ] = true;
+					}
+				}
+			}
+		);
+		return array_map( 'intval', array_keys( $ids ) );
 	}
 
 	/**

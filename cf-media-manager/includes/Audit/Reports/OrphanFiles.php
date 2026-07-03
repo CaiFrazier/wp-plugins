@@ -62,6 +62,24 @@ final class OrphanFiles implements AuditReportInterface, AuditReportCsvExportabl
 	const CANDIDATES_TTL       = 6 * 3600;
 
 	/**
+	 * Hard ceiling on how many orphan candidates one walk will materialize.
+	 * The candidate list is held in a single transient, so an unbounded walk
+	 * over a pathological uploads tree (millions of stray files, a
+	 * misconfigured backup plugin dumping into uploads, etc.) could exhaust
+	 * memory building the array. When the ceiling is hit the walk stops early
+	 * and records a `truncated` flag so the UI can tell the user the report is
+	 * partial rather than silently under-reporting.
+	 */
+	const MAX_CANDIDATES = 200000;
+
+	/**
+	 * Set to a positive int on the last scan when the walk was truncated at
+	 * {@see MAX_CANDIDATES}. Zero/absent means the walk covered the whole tree.
+	 * Read via {@see last_walk_truncated_at()} for surfacing in the UI.
+	 */
+	const TRUNCATED_TRANSIENT = 'cf_mm_audit_orphan_files_truncated';
+
+	/**
 	 * File extensions we consider "media." Everything else is skipped to
 	 * avoid false positives in plugin-managed subdirectories (form uploads,
 	 * cache files, logs, etc.).
@@ -181,17 +199,32 @@ final class OrphanFiles implements AuditReportInterface, AuditReportCsvExportabl
 			return array();
 		}
 
+		delete_transient( self::TRUNCATED_TRANSIENT );
+
 		$candidates = array();
-		$it         = new \RecursiveIteratorIterator(
+		// NOTE: FOLLOW_SYMLINKS is deliberately NOT set. Following symlinks
+		// lets a symlinked directory inside uploads (a loop back to a parent,
+		// or a link pointing at /etc, a sibling site, a backup mount) surface
+		// external files as "orphans" and can send the walk into an infinite
+		// loop. The bulk_delete guard re-checks within_upload_dir(), but the
+		// walk itself must not escape the tree in the first place.
+		$it = new \RecursiveIteratorIterator(
 			new \RecursiveDirectoryIterator(
 				$upload_dir,
-				\FilesystemIterator::SKIP_DOTS | \FilesystemIterator::FOLLOW_SYMLINKS
+				\FilesystemIterator::SKIP_DOTS
 			),
 			\RecursiveIteratorIterator::LEAVES_ONLY
 		);
 
+		$truncated = false;
 		foreach ( $it as $info ) {
 			/** @var \SplFileInfo $info */
+			// Skip symlinks entirely. Even without FOLLOW_SYMLINKS a symlinked
+			// FILE is still a leaf the iterator yields; a link whose target is
+			// outside uploads must never enter the orphan report.
+			if ( $info->isLink() ) {
+				continue;
+			}
 			if ( ! $info->isFile() ) {
 				continue;
 			}
@@ -212,10 +245,35 @@ final class OrphanFiles implements AuditReportInterface, AuditReportCsvExportabl
 			}
 
 			$candidates[] = $rel;
+
+			// Bound the materialized list so a runaway tree can't OOM the walk.
+			if ( count( $candidates ) >= self::MAX_CANDIDATES ) {
+				$truncated = true;
+				break;
+			}
+		}
+
+		if ( $truncated ) {
+			set_transient( self::TRUNCATED_TRANSIENT, self::MAX_CANDIDATES, self::CANDIDATES_TTL );
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- WP_DEBUG-gated capacity notice; the truncation is also surfaced to the UI via the transient above.
+				error_log( '[cf-media-manager] Orphan-files walk hit the ' . self::MAX_CANDIDATES . '-candidate ceiling; report is partial.' );
+			}
 		}
 
 		sort( $candidates );  // Stable, alphabetic. Cursor index relies on this.
 		return $candidates;
+	}
+
+	/**
+	 * Whether the most recent candidate walk stopped early at MAX_CANDIDATES.
+	 * Returns the ceiling that was hit, or 0 when the last walk was complete.
+	 * Lets the UI flag the orphan report as partial instead of implying it
+	 * covered the entire uploads tree.
+	 */
+	public function last_walk_truncated_at(): int {
+		$val = get_transient( self::TRUNCATED_TRANSIENT );
+		return is_numeric( $val ) ? (int) $val : 0;
 	}
 
 	/**

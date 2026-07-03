@@ -143,6 +143,15 @@ final class AuditAjax {
 	 * Input:
 	 *   - report    (string, required) — report id from Plugin::AJAX_PREFIX route
 	 *   - force     (int, optional, default 0) — when 1, reset before scanning
+	 *   - min_bytes / min_pixels_longest_side (int, optional) — OversizedOriginals
+	 *                thresholds; ignored by reports that don't read them
+	 *
+	 * The config assembled here is persisted on the scan's state by
+	 * AuditRunner::start() and threaded into every chunk's ScanContext. It
+	 * carries the `force` flag (so a "force rescan" actually refreshes the
+	 * InUseScanner transient the Unused Attachments report reads) and any
+	 * report-specific thresholds (so OversizedOriginals' min_bytes / min_pixels
+	 * are reachable instead of always falling back to the 2MB / 2560 defaults).
 	 *
 	 * Response shape: { phase, cursor, running_totals, chunks_done, is_locked,
 	 *                   error, scanned_at?, completed_at? }
@@ -157,14 +166,44 @@ final class AuditAjax {
 			wp_send_json_error( array( 'message' => __( 'Unknown report.', 'cf-media-manager' ) ), 400 );
 		}
 
-		// Start (or resume) the scan, then run one chunk.
+		// Start (or resume) the scan, then run one chunk. The config is only
+		// applied when a fresh scan begins (idle / failed / force); a resume
+		// keeps the config captured at the start of the run.
 		$state = $this->runner->state( $report_id );
-		if ( AuditRunner::PHASE_IDLE === $state['phase'] || AuditRunner::PHASE_FAILED === $state['phase'] || $force ) {
-			$this->runner->start( $report_id, array(), $force || AuditRunner::PHASE_FAILED === $state['phase'] );
+		$reset = $force || AuditRunner::PHASE_IDLE === $state['phase'] || AuditRunner::PHASE_FAILED === $state['phase'];
+		if ( $reset ) {
+			$this->runner->start( $report_id, $this->build_scan_config( $force ), $force || AuditRunner::PHASE_FAILED === $state['phase'] );
 		}
 		$state = $this->runner->run_chunk( $report_id );
 
 		wp_send_json_success( $state );
+	}
+
+	/**
+	 * Build the per-run ScanContext config from the request.
+	 *
+	 * Always carries `force`. Report-specific thresholds are included only when
+	 * the caller supplied a positive value, so an omitted field leaves the
+	 * report's own default in place. The keys mirror
+	 * OversizedOriginals::CONFIG_MIN_BYTES / CONFIG_MIN_LONGEST_SIDE; reports
+	 * that don't read them simply ignore the extra keys.
+	 *
+	 * @param bool $force Whether this is a forced rescan.
+	 * @return array<string,mixed>
+	 */
+	private function build_scan_config( bool $force ): array {
+		$config = array( 'force' => $force );
+
+		$min_bytes = Request::post_int( 'min_bytes', 0 );
+		if ( $min_bytes > 0 ) {
+			$config['min_bytes'] = $min_bytes;
+		}
+		$min_pixels = Request::post_int( 'min_pixels_longest_side', 0 );
+		if ( $min_pixels > 0 ) {
+			$config['min_pixels_longest_side'] = $min_pixels;
+		}
+
+		return $config;
 	}
 
 	/**

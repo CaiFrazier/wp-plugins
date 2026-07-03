@@ -33,6 +33,7 @@ final class Options {
 	const DELETE_ON_UNINSTALL = 'cf_media_manager_delete_variants_on_uninstall'; // bool — delete owned variants on plugin uninstall
 	const AUDIT_IGNORED_PATHS = 'cf_media_manager_audit_ignored_paths';          // array<string,array{reports:array<string,array>}> — ignored orphan-file paths keyed by upload-relative path. Reports keyed by report id; each entry holds per-report meta (ignored_at, etc.)
 	const AUDIT_STALE_SINCE   = 'cf_media_manager_audit_stale_since';            // int — unix timestamp of the most recent media-library mutation. Compared against each report's results' scanned_at to flag cards as stale. Autoload=yes (read on every dashboard render).
+	const IN_USE_WARM_WANTED  = 'cf_media_manager_in_use_warm_wanted';           // int — unix ts of the last in-use-backed report read. While recent, cache invalidations schedule a background InUseScanner rescan (cron/Action Scheduler) so the next audit reads a warm cache instead of blocking. Sites that never open the audit reports never pay for background scans.
 
 	const DEFAULT_QUALITY = 80;
 	const DEFAULT_BATCH   = 1;
@@ -111,6 +112,7 @@ final class Options {
 			self::LAST_BUILDER_FP,
 			self::AUDIT_IGNORED_PATHS,
 			self::AUDIT_STALE_SINCE,
+			self::IN_USE_WARM_WANTED,
 		];
 	}
 

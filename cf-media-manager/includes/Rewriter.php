@@ -307,16 +307,26 @@ final class Rewriter {
 			return $tag;
 		}
 
-		// srcset → per-format srcsets. We rebuild rather than swap so a missing
-		// variant for one descriptor doesn't poison the whole picture.
-		[ $srcset_webp, $srcset_avif ] = $this->build_variant_srcsets( self::extract_attr( $tag, 'srcset' ) );
+		// srcset → per-format srcsets. A <source> srcset is only emitted for a
+		// format when EVERY descriptor in the original <img srcset> has a
+		// matching variant on disk. A partial ladder is worse than none: a
+		// browser that matches the <source> picks from the reduced set and
+		// silently loses resolutions that still exist on the <img> fallback.
+		$ladders     = $this->build_variant_srcsets( self::extract_attr( $tag, 'srcset' ) );
+		$srcset_webp = $ladders['webp'];
+		$srcset_avif = $ladders['avif'];
 
-		// Fall back to the primary URL when no srcset was given.
-		if ( $srcset_webp === '' && $has_webp ) {
-			$srcset_webp = $webp_url;
-		}
-		if ( $srcset_avif === '' && $has_avif ) {
-			$srcset_avif = $avif_url;
+		// When the <img> carried no srcset there is no ladder to complete, so
+		// offer the single primary variant. When it DID carry a srcset the
+		// ladders above are already either the complete ladder or '' (dropped
+		// because a descriptor was missing) — never a partial ladder.
+		if ( ! $ladders['had_srcset'] ) {
+			if ( $has_webp ) {
+				$srcset_webp = $webp_url;
+			}
+			if ( $has_avif ) {
+				$srcset_avif = $avif_url;
+			}
 		}
 
 		if ( $srcset_webp === '' && $srcset_avif === '' ) {
@@ -482,16 +492,28 @@ final class Rewriter {
 	}
 
 	/**
-	 * Parse a srcset value and produce two parallel srcsets (webp, avif),
-	 * skipping descriptors whose target variant doesn't exist on disk.
+	 * Parse a srcset value and produce parallel webp/avif ladders.
+	 *
+	 * A per-format ladder is returned ONLY when every descriptor in the
+	 * original srcset has a matching variant on disk (a "complete" ladder).
+	 * If any descriptor is missing its variant, that format's ladder is
+	 * dropped to '' rather than emitted as a partial set — a browser matching
+	 * a partial <source> would otherwise lose resolutions that still exist on
+	 * the <img> fallback.
+	 *
+	 * @param string|null $srcset The <img> srcset attribute, or null/empty.
+	 * @return array{webp:string,avif:string,had_srcset:bool}
 	 */
 	private function build_variant_srcsets( ?string $srcset ): array {
 		if ( $srcset === null || $srcset === '' ) {
-			return [ '', '' ];
+			return [ 'webp' => '', 'avif' => '', 'had_srcset' => false ];
 		}
 
 		$webp_parts = [];
 		$avif_parts = [];
+		$total      = 0;
+		$webp_hits  = 0;
+		$avif_hits  = 0;
 
 		foreach ( preg_split( '#\s*,\s*#', $srcset ) as $entry ) {
 			$entry = trim( $entry );
@@ -504,19 +526,32 @@ final class Rewriter {
 			}
 			$url        = $m[1];
 			$descriptor = $m[2] ?? '';
+			++$total;
 
 			$webp_url = Paths::swap_extension( $url, 'webp' );
 			$avif_url = Paths::swap_extension( $url, 'avif' );
 
 			if ( $webp_url !== null && $this->variant_exists( $webp_url ) ) {
 				$webp_parts[] = trim( $webp_url . ( $descriptor !== '' ? ' ' . $descriptor : '' ) );
+				++$webp_hits;
 			}
 			if ( $avif_url !== null && $this->variant_exists( $avif_url ) ) {
 				$avif_parts[] = trim( $avif_url . ( $descriptor !== '' ? ' ' . $descriptor : '' ) );
+				++$avif_hits;
 			}
 		}
 
-		return [ implode( ', ', $webp_parts ), implode( ', ', $avif_parts ) ];
+		// Only advertise a ladder when it covers EVERY descriptor. An
+		// incomplete ladder is dropped so the browser keeps the full set of
+		// resolutions on the <img> fallback instead of a truncated <source>.
+		$webp_complete = $total > 0 && $webp_hits === $total;
+		$avif_complete = $total > 0 && $avif_hits === $total;
+
+		return [
+			'webp'       => $webp_complete ? implode( ', ', $webp_parts ) : '',
+			'avif'       => $avif_complete ? implode( ', ', $avif_parts ) : '',
+			'had_srcset' => $total > 0,
+		];
 	}
 
 	/**

@@ -127,7 +127,7 @@ final class RewriterTest extends TestCase {
 		self::assertStringNotContainsString( '<picture>', $out );
 	}
 
-	public function test_preserves_srcset_with_per_descriptor_variants(): void {
+	public function test_preserves_srcset_when_full_ladder_exists(): void {
 		$html = '<img src="' . $this->base_url . '/2026/05/photo.jpg" '
 		      . 'srcset="' . $this->base_url . '/2026/05/photo-300.jpg 300w, '
 		      .          $this->base_url . '/2026/05/photo.jpg 1024w" '
@@ -140,14 +140,52 @@ final class RewriterTest extends TestCase {
 			$out
 		);
 
-		// AVIF <source> should only include the larger size (no photo-300.avif on disk).
+		// Original <img> with original srcset must still be present as fallback.
+		self::assertStringContainsString( 'photo-300.jpg 300w', $out );
+	}
+
+	public function test_drops_source_srcset_when_ladder_is_incomplete(): void {
+		// photo-300.avif does NOT exist on disk, so the AVIF ladder is
+		// incomplete. Emitting a partial "photo.avif 1024w" would hide the
+		// 300w resolution the browser can still get from the <img> fallback,
+		// so no AVIF <source> should be emitted at all. The webp ladder IS
+		// complete (both photo-300.webp and photo.webp exist), so its
+		// <source> carries both descriptors.
+		$html = '<img src="' . $this->base_url . '/2026/05/photo.jpg" '
+		      . 'srcset="' . $this->base_url . '/2026/05/photo-300.jpg 300w, '
+		      .          $this->base_url . '/2026/05/photo.jpg 1024w" '
+		      . 'sizes="(max-width: 600px) 300px, 1024px">';
+		$out  = $this->rewriter->rewrite_html( $html );
+
+		// Complete webp ladder is emitted.
 		self::assertMatchesRegularExpression(
-			'#<source type="image/avif" srcset="[^"]*photo\.avif 1024w"[^>]*sizes="[^"]+"#',
+			'#<source type="image/webp" srcset="[^"]*photo-300\.webp 300w, [^"]*photo\.webp 1024w"#',
 			$out
 		);
 
-		// Original <img> with original srcset must still be present as fallback.
+		// Incomplete avif ladder is dropped entirely — NOT a partial source.
+		self::assertStringNotContainsString( 'image/avif', $out );
+
+		// Full-resolution ladder survives on the <img> fallback.
 		self::assertStringContainsString( 'photo-300.jpg 300w', $out );
+		self::assertStringContainsString( 'photo.jpg 1024w', $out );
+	}
+
+	public function test_drops_all_sources_when_no_ladder_is_complete(): void {
+		// A srcset whose small descriptor has NO modern variant at all
+		// (orphan-300) and whose large descriptor is photo.jpg. Neither the
+		// webp nor the avif ladder can cover both descriptors, so no <source>
+		// is advertised and the <img> is returned unwrapped rather than with a
+		// misleading partial ladder.
+		file_put_contents( $this->root . '/2026/05/orphan-300.jpg', 'jpeg' );
+		$html = '<img src="' . $this->base_url . '/2026/05/photo.jpg" '
+		      . 'srcset="' . $this->base_url . '/2026/05/orphan-300.jpg 300w, '
+		      .          $this->base_url . '/2026/05/photo.jpg 1024w">';
+		$out  = $this->rewriter->rewrite_html( $html );
+
+		self::assertStringNotContainsString( 'image/webp', $out );
+		self::assertStringNotContainsString( 'image/avif', $out );
+		self::assertStringNotContainsString( '<picture>', $out );
 	}
 
 	public function test_data_no_webp_attribute_skips_wrapping(): void {

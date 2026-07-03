@@ -65,6 +65,34 @@ final class AuditAjaxTest extends TestCase {
 	}
 
 	/**
+	 * Report that records the ScanContext handed to scan_chunk so tests can
+	 * assert on the force flag and threshold config the AJAX layer wired
+	 * through. Completes in one chunk.
+	 */
+	private function capturing_report( string $id ): AuditReportInterface {
+		return new class( $id ) implements AuditReportInterface {
+			private string $id;
+			public ?ScanContext $last_ctx = null;
+
+			public function __construct( string $id ) { $this->id = $id; }
+			public function id(): string { return $this->id; }
+			public function label(): string { return 'Cap ' . $this->id; }
+			public function description(): string { return 'Captures its context.'; }
+
+			public function scan_chunk( ScanContext $ctx, ?string $cursor, array $prior_totals = array() ): AuditChunk {
+				$this->last_ctx = $ctx;
+				return AuditChunk::complete( array(), array( AuditChunk::TOTAL_SCANNED => 0 ) );
+			}
+
+			public function bulk_action( string $action, array $ids, array $args = array() ): ActionResult {
+				return ActionResult::ok( 0 );
+			}
+
+			public function supports_bulk(): array { return array(); }
+		};
+	}
+
+	/**
 	 * Invoke a handler and catch the simulated HTTP response.
 	 */
 	private function call( callable $handler ): \CFMediaManagerHttpExit {
@@ -163,6 +191,62 @@ final class AuditAjaxTest extends TestCase {
 
 		self::assertTrue( $exit->success );
 		self::assertSame( AuditRunner::PHASE_COMPLETE, $exit->data['phase'] );
+	}
+
+	public function test_scan_chunk_force_flag_reaches_scan_context(): void {
+		$report = $this->capturing_report( 'cap' );
+		$this->runner->register( $report );
+
+		$_POST = array( 'report' => 'cap', 'force' => 1 );
+		$this->call( array( $this->ajax, 'scan_chunk' ) );
+
+		self::assertNotNull( $report->last_ctx );
+		self::assertTrue(
+			$report->last_ctx->force,
+			'A forced rescan must set ScanContext::force so the in-use transient is refreshed.'
+		);
+	}
+
+	public function test_scan_chunk_without_force_leaves_context_unforced(): void {
+		$report = $this->capturing_report( 'cap' );
+		$this->runner->register( $report );
+
+		$_POST = array( 'report' => 'cap' );
+		$this->call( array( $this->ajax, 'scan_chunk' ) );
+
+		self::assertNotNull( $report->last_ctx );
+		self::assertFalse( $report->last_ctx->force );
+	}
+
+	public function test_scan_chunk_threads_threshold_config_to_scan_context(): void {
+		$report = $this->capturing_report( 'cap' );
+		$this->runner->register( $report );
+
+		$_POST = array(
+			'report'                  => 'cap',
+			'min_bytes'               => 5242880,
+			'min_pixels_longest_side' => 4000,
+		);
+		$this->call( array( $this->ajax, 'scan_chunk' ) );
+
+		self::assertNotNull( $report->last_ctx );
+		self::assertSame( 5242880, $report->last_ctx->config( 'min_bytes' ) );
+		self::assertSame( 4000, $report->last_ctx->config( 'min_pixels_longest_side' ) );
+	}
+
+	public function test_scan_chunk_omits_absent_thresholds_so_defaults_apply(): void {
+		$report = $this->capturing_report( 'cap' );
+		$this->runner->register( $report );
+
+		$_POST = array( 'report' => 'cap' );
+		$this->call( array( $this->ajax, 'scan_chunk' ) );
+
+		self::assertNotNull( $report->last_ctx );
+		// Absent thresholds must NOT appear in config, so the report's own
+		// defaults (via ScanContext::config default arg) take effect.
+		self::assertNull( $report->last_ctx->config( 'min_bytes' ) );
+		self::assertNull( $report->last_ctx->config( 'min_pixels_longest_side' ) );
+		self::assertSame( 999, $report->last_ctx->config( 'min_bytes', 999 ) );
 	}
 
 	// =====================================================================

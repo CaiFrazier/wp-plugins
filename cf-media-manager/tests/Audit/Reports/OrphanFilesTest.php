@@ -40,6 +40,7 @@ final class OrphanFilesTest extends TestCase {
 		unset( $GLOBALS['wpdb'], $GLOBALS['fake_attached_files'] );
 		$this->rmrf( $this->upload_dir );
 		delete_transient( OrphanFiles::CANDIDATES_TRANSIENT );
+		delete_transient( OrphanFiles::TRUNCATED_TRANSIENT );
 	}
 
 	// =====================================================================
@@ -284,6 +285,72 @@ final class OrphanFilesTest extends TestCase {
 		$single = $this->report->scan_chunk( $ctx, null );
 
 		self::assertSame( 3000, $single->running_totals[ AuditChunk::TOTAL_SAVINGS_BYTES ] );
+	}
+
+	// =====================================================================
+	// Symlink safety — the walk must not follow links out of the tree
+	// =====================================================================
+
+	public function test_symlinked_directory_is_not_followed_out_of_uploads(): void {
+		// An external directory holding a jpg that must never surface in the
+		// orphan report even though a symlink inside uploads points at it.
+		$external = sys_get_temp_dir() . '/cfmm_ext_dir_' . uniqid();
+		mkdir( $external, 0777, true );
+		file_put_contents( $external . '/secret.jpg', 'x' );
+
+		$link = $this->upload_dir . '/2024/linked';
+		mkdir( dirname( $link ), 0777, true );
+		if ( ! @symlink( $external, $link ) ) {
+			$this->rmrf( $external );
+			self::markTestSkipped( 'Filesystem does not support symlinks.' );
+		}
+
+		// A genuine in-tree orphan so we can prove the walk still runs.
+		$this->put_file( '2024/real-orphan.jpg' );
+		$this->install_fake_wpdb();
+
+		$items = $this->scan_to_completion();
+		$paths = array_column( $items, 'path' );
+
+		self::assertContains( '2024/real-orphan.jpg', $paths );
+		foreach ( $paths as $p ) {
+			self::assertStringNotContainsString(
+				'secret.jpg',
+				$p,
+				'A symlinked directory must not be followed out of the uploads tree.'
+			);
+		}
+
+		unlink( $link );
+		$this->rmrf( $external );
+	}
+
+	public function test_symlinked_file_is_skipped(): void {
+		$external = sys_get_temp_dir() . '/cfmm_ext_file_' . uniqid() . '.jpg';
+		file_put_contents( $external, 'x' );
+
+		$link = $this->upload_dir . '/2024/link-to-outside.jpg';
+		mkdir( dirname( $link ), 0777, true );
+		if ( ! @symlink( $external, $link ) ) {
+			@unlink( $external );
+			self::markTestSkipped( 'Filesystem does not support symlinks.' );
+		}
+
+		$this->install_fake_wpdb();
+		$items = $this->scan_to_completion();
+
+		self::assertSame( array(), $items, 'A symlinked file must be skipped, not reported as an orphan.' );
+
+		unlink( $link );
+		@unlink( $external );
+	}
+
+	public function test_normal_walk_reports_no_truncation(): void {
+		$this->put_file( '2024/x.jpg' );
+		$this->install_fake_wpdb();
+		$this->scan_to_completion();
+
+		self::assertSame( 0, $this->report->last_walk_truncated_at() );
 	}
 
 	public function test_evaporated_cache_completes_gracefully(): void {
