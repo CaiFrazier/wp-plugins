@@ -5,6 +5,7 @@ import {
 	getMonthRangeForQuery,
 	getWeekRangeForQuery,
 	getListRangeForQuery,
+	siteToday,
 } from '../utils/dates';
 
 const cfCalData = window.cfCalData || {};
@@ -14,7 +15,31 @@ if ( cfCalData.nonce ) {
 	apiFetch.use( apiFetch.createNonceMiddleware( cfCalData.nonce ) );
 }
 
-const now = new Date();
+const now = siteToday();
+
+// Extract "HH:MM:SS" from a "YYYY-MM-DD HH:MM:SS" string, defaulting to
+// midnight. Used to keep a post's time-of-day when only its day changes.
+function timeOfDay( dateStr ) {
+	const match = /\d{2}:\d{2}:\d{2}/.exec( dateStr || '' );
+	return match ? match[ 0 ] : '00:00:00';
+}
+
+// Per-user client-side preference: skip the "unpublish & reschedule" confirm.
+const SKIP_CONFIRM_KEY = 'cfCalSkipRescheduleConfirm';
+function skipRescheduleConfirm() {
+	try {
+		return window.localStorage.getItem( SKIP_CONFIRM_KEY ) === '1';
+	} catch {
+		return false;
+	}
+}
+function rememberSkipRescheduleConfirm() {
+	try {
+		window.localStorage.setItem( SKIP_CONFIRM_KEY, '1' );
+	} catch {
+		// Private mode / storage disabled — just don't persist.
+	}
+}
 
 const useCalendarStore = create( ( set, get ) => ( {
 	// Date is stored as three integers so React effects can depend on them
@@ -27,6 +52,10 @@ const useCalendarStore = create( ( set, get ) => ( {
 	posts: [],
 	loading: false,
 	error: null,
+
+	// Set to { id, newDate, whenLabel } when a published post is dragged into
+	// the future and the confirmation dialog needs to be shown.
+	pendingReschedule: null,
 
 	filters: {
 		postTypes: Object.keys( cfCalData.postTypes || {} ),
@@ -54,7 +83,7 @@ const useCalendarStore = create( ( set, get ) => ( {
 	},
 
 	goToToday() {
-		const t = new Date();
+		const t = siteToday();
 		set( { year: t.getFullYear(), month: t.getMonth(), day: t.getDate() } );
 	},
 
@@ -64,6 +93,15 @@ const useCalendarStore = create( ( set, get ) => ( {
 
 	async fetchPosts() {
 		const { view, year, month, day, filters } = get();
+
+		// An empty type or status filter means "show nothing" — but sending no
+		// param makes the REST endpoint fall back to all types/statuses, the
+		// opposite of intent. Short-circuit to an empty grid without a request.
+		if ( filters.postTypes.length === 0 || filters.statuses.length === 0 ) {
+			set( { posts: [], loading: false, error: null } );
+			return;
+		}
+
 		const date = new Date( year, month, day );
 
 		let range;
@@ -102,9 +140,62 @@ const useCalendarStore = create( ( set, get ) => ( {
 				loading: false,
 				error:
 					err.message ||
-					__( 'Failed to load posts.', 'cf-content-calendar' ),
+					__(
+						'Failed to load posts. The REST API may be blocked — check that no security plugin is disabling it.',
+						'cf-content-calendar'
+					),
 			} );
 		}
+	},
+
+	// Entry point for a drag-drop reschedule. A published post moved into the
+	// future is unpublished and re-scheduled — a destructive-enough change that
+	// it's confirmed first (unless the user opted out). Everything else goes
+	// straight through.
+	requestReschedule( id, newDate ) {
+		const post = get().posts.find( ( p ) => p.id === id );
+		if ( ! post ) {
+			return;
+		}
+
+		const target = new Date( `${ newDate }T${ timeOfDay( post.date ) }` );
+		const isFuture = target.getTime() > Date.now();
+
+		if (
+			post.status === 'publish' &&
+			isFuture &&
+			! skipRescheduleConfirm()
+		) {
+			set( {
+				pendingReschedule: {
+					id,
+					newDate,
+					whenLabel: target.toLocaleString( undefined, {
+						dateStyle: 'medium',
+						timeStyle: 'short',
+					} ),
+				},
+			} );
+			return;
+		}
+
+		get().reschedulePost( id, newDate );
+	},
+
+	confirmReschedule( dontAskAgain ) {
+		const pending = get().pendingReschedule;
+		if ( ! pending ) {
+			return;
+		}
+		if ( dontAskAgain ) {
+			rememberSkipRescheduleConfirm();
+		}
+		set( { pendingReschedule: null } );
+		get().reschedulePost( pending.id, pending.newDate );
+	},
+
+	cancelReschedule() {
+		set( { pendingReschedule: null } );
 	},
 
 	async reschedulePost( id, newDate ) {
@@ -114,10 +205,13 @@ const useCalendarStore = create( ( set, get ) => ( {
 			return;
 		}
 
-		// Optimistic update.
+		// Optimistic update — keep the post's existing time-of-day so the chip
+		// doesn't flash to midnight before the server echoes back the real
+		// datetime (the server preserves the time on a date-only reschedule).
+		const optimisticDate = `${ newDate } ${ timeOfDay( prev.date ) }`;
 		set( {
 			posts: posts.map( ( p ) =>
-				p.id === id ? { ...p, date: newDate } : p
+				p.id === id ? { ...p, date: optimisticDate } : p
 			),
 		} );
 

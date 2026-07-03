@@ -30,6 +30,20 @@ class RestControllerTest extends TestCase {
 		$this->assertFalse( RestController::validate_date( 42 ) );
 	}
 
+	public function test_validate_date_rejects_impossible_calendar_dates(): void {
+		// Well-shaped but not real dates must be rejected before they reach WP.
+		$this->assertFalse( RestController::validate_date( '2026-13-40' ) );
+		$this->assertFalse( RestController::validate_date( '2026-02-31' ) );
+		$this->assertFalse( RestController::validate_date( '2026-00-00' ) );
+		$this->assertFalse( RestController::validate_date( '2027-02-29' ) ); // non-leap
+	}
+
+	public function test_validate_datetime_rejects_impossible_date_and_time(): void {
+		$this->assertFalse( RestController::validate_datetime( '2026-02-31 09:00:00' ) );
+		$this->assertFalse( RestController::validate_datetime( '2026-05-15 25:00:00' ) );
+		$this->assertFalse( RestController::validate_datetime( '2026-05-15 09:60:00' ) );
+	}
+
 	public function test_validate_datetime_accepts_date_only(): void {
 		$this->assertTrue( RestController::validate_datetime( '2026-05-15' ) );
 	}
@@ -206,6 +220,50 @@ class RestControllerTest extends TestCase {
 		$this->assertSame( 42, $GLOBALS['cfcal_test_last_query_args']['author'] );
 	}
 
+	public function test_get_posts_date_query_covers_the_full_last_day(): void {
+		// Regression: a bare `before` date resolves to 00:00:00 and drops posts
+		// with a time-of-day on the range's last day. Bounds must span the day.
+		$GLOBALS['cfcal_test_query_posts'] = [];
+
+		$request = new WP_REST_Request();
+		$request->set_param( 'start', '2026-05-01' );
+		$request->set_param( 'end', '2026-05-31' );
+		$request->set_param( 'post_types', [] );
+		$request->set_param( 'post_status', [ 'publish' ] );
+
+		$controller = new RestController();
+		$controller->get_posts( $request );
+
+		$clause = $GLOBALS['cfcal_test_last_query_args']['date_query'][0];
+		$this->assertSame( '2026-05-01 00:00:00', $clause['after'] );
+		$this->assertSame( '2026-05-31 23:59:59', $clause['before'] );
+	}
+
+	public function test_format_post_omits_date_gmt(): void {
+		$post              = new WP_Post();
+		$post->ID          = 1;
+		$post->post_title  = 'X';
+		$post->post_status = 'draft';
+		$post->post_type   = 'post';
+		$post->post_date   = '2026-05-10 09:00:00';
+		$post->post_date_gmt = '0000-00-00 00:00:00';
+
+		$GLOBALS['cfcal_test_query_posts'] = [ $post ];
+
+		$request = new WP_REST_Request();
+		$request->set_param( 'start', '2026-05-01' );
+		$request->set_param( 'end', '2026-05-31' );
+		$request->set_param( 'post_types', [] );
+		$request->set_param( 'post_status', [ 'draft' ] );
+
+		$controller = new RestController();
+		$response   = $controller->get_posts( $request );
+
+		// date_gmt (0000-00-00 for drafts) is deliberately not exposed.
+		$this->assertArrayNotHasKey( 'date_gmt', $response->data[0] );
+		$this->assertSame( '2026-05-10 09:00:00', $response->data[0]['date'] );
+	}
+
 	public function test_get_posts_sets_perm_readable(): void {
 		$request = new WP_REST_Request();
 		$request->set_param( 'start', '2026-05-01' );
@@ -339,6 +397,25 @@ class RestControllerTest extends TestCase {
 
 		$this->assertSame( 201, $response->status );
 		$this->assertSame( 'future', $response->data['status'] );
+	}
+
+	public function test_create_post_rejects_scheduling_in_the_past(): void {
+		// current_time shim is 2026-05-15 12:00:00; scheduling for an earlier
+		// day would make WP silently publish a backdated post.
+		$GLOBALS['cfcal_test_caps'] = true;
+
+		$request = new WP_REST_Request();
+		$request->set_param( 'title', 'Backdated' );
+		$request->set_param( 'post_type', 'post' );
+		$request->set_param( 'post_date', '2026-05-01 09:00:00' );
+		$request->set_param( 'status', 'future' );
+		$request->set_param( 'author_id', 0 );
+
+		$controller = new RestController();
+		$response   = $controller->create_post( $request );
+
+		$this->assertSame( 400, $response->status );
+		$this->assertSame( 'date_in_past', $response->data['code'] );
 	}
 
 	public function test_create_post_returns_500_on_wp_error(): void {
@@ -541,7 +618,9 @@ class RestControllerTest extends TestCase {
 		$this->assertSame( 'update_failed', $response->data['code'] );
 	}
 
-	public function test_reschedule_does_not_change_status_of_published_post(): void {
+	public function test_reschedule_published_post_to_past_date_keeps_it_published(): void {
+		// Moving a published post to an earlier date is a normal back-date edit;
+		// it stays published. (current_time shim: 2026-05-15 12:00:00.)
 		$post              = new WP_Post();
 		$post->ID          = 8;
 		$post->post_status = 'publish';
@@ -557,7 +636,30 @@ class RestControllerTest extends TestCase {
 		$response   = $controller->reschedule_post( $request );
 
 		$this->assertSame( 200, $response->status );
-		// Published posts keep their status.
 		$this->assertSame( 'publish', $GLOBALS['cfcal_test_posts'][8]->post_status );
+	}
+
+	public function test_reschedule_published_post_into_the_future_schedules_it(): void {
+		// Per product decision: dragging a published post to a future date
+		// unpublishes and re-schedules it (the client confirms first).
+		$post              = new WP_Post();
+		$post->ID          = 9;
+		$post->post_status = 'publish';
+		$post->post_date   = '2026-04-01 09:00:00';
+
+		$GLOBALS['cfcal_test_posts'][9]     = $post;
+		$GLOBALS['cfcal_test_current_time'] = '2026-05-15 12:00:00';
+
+		$request = new WP_REST_Request();
+		$request->set_param( 'id', 9 );
+		$request->set_param( 'post_date', '2026-06-20' ); // future
+
+		$controller = new RestController();
+		$response   = $controller->reschedule_post( $request );
+
+		$this->assertSame( 200, $response->status );
+		$this->assertSame( 'future', $GLOBALS['cfcal_test_posts'][9]->post_status );
+		// A scheduled post gets a real GMT date.
+		$this->assertArrayHasKey( 'post_date_gmt', $GLOBALS['cfcal_test_last_update'] );
 	}
 }

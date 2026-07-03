@@ -1,15 +1,18 @@
-import { useState, useRef, useEffect } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { useState, useRef, useEffect, useId } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import PostPopover from './PostPopover';
 
 export default function PostChip( { post } ) {
 	const [ hovered, setHovered ] = useState( false );
 	const chipRef = useRef( null );
 	const hideTimer = useRef( null );
+	const popoverId = useId();
 
 	const cfCalData = window.cfCalData || {};
 	const typeLabel =
 		( cfCalData.postTypes || {} )[ post.post_type ] || post.post_type;
+	const displayTitle =
+		post.title || __( '(no title)', 'cf-content-calendar' );
 
 	// Clear any pending hide timer on unmount.
 	useEffect( () => () => clearTimeout( hideTimer.current ), [] );
@@ -41,6 +44,14 @@ export default function PostChip( { post } ) {
 		}
 	}
 
+	function handleKeyDown( e ) {
+		// Escape dismisses the popover for keyboard users.
+		if ( e.key === 'Escape' && hovered ) {
+			e.stopPropagation();
+			setHovered( false );
+		}
+	}
+
 	const statusClass = [
 		'publish',
 		'future',
@@ -52,6 +63,10 @@ export default function PostChip( { post } ) {
 		: '';
 
 	return (
+		// Hover region so the cursor can travel chip → popover without it
+		// vanishing. The keyboard-equivalent lives on the interactive chip
+		// below (onFocus/onBlur to open, Escape to dismiss).
+		// eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
 		<div
 			className="cf-cal-chip-wrap"
 			onMouseEnter={ show }
@@ -65,17 +80,29 @@ export default function PostChip( { post } ) {
 				onDragEnd={ handleDragEnd }
 				onFocus={ show }
 				onBlur={ scheduleHide }
+				onKeyDown={ handleKeyDown }
 				tabIndex={ 0 }
 				role="button"
-				aria-label={ `${ post.title } — ${ typeLabel } (${ post.status })` }
+				aria-describedby={ hovered ? popoverId : undefined }
+				aria-label={ sprintf(
+					/* translators: 1: post title, 2: post type, 3: post status. */
+					__( '%1$s, %2$s (%3$s)', 'cf-content-calendar' ),
+					displayTitle,
+					typeLabel,
+					post.status
+				) }
 			>
 				<span className="cf-cal-chip-type">{ typeLabel }</span>
-				<span className="cf-cal-chip-title">
-					{ post.title || __( '(no title)', 'cf-content-calendar' ) }
-				</span>
+				<span className="cf-cal-chip-title">{ displayTitle }</span>
 			</div>
 
-			{ hovered && <PostPopover post={ post } typeLabel={ typeLabel } /> }
+			{ hovered && (
+				<PostPopover
+					post={ post }
+					typeLabel={ typeLabel }
+					id={ popoverId }
+				/>
+			) }
 		</div>
 	);
 }

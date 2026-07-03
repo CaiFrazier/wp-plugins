@@ -1,6 +1,11 @@
 import { __ } from '@wordpress/i18n';
 import useCalendarStore from '../store';
-import { parseLocalDate, formatDate, isSameDay } from '../utils/dates';
+import {
+	parseLocalDate,
+	formatDate,
+	isSameDay,
+	siteToday,
+} from '../utils/dates';
 import PostChip from './PostChip';
 
 export default function ListView() {
@@ -43,7 +48,7 @@ export default function ListView() {
 		groups[ seen.get( key ) ].posts.push( post );
 	}
 
-	const today = new Date();
+	const today = siteToday();
 
 	return (
 		<div className="cf-cal-list">

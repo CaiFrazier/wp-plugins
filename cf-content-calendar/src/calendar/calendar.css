@@ -469,6 +469,83 @@
 	display: inline-block;
 }
 
+/* Edge flipping so the hovercard stays within the viewport at grid edges. */
+.cf-cal-popover.is-flip-right {
+	left: auto;
+	right: 0;
+}
+
+.cf-cal-popover.is-flip-up {
+	top: auto;
+	bottom: 100%;
+}
+
+/* ------------------------------------------------------- Add-post buttons */
+
+/* Keyboard-accessible "add" affordance in each day cell. The cell itself is
+   a plain gridcell (mouse click-to-create is a convenience), so this button
+   is the focusable entry point for keyboard and screen-reader users. */
+.cf-cal-day-add {
+	position: absolute;
+	top: 2px;
+	right: 2px;
+	width: 20px;
+	height: 20px;
+	line-height: 18px;
+	padding: 0;
+	border: 1px solid transparent;
+	border-radius: 3px;
+	background: transparent;
+	color: #2271b1;
+	font-size: 16px;
+	cursor: pointer;
+	opacity: 0;
+	transition: opacity 0.1s ease-in-out;
+}
+
+.cf-cal-day-cell:hover .cf-cal-day-add,
+.cf-cal-day-add:focus {
+	opacity: 1;
+	border-color: #c3c4c7;
+	background: #fff;
+}
+
+.cf-cal-week-add {
+	display: block;
+	width: 100%;
+	margin-top: 8px;
+	padding: 4px;
+	border: 1px dashed transparent;
+	border-radius: 3px;
+	background: transparent;
+	color: #a7aaad;
+	font-size: 11px;
+	text-align: center;
+	cursor: pointer;
+}
+
+.cf-cal-week-col:hover .cf-cal-week-add,
+.cf-cal-week-add:focus {
+	border-color: #c3c4c7;
+	color: #2271b1;
+}
+
+/* --------------------------------------------------- Reschedule confirm modal */
+
+.cf-cal-modal-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	margin-top: 16px;
+}
+
+.cf-cal-form-time {
+	display: block;
+	margin: 6px 0;
+	font-size: 12px;
+	color: #1d2327;
+}
+
 /* ---------------------------------------------------------- Create form */
 
 .cf-cal-create-form {

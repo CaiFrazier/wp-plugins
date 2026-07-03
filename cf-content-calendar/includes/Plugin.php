@@ -17,12 +17,10 @@ class Plugin {
 	}
 
 	private function init(): void {
-		load_plugin_textdomain(
-			'cf-content-calendar',
-			false,
-			dirname( plugin_basename( CFCAL_FILE ) ) . '/languages'
-		);
-
+		// No load_plugin_textdomain() call: since WP 4.6, WordPress.org loads
+		// translations for .org-hosted plugins automatically. wp_set_script_
+		// translations() in Admin::enqueue_assets() handles the JS strings
+		// independently and doesn't depend on this.
 		new Admin();
 		new RestController();
 	}

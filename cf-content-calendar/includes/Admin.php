@@ -33,7 +33,12 @@ class Admin {
 		}
 
 		$asset_file = CFCAL_DIR . 'build/calendar.asset.php';
-		$asset      = require $asset_file;
+		if ( ! is_file( $asset_file ) ) {
+			// The bootstrap guards this at load time, but a build/ deleted from
+			// under a running install shouldn't fatal the admin screen.
+			return;
+		}
+		$asset = require $asset_file;
 
 		wp_enqueue_script(
 			'cf-content-calendar',
@@ -46,7 +51,9 @@ class Admin {
 		wp_enqueue_style(
 			'cf-content-calendar',
 			CFCAL_URL . 'build/calendar.css',
-			[],
+			// wp-components provides the Modal / Button / CheckboxControl styles
+			// used by the reschedule-confirm dialog.
+			[ 'wp-components' ],
 			$asset['version']
 		);
 

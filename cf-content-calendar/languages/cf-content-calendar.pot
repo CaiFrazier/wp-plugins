@@ -1,15 +1,288 @@
 # Copyright (C) 2026 Cai Frazier
-# This file is distributed under the same license as the CF Content Calendar plugin.
+# This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
 "Project-Id-Version: CF Content Calendar 0.1.0\n"
-"Report-Msgid-Bugs-To: https://github.com/caifrazier/cf-content-calendar\n"
-"POT-Creation-Date: 2026-05-15T00:00:00+00:00\n"
+"Report-Msgid-Bugs-To: bugs@caifrazier.com\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-07-03T03:07:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"X-Generator: WP-CLI 2.x\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: cf-content-calendar\n"
+
+#. Plugin Name of the plugin
+#: cf-content-calendar.php
+msgid "CF Content Calendar"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: cf-content-calendar.php
+msgid "https://github.com/caifrazier/cf-content-calendar"
+msgstr ""
+
+#. Description of the plugin
+#: cf-content-calendar.php
+msgid "A modern editorial calendar. Drag to reschedule, create drafts from empty day slots, and see your full content picture across post types."
+msgstr ""
+
+#. Author of the plugin
+#: cf-content-calendar.php
+msgid "Cai Frazier"
+msgstr ""
+
+#: includes/Admin.php:18
+#: src/calendar/components/CalendarApp.jsx:23
+msgid "Content Calendar"
+msgstr ""
+
+#: includes/Admin.php:19
+msgid "Calendar"
+msgstr ""
+
+#: includes/RestController.php:221
+msgid "Invalid post type."
+msgstr ""
+
+#: includes/RestController.php:238
+msgid "You do not have permission to create this post type."
+msgstr ""
+
+#: includes/RestController.php:248
+msgid "You do not have permission to schedule posts."
+msgstr ""
+
+#: includes/RestController.php:264
+msgid "A scheduled post needs a date and time in the future."
+msgstr ""
+
+#: includes/RestController.php:305
+msgid "Post not found."
+msgstr ""
+
+#: src/calendar/components/CalendarApp.jsx:35
+msgid "Dismiss error"
+msgstr ""
+
+#: src/calendar/components/CreatePostForm.jsx:79
+msgid "Could not create post."
+msgstr ""
+
+#: src/calendar/components/CreatePostForm.jsx:102
+msgid "Post title…"
+msgstr ""
+
+#: src/calendar/components/CreatePostForm.jsx:113
+msgid "Post type"
+msgstr ""
+
+#: src/calendar/components/CreatePostForm.jsx:130
+#: src/calendar/components/Toolbar.jsx:145
+msgid "Author"
+msgstr ""
+
+#: src/calendar/components/CreatePostForm.jsx:133
+msgid "Default author (you)"
+msgstr ""
+
+#: src/calendar/components/CreatePostForm.jsx:154
+msgid "Save as Draft"
+msgstr ""
+
+#: src/calendar/components/CreatePostForm.jsx:165
+msgid "Schedule"
+msgstr ""
+
+#: src/calendar/components/CreatePostForm.jsx:175
+msgid "Time"
+msgstr ""
+
+#: src/calendar/components/CreatePostForm.jsx:193
+msgid "Saving…"
+msgstr ""
+
+#: src/calendar/components/CreatePostForm.jsx:194
+msgid "Create"
+msgstr ""
+
+#: src/calendar/components/CreatePostForm.jsx:197
+#: src/calendar/components/RescheduleConfirmDialog.jsx:46
+msgid "Cancel"
+msgstr ""
+
+#: src/calendar/components/ListView.jsx:17
+#: src/calendar/components/Toolbar.jsx:88
+msgid "Loading…"
+msgstr ""
+
+#: src/calendar/components/ListView.jsx:25
+msgid "No posts in this date range."
+msgstr ""
+
+#: src/calendar/components/ListView.jsx:76
+#: src/calendar/components/Toolbar.jsx:74
+msgid "Today"
+msgstr ""
+
+#: src/calendar/components/MonthView.jsx:16
+msgid "Sun"
+msgstr ""
+
+#: src/calendar/components/MonthView.jsx:17
+msgid "Mon"
+msgstr ""
+
+#: src/calendar/components/MonthView.jsx:18
+msgid "Tue"
+msgstr ""
+
+#: src/calendar/components/MonthView.jsx:19
+msgid "Wed"
+msgstr ""
+
+#: src/calendar/components/MonthView.jsx:20
+msgid "Thu"
+msgstr ""
+
+#: src/calendar/components/MonthView.jsx:21
+msgid "Fri"
+msgstr ""
+
+#: src/calendar/components/MonthView.jsx:22
+msgid "Sat"
+msgstr ""
+
+#. translators: %s is a date, e.g. "Monday, July 6".
+#: src/calendar/components/MonthView.jsx:132
+#: src/calendar/components/WeekView.jsx:114
+#, js-format
+msgid "Add a post on %s"
+msgstr ""
+
+#: src/calendar/components/PostChip.jsx:15
+#: src/calendar/components/PostPopover.jsx:51
+msgid "(no title)"
+msgstr ""
+
+#. translators: 1: post title, 2: post type, 3: post status.
+#: src/calendar/components/PostChip.jsx:89
+#, js-format
+msgid "%1$s, %2$s (%3$s)"
+msgstr ""
+
+#: src/calendar/components/PostPopover.jsx:6
+#: src/calendar/components/Toolbar.jsx:14
+msgid "Published"
+msgstr ""
+
+#: src/calendar/components/PostPopover.jsx:7
+#: src/calendar/components/Toolbar.jsx:15
+msgid "Scheduled"
+msgstr ""
+
+#: src/calendar/components/PostPopover.jsx:8
+#: src/calendar/components/Toolbar.jsx:16
+msgid "Draft"
+msgstr ""
+
+#: src/calendar/components/PostPopover.jsx:9
+#: src/calendar/components/Toolbar.jsx:17
+msgid "Pending"
+msgstr ""
+
+#: src/calendar/components/PostPopover.jsx:10
+msgid "Private"
+msgstr ""
+
+#: src/calendar/components/PostPopover.jsx:56
+msgid "Type"
+msgstr ""
+
+#: src/calendar/components/PostPopover.jsx:62
+msgid "Status"
+msgstr ""
+
+#: src/calendar/components/PostPopover.jsx:68
+msgid "Date"
+msgstr ""
+
+#: src/calendar/components/PostPopover.jsx:81
+msgid "Edit"
+msgstr ""
+
+#: src/calendar/components/RescheduleConfirmDialog.jsx:22
+msgid "Unpublish and reschedule?"
+msgstr ""
+
+#. translators: %s is a date and time, e.g. "Jul 5, 2026, 9:00 AM".
+#: src/calendar/components/RescheduleConfirmDialog.jsx:29
+#, js-format
+msgid "You are moving a published post into the future. This will unpublish it and reschedule it for %s. Are you sure?"
+msgstr ""
+
+#: src/calendar/components/RescheduleConfirmDialog.jsx:39
+msgid "Don't ask me again"
+msgstr ""
+
+#: src/calendar/components/RescheduleConfirmDialog.jsx:52
+msgid "Unpublish"
+msgstr ""
+
+#: src/calendar/components/Toolbar.jsx:8
+msgid "Month"
+msgstr ""
+
+#: src/calendar/components/Toolbar.jsx:9
+msgid "Week"
+msgstr ""
+
+#: src/calendar/components/Toolbar.jsx:10
+msgid "List"
+msgstr ""
+
+#: src/calendar/components/Toolbar.jsx:60
+msgid "Calendar controls"
+msgstr ""
+
+#: src/calendar/components/Toolbar.jsx:68
+msgid "Previous"
+msgstr ""
+
+#: src/calendar/components/Toolbar.jsx:81
+msgid "Next"
+msgstr ""
+
+#: src/calendar/components/Toolbar.jsx:97
+msgid "Calendar view"
+msgstr ""
+
+#: src/calendar/components/Toolbar.jsx:118
+msgid "Post types"
+msgstr ""
+
+#: src/calendar/components/Toolbar.jsx:156
+msgid "All authors"
+msgstr ""
+
+#: src/calendar/components/Toolbar.jsx:173
+msgid "Post statuses"
+msgstr ""
+
+#: src/calendar/components/WeekView.jsx:126
+msgid "Click to add"
+msgstr ""
+
+#: src/calendar/store/index.js:143
+msgid "Failed to load posts. The REST API may be blocked — check that no security plugin is disabling it."
+msgstr ""
+
+#: src/calendar/store/index.js:235
+msgid "Reschedule failed."
+msgstr ""
+
+#: src/calendar/store/index.js:253
+msgid "Failed to create post."
+msgstr ""

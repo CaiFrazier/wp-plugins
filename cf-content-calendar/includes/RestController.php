@@ -76,7 +76,9 @@ class RestController {
 							'required'          => true,
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_text_field',
-							'validate_callback' => [ __CLASS__, 'validate_date' ],
+							// Accepts a bare date (draft) or a full datetime
+							// (scheduled posts carry a time-of-day).
+							'validate_callback' => [ __CLASS__, 'validate_datetime' ],
 						],
 						'status'    => [
 							'required' => false,
@@ -158,8 +160,12 @@ class RestController {
 
 			'date_query'     => [
 				[
-					'after'     => $start,
-					'before'    => $end,
+					// A bare `before` date string resolves to 00:00:00 even with
+					// `inclusive`, which would drop every post with a time-of-day
+					// on the range's last day (e.g. week view's final column).
+					// Pin it to end-of-day so the whole final day is covered.
+					'after'     => $start . ' 00:00:00',
+					'before'    => $end . ' 23:59:59',
 					'inclusive' => true,
 				],
 			],
@@ -245,6 +251,22 @@ class RestController {
 			);
 		}
 
+		// A bare date is treated as midnight. Scheduling for a day that is
+		// already past (or today-at-midnight, already elapsed) would make
+		// wp_insert_post silently PUBLISH a backdated post instead of scheduling
+		// it. Reject rather than surprise the user with a live, backdated post.
+		$scheduled_time = strtotime( $post_date );
+		if ( 'future' === $status
+			&& ( false === $scheduled_time || $scheduled_time <= strtotime( current_time( 'mysql' ) ) ) ) {
+			return new \WP_REST_Response(
+				[
+					'code'    => 'date_in_past',
+					'message' => __( 'A scheduled post needs a date and time in the future.', 'cf-content-calendar' ),
+				],
+				400
+			);
+		}
+
 		$post_data = [
 			'post_title'  => $title,
 			'post_type'   => $post_type,
@@ -297,15 +319,23 @@ class RestController {
 		} else {
 			$time_part = '00:00:00';
 		}
+		// Guard against a malformed/short stored post_date leaving a broken
+		// time fragment (e.g. "2026-05-25 " with an empty time).
+		if ( ! preg_match( '/^\d{2}:\d{2}:\d{2}$/', $time_part ) ) {
+			$time_part = '00:00:00';
+		}
 		$new_post_date = $date_part . ' ' . $time_part;
 
-		// When moving a scheduled post: keep future status if the new date is
-		// still ahead of now; otherwise it can no longer be "scheduled".
-		$new_status = $post->post_status;
+		// Decide the resulting status.
+		$is_future_date = strtotime( $new_post_date ) > strtotime( current_time( 'mysql' ) );
+		$new_status     = $post->post_status;
 		if ( 'future' === $post->post_status ) {
-			$new_status = ( strtotime( $new_post_date ) > strtotime( current_time( 'mysql' ) ) )
-				? 'future'
-				: 'draft';
+			// A scheduled post keeps future only while its date is still ahead.
+			$new_status = $is_future_date ? 'future' : 'draft';
+		} elseif ( 'publish' === $post->post_status && $is_future_date ) {
+			// A published post dragged into the future is unpublished and
+			// re-scheduled. The client confirms this intent before calling.
+			$new_status = 'future';
 		}
 
 		// edit_date => true is REQUIRED: without it wp_insert_post() silently
@@ -344,24 +374,42 @@ class RestController {
 	}
 
 	private function format_post( \WP_Post $post ): array {
+		// `date` is the site-local post_date, which is the only date the client
+		// uses. `post_date_gmt` is deliberately omitted: it is 0000-00-00 for
+		// drafts (an Invalid-Date footgun) and the client never reads it.
 		return [
 			'id'        => $post->ID,
 			'title'     => $post->post_title,
 			'status'    => $post->post_status,
 			'post_type' => $post->post_type,
 			'date'      => $post->post_date,
-			'date_gmt'  => $post->post_date_gmt,
 			'author'    => (int) $post->post_author,
 			'edit_link' => get_edit_post_link( $post->ID, 'raw' ),
 		];
 	}
 
 	public static function validate_date( $value ): bool {
-		return is_string( $value ) && (bool) preg_match( '/^\d{4}-\d{2}-\d{2}$/', $value );
+		if ( ! is_string( $value ) || ! preg_match( '/^(\d{4})-(\d{2})-(\d{2})$/', $value, $m ) ) {
+			return false;
+		}
+		// Shape alone isn't enough — reject impossible calendar dates
+		// (2026-13-40, 2026-02-31) before they reach wp_insert_post, which would
+		// silently normalize them to a different, wrong date.
+		return checkdate( (int) $m[2], (int) $m[3], (int) $m[1] );
 	}
 
 	public static function validate_datetime( $value ): bool {
-		return is_string( $value )
-			&& (bool) preg_match( '/^\d{4}-\d{2}-\d{2}( \d{2}:\d{2}:\d{2})?$/', $value );
+		if ( ! is_string( $value )
+			|| ! preg_match( '/^(\d{4})-(\d{2})-(\d{2})( (\d{2}):(\d{2}):(\d{2}))?$/', $value, $m ) ) {
+			return false;
+		}
+		if ( ! checkdate( (int) $m[2], (int) $m[3], (int) $m[1] ) ) {
+			return false;
+		}
+		// Validate the optional time component's ranges when present.
+		if ( isset( $m[4] ) && '' !== $m[4] ) {
+			return (int) $m[5] < 24 && (int) $m[6] < 60 && (int) $m[7] < 60;
+		}
+		return true;
 	}
 }

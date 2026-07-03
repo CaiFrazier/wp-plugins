@@ -1,5 +1,5 @@
 import { useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import useCalendarStore from '../store';
 import {
 	getWeekDays,
@@ -13,7 +13,7 @@ import PostChip from './PostChip';
 import CreatePostForm from './CreatePostForm';
 
 export default function WeekView() {
-	const { year, month, day, posts, reschedulePost } = useCalendarStore();
+	const { year, month, day, posts, requestReschedule } = useCalendarStore();
 	const [ activeDay, setActiveDay ] = useState( null );
 
 	const weekDays = getWeekDays( new Date( year, month, day ) );
@@ -32,7 +32,7 @@ export default function WeekView() {
 		e.currentTarget.classList.remove( 'is-drag-over' );
 		const postId = parseInt( e.dataTransfer.getData( 'text/plain' ), 10 );
 		if ( postId ) {
-			reschedulePost( postId, formatDate( date ) );
+			requestReschedule( postId, formatDate( date ) );
 		}
 	}
 
@@ -85,36 +85,50 @@ export default function WeekView() {
 					);
 					const isActive = activeDay && isSameDay( activeDay, date );
 
+					const dayLabel = date.toLocaleDateString( undefined, {
+						weekday: 'long',
+						month: 'long',
+						day: 'numeric',
+					} );
+
 					return (
+						// Mouse-only conveniences; the keyboard/AT path is the
+						// real <button> controls inside (add button + chips).
+						// eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
 						<div
 							key={ date.toISOString() }
 							className={ `cf-cal-week-col${
 								isToday( date ) ? ' is-today' : ''
 							}${ isActive ? ' is-active' : '' }` }
 							onClick={ ( e ) => handleCellClick( e, date ) }
-							onKeyDown={ ( e ) => {
-								if ( e.key === 'Enter' || e.key === ' ' ) {
-									handleCellClick( e, date );
-								}
-							} }
 							onDragOver={ handleDragOver }
 							onDragLeave={ handleDragLeave }
 							onDrop={ ( e ) => handleDrop( e, date ) }
-							tabIndex={ 0 }
-							role="button"
-							aria-label={ date.toLocaleDateString( undefined, {
-								weekday: 'long',
-								month: 'long',
-								day: 'numeric',
-							} ) }
 						>
-							{ dayPosts.length === 0 && ! isActive && (
-								<span className="cf-cal-week-empty">
-									{ __(
-										'Click to add',
-										'cf-content-calendar'
+							{ ! isActive && (
+								<button
+									type="button"
+									className="cf-cal-week-add"
+									aria-label={ sprintf(
+										/* translators: %s is a date, e.g. "Monday, July 6". */
+										__(
+											'Add a post on %s',
+											'cf-content-calendar'
+										),
+										dayLabel
 									) }
-								</span>
+									onClick={ ( e ) => {
+										e.stopPropagation();
+										setActiveDay( date );
+									} }
+								>
+									{ dayPosts.length === 0
+										? __(
+												'Click to add',
+												'cf-content-calendar'
+										  )
+										: '+' }
+								</button>
 							) }
 
 							{ dayPosts.map( ( post ) => {

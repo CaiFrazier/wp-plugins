@@ -58,8 +58,42 @@ export function isSameDay( a, b ) {
 	);
 }
 
+const SITE_TZ = ( window.cfCalData && window.cfCalData.timezone ) || '';
+
+/**
+ * "Today" in the site's timezone, returned as a browser-local Date at midnight
+ * so day-level comparisons line up with grid cells (which are built with
+ * new Date(year, month, day) in browser-local time). Falls back to the browser
+ * day when the site uses a manual UTC-offset string (which Intl can't consume)
+ * or on any error.
+ * @return {Date} Site-local "today" as a browser-local midnight Date.
+ */
+export function siteToday() {
+	if ( SITE_TZ && ! /^[+-]\d{2}:\d{2}$/.test( SITE_TZ ) ) {
+		try {
+			const parts = new Intl.DateTimeFormat( 'en-CA', {
+				timeZone: SITE_TZ,
+				year: 'numeric',
+				month: '2-digit',
+				day: '2-digit',
+			} ).formatToParts( new Date() );
+			const val = ( type ) =>
+				parts.find( ( p ) => p.type === type )?.value;
+			const y = parseInt( val( 'year' ), 10 );
+			const m = parseInt( val( 'month' ), 10 );
+			const d = parseInt( val( 'day' ), 10 );
+			if ( y && m && d ) {
+				return new Date( y, m - 1, d );
+			}
+		} catch {
+			// Fall through to the browser day.
+		}
+	}
+	return new Date();
+}
+
 export function isToday( date ) {
-	return isSameDay( date, new Date() );
+	return isSameDay( date, siteToday() );
 }
 
 export function isCurrentMonth( date, year, month ) {

@@ -1,5 +1,5 @@
 import { useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import useCalendarStore from '../store';
 import {
 	getMonthGrid,
@@ -23,7 +23,7 @@ const DAY_HEADERS = [
 ];
 
 export default function MonthView() {
-	const { year, month, posts, reschedulePost } = useCalendarStore();
+	const { year, month, posts, requestReschedule } = useCalendarStore();
 	const [ activeDay, setActiveDay ] = useState( null ); // Date | null — open create form
 
 	const grid = getMonthGrid( year, month );
@@ -42,12 +42,14 @@ export default function MonthView() {
 		e.currentTarget.classList.remove( 'is-drag-over' );
 		const postId = parseInt( e.dataTransfer.getData( 'text/plain' ), 10 );
 		if ( postId ) {
-			reschedulePost( postId, formatDate( date ) );
+			requestReschedule( postId, formatDate( date ) );
 		}
 	}
 
+	// Mouse convenience: clicking the empty area of a day opens the create
+	// form. The cell itself is not a button (keyboard users use the explicit
+	// add button below), so this only needs to ignore clicks on chips.
 	function handleCellClick( e, date ) {
-		// Only open the form when clicking the empty area — not a chip.
 		if ( e.target.closest( '.cf-cal-chip' ) ) {
 			return;
 		}
@@ -86,26 +88,25 @@ export default function MonthView() {
 						cellClass += ' is-active';
 					}
 
+					const dayLabel = date.toLocaleDateString( undefined, {
+						weekday: 'long',
+						month: 'long',
+						day: 'numeric',
+					} );
+
 					return (
+						// The cell's click/drag are mouse-only conveniences; the
+						// keyboard/AT path is the real <button> controls inside
+						// (the add button and each chip). Keyboard-driven
+						// reschedule is tracked separately (CCAL-P1-003).
+						// eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
 						<div
 							key={ date.toISOString() }
 							className={ cellClass }
 							onClick={ ( e ) => handleCellClick( e, date ) }
-							onKeyDown={ ( e ) => {
-								if ( e.key === 'Enter' || e.key === ' ' ) {
-									handleCellClick( e, date );
-								}
-							} }
 							onDragOver={ handleDragOver }
 							onDragLeave={ handleDragLeave }
 							onDrop={ ( e ) => handleDrop( e, date ) }
-							tabIndex={ isOtherMonth ? -1 : 0 }
-							role="button"
-							aria-label={ date.toLocaleDateString( undefined, {
-								weekday: 'long',
-								month: 'long',
-								day: 'numeric',
-							} ) }
 						>
 							<span
 								className="cf-cal-day-number"
@@ -121,6 +122,27 @@ export default function MonthView() {
 									<PostChip key={ post.id } post={ post } />
 								) ) }
 							</div>
+
+							{ ! isOtherMonth && ! isActive && (
+								<button
+									type="button"
+									className="cf-cal-day-add"
+									aria-label={ sprintf(
+										/* translators: %s is a date, e.g. "Monday, July 6". */
+										__(
+											'Add a post on %s',
+											'cf-content-calendar'
+										),
+										dayLabel
+									) }
+									onClick={ ( e ) => {
+										e.stopPropagation();
+										setActiveDay( date );
+									} }
+								>
+									+
+								</button>
+							) }
 
 							{ isActive && (
 								<CreatePostForm

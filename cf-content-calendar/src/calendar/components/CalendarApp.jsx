@@ -5,6 +5,7 @@ import Toolbar from './Toolbar';
 import MonthView from './MonthView';
 import WeekView from './WeekView';
 import ListView from './ListView';
+import RescheduleConfirmDialog from './RescheduleConfirmDialog';
 
 export default function CalendarApp() {
 	const { view, year, month, day, filters, fetchPosts, error, clearError } =
@@ -42,6 +43,8 @@ export default function CalendarApp() {
 			{ 'month' === view && <MonthView /> }
 			{ 'week' === view && <WeekView /> }
 			{ 'list' === view && <ListView /> }
+
+			<RescheduleConfirmDialog />
 		</div>
 	);
 }
