@@ -10,7 +10,6 @@ A collection of free, focused WordPress utility plugins by Cai Frazier, plus a s
 | CF Bulk Meta Editor | [`cf-bulk-meta-editor/`](cf-bulk-meta-editor/) | Spreadsheet-style editor for SEO meta titles, descriptions, and custom postmeta across all post types. Presets for Yoast, Rank Math, AIOSEO, and The SEO Framework. |
 | CF QR Redirect | [`qr-redirect/`](qr-redirect/) | Self-hosted QR codes and a redirect manager — branded short URLs on your own domain with native GA4 attribution. |
 | CF Chunked Upload | [`cf-chunked-upload/`](cf-chunked-upload/) | Uploads large files by splitting them into browser-side chunks and reassembling them on the server. |
-| CF Color Tools | [`cf-color-tools/`](cf-color-tools/) | Embeddable accessibility color tools: WCAG contrast checker, color scale generator, and accessible color picker. |
 | CF Post List View | [`cf-post-list-view/`](cf-post-list-view/) | A developer-focused list view for any post type — adjustable columns, SEO fields, hierarchy, taxonomy terms, and CSV export. |
 | CF Content Calendar | [`cf-content-calendar/`](cf-content-calendar/) | An editorial calendar: drag to reschedule, create drafts from empty day slots, and see content across post types. |
 | Schema Override Manager | [`schema-override-manager/`](schema-override-manager/) | View, suppress, extend, and inject JSON-LD structured data at the global, template, and per-page level. |
