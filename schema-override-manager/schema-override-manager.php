@@ -3,7 +3,7 @@
  * Plugin Name:       Schema Override Manager
  * Plugin URI:        https://github.com/caifrazier/schema-override-manager
  * Description:       View, suppress, extend, and inject JSON-LD structured data at the global, post-type template, and per-page level. Works alongside Yoast, Rank Math, and theme-injected schema.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires at least: 6.2
  * Requires PHP:      8.0
  * Author:            Cai Frazier

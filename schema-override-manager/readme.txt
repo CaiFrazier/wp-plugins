@@ -4,7 +4,7 @@ Tags: schema, structured data, json-ld, seo, schema.org
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -102,10 +102,16 @@ An empty or unrecognized value is treated as the default (`extend` / `all`).
 
 == Changelog ==
 
+= 1.0.1 =
+* Fixed: the output-identification marker was emitted inside the JSON-LD payload as a comment, which made every emitted block invalid JSON for strict parsers (Google's structured-data parser, crawlers). The marker now lives on the script tag as a data attribute; the payload is pure JSON. Detection still honors the legacy 1.0.0 payload marker so pages cached before the upgrade keep working.
+
 = 1.0.0 =
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+Critical structured-data fix: 1.0.0 emitted JSON-LD that strict parsers (including Google) rejected. Update immediately.
 
 = 1.0.0 =
 Initial release.

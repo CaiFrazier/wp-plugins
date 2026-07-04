@@ -18,8 +18,18 @@ class SchemaOutput {
 	}
 
 	/**
-	 * Marker comment placed inside our <script> tag so the theme-suppression
-	 * output buffer can identify and preserve our own JSON-LD.
+	 * Attribute placed on our <script> tag so the theme-suppression output
+	 * buffer and the live detector can identify and preserve our own JSON-LD.
+	 * The marker lives on the tag, NOT inside the payload — a comment inside
+	 * the payload makes the JSON-LD invalid for strict parsers (Google's
+	 * structured-data parser, crawlers), which rejects the entire block.
+	 */
+	const OUTPUT_ATTR = 'data-som-output';
+
+	/**
+	 * Legacy payload marker emitted by 1.0.0. Detection still honors it so
+	 * pages cached with the old output survive the transition; output no
+	 * longer uses it (it corrupted the JSON payload).
 	 */
 	const OUTPUT_MARKER = '/* som-output */';
 
@@ -52,7 +62,7 @@ class SchemaOutput {
 
 		if ( $json ) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON-LD payload encoded with JSON_HEX_TAG|JSON_HEX_AMP; HTML-escaping would corrupt it.
-			echo '<script type="application/ld+json">' . self::OUTPUT_MARKER . $json . '</script>' . "\n";
+			echo '<script type="application/ld+json" ' . self::OUTPUT_ATTR . '="1">' . $json . '</script>' . "\n";
 			Logger::instance()->debug(
 				'output',
 				'Emitted JSON-LD',

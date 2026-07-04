@@ -248,4 +248,35 @@ final class SchemaOutputTest extends TestCase {
 			self::assertArrayNotHasKey( '@context', $block );
 		}
 	}
+
+	// -------------------------------------------------------------------------
+	// Emitted output
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Regression: 1.0.0 placed the OUTPUT_MARKER comment inside the JSON
+	 * payload, which made every emitted block invalid JSON for strict parsers
+	 * (Google's structured-data parser, crawlers). The marker must live on the
+	 * script tag as an attribute; the payload must parse as pure JSON.
+	 */
+	public function test_emitted_payload_is_strict_json_with_marker_on_the_tag(): void {
+		$GLOBALS['som_test_is_singular']         = true;
+		$GLOBALS['som_test_queried_object_id']   = 5;
+		$this->set_layers( [], [], [ [ '@type' => 'Article', '_som_mode' => 'extend', 'headline' => 'Strict JSON' ] ] );
+
+		ob_start();
+		$this->output->output_schema();
+		$emitted = ob_get_clean();
+
+		self::assertMatchesRegularExpression(
+			'#<script type="application/ld\+json" ' . preg_quote( SchemaOutput::OUTPUT_ATTR, '#' ) . '="1">#',
+			$emitted
+		);
+		self::assertStringNotContainsString( SchemaOutput::OUTPUT_MARKER, $emitted );
+
+		preg_match( '#<script[^>]*>(.*?)</script>#s', $emitted, $m );
+		$decoded = json_decode( $m[1], true );
+		self::assertIsArray( $decoded, 'Emitted JSON-LD payload must be strictly parseable JSON' );
+		self::assertSame( 'Strict JSON', $decoded['headline'] );
+	}
 }

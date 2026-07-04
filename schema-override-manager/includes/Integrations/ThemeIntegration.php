@@ -15,12 +15,14 @@ class ThemeIntegration {
 
 	/**
 	 * Parse every <script type="application/ld+json"> block out of an HTML
-	 * document and classify each typed node as ours (carries $marker) or
-	 * other (theme / another plugin). @graph wrappers are flattened so each
-	 * typed node surfaces individually.
+	 * document and classify each typed node as ours or other (theme / another
+	 * plugin). Ours carry the OUTPUT_ATTR tag attribute (1.0.1+) or, for pages
+	 * cached before the attribute change, the legacy 1.0.0 payload marker.
+	 *
+	 * @graph wrappers are flattened so each typed node surfaces individually.
 	 *
 	 * @param string $html   Full page HTML.
-	 * @param string $marker Marker comment identifying this plugin's output.
+	 * @param string $marker Legacy marker comment identifying 1.0.0 output.
 	 * @return array{ours: array[], other: array[]} Each entry: [ 'type' => string, 'data' => array ].
 	 */
 	public static function classify_json_ld_blocks( string $html, string $marker ): array {
@@ -28,13 +30,17 @@ class ThemeIntegration {
 		$other = [];
 
 		preg_match_all(
-			'#<script\s+type=["\']application/ld\+json["\'][^>]*>(.*?)</script>#is',
+			'#<script\b[^>]*type=["\']application/ld\+json["\'][^>]*>(.*?)</script>#is',
 			$html,
-			$matches
+			$matches,
+			PREG_SET_ORDER
 		);
 
-		foreach ( $matches[1] as $raw ) {
-			$is_ours = ( false !== strpos( $raw, $marker ) );
+		foreach ( $matches as $match ) {
+			$tag     = $match[0];
+			$raw     = $match[1];
+			$is_ours = ( false !== strpos( $tag, \SchemaOverrideManager\SchemaOutput::OUTPUT_ATTR ) )
+				|| ( false !== strpos( $raw, $marker ) );
 			$decoded = json_decode( trim( str_replace( $marker, '', $raw ) ), true );
 			if ( ! is_array( $decoded ) ) {
 				continue;

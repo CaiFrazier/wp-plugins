@@ -204,18 +204,23 @@ class Suppressor {
 		}
 
 		try {
+			$attr   = preg_quote( SchemaOutput::OUTPUT_ATTR, '#' );
 			$marker = preg_quote( SchemaOutput::OUTPUT_MARKER, '#' );
 
-			// Strip JSON-LD blocks that do NOT contain our marker comment.
-			// This preserves our own output regardless of priority ordering.
+			// Strip JSON-LD blocks that are NOT ours. Ours carry the
+			// OUTPUT_ATTR attribute on the tag (1.0.1+); the legacy 1.0.0
+			// payload marker is still honored for cached pages. This preserves
+			// our own output regardless of priority ordering.
 			// Note: this also strips Yoast/Rank Math output if those plugins emit
 			// before this hook fires. To preserve specific Yoast/RM types alongside
 			// theme suppression, use type-specific suppression at the filter level
 			// (configured in Global Suppression / per-page Suppression panels).
 			$cleaned = preg_replace_callback(
-				'#<script\s+type=["\']application/ld\+json["\'][^>]*>(.*?)</script>#is',
-				function ( $m ) use ( $marker ) {
-					return preg_match( '#' . $marker . '#', $m[1] ) ? $m[0] : '';
+				'#<script\b[^>]*type=["\']application/ld\+json["\'][^>]*>(.*?)</script>#is',
+				function ( $m ) use ( $attr, $marker ) {
+					$is_ours = preg_match( '#' . $attr . '#', $m[0] )
+						|| preg_match( '#' . $marker . '#', $m[1] );
+					return $is_ours ? $m[0] : '';
 				},
 				$output
 			);
