@@ -38,7 +38,7 @@
 		<!--
 			Mandatory-docblock sniffs. The stock WordPress standard requires a
 			doc comment on every file, class, member, and function. This repo's
-			house style (see CLAUDE.md) is deliberately minimal-comment: comment
+			house style is deliberately minimal-comment: comment
 			only the non-obvious "why". Enforcing boilerplate docblocks on every
 			trivial getter contradicts that and none of the existing plugins
 			satisfy it. Real WHY-comments are still written where they matter.
