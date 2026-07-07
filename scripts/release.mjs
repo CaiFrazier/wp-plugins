@@ -4,11 +4,11 @@
  *
  * Usage: node scripts/release.mjs <plugin-directory>
  *
- * Pipeline: assert tools -> php -l -> tests -> npm build -> composer runtime
+ * Pipeline: assert tools -> php -l -> tests -> pnpm build -> composer runtime
  * install -> regenerate .pot -> stage runtime files -> zip -> reject dev
  * artifacts in the zip listing.
  *
- * Required tools: node, php, zip, unzip. npm when the plugin builds assets;
+ * Required tools: node, php, zip, unzip. pnpm when the plugin builds assets;
  * composer when the plugin ships a runtime vendor/ or has a Composer test
  * suite installed.
  *
@@ -236,7 +236,7 @@ function assertRequiredTools() {
 	assertTool( 'zip', 'release archive creation' );
 	assertTool( 'unzip', 'release archive inspection' );
 	if ( config.npmBuild ) {
-		assertTool( 'npm', 'plugin asset build' );
+		assertTool( 'pnpm', 'plugin asset build' );
 	}
 	if ( config.composerRuntime || ( config.composerTest && hasComposerTestDeps() ) ) {
 		assertTool( 'composer', 'Composer install/test step' );
@@ -460,7 +460,7 @@ lintPhpFiles();
 runAvailableTests();
 
 if ( config.npmBuild ) {
-	run( 'npm', [ 'run', 'build' ], pluginRoot );
+	run( 'pnpm', [ 'run', 'build' ], pluginRoot );
 }
 
 if ( config.composerRuntime ) {

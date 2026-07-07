@@ -56,12 +56,20 @@ Generated and dependency directories stay out of git: `node_modules/`, `vendor/`
 
 ### Bootstrap
 
+Install JavaScript dependencies once from the repository root:
+
+```bash
+pnpm install
+```
+
+This repo uses pnpm workspaces, so JS dependencies live in one root
+content-addressed install instead of being duplicated in each plugin directory.
+
 From a plugin directory, run only what that plugin needs:
 
 ```bash
 composer install   # plugins with a composer.json (PHPUnit, PHPCS, runtime deps)
-npm install        # plugins with a package.json
-npm run build      # plugins that compile src/ into build/
+pnpm build         # plugins that compile src/ into build/
 ```
 
 ### Tests

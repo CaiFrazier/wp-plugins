@@ -1,0 +1,21 @@
+{
+  "name": "cf-wordpress-plugins",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Workspace for Cai Frazier WordPress plugin JavaScript builds.",
+  "packageManager": "pnpm@9.15.9",
+  "workspaces": [
+    "cf-bulk-meta-editor",
+    "cf-chunked-upload",
+    "cf-content-calendar",
+    "cf-media-manager",
+    "schema-override-manager"
+  ],
+  "scripts": {
+    "build:bulk-meta-editor": "pnpm --filter bulk-meta-editor build",
+    "build:chunked-upload": "pnpm --filter cf-chunked-upload build",
+    "build:content-calendar": "pnpm --filter cf-content-calendar build",
+    "build:media-manager": "pnpm --filter cf-media-manager build",
+    "build:schema-override-manager": "pnpm --filter schema-override-manager build"
+  }
+}

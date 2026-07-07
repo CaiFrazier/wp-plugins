@@ -1,0 +1,6 @@
+packages:
+  - "cf-bulk-meta-editor"
+  - "cf-chunked-upload"
+  - "cf-content-calendar"
+  - "cf-media-manager"
+  - "schema-override-manager"
