@@ -55,12 +55,15 @@ class CFQR_CPT {
 		);
 
 		// CPT capabilities mapped to the granular prefixed caps (see cf-qr-redirect.php).
+		// WordPress uses edit_posts to authorize the list screen and menu, so that
+		// primitive maps to the read capability. Row actions remain protected by
+		// their separate edit, create, and delete capabilities.
 		// map_meta_cap=false means WP checks these literals — no fallback to edit_posts.
 		$caps = array(
 			'edit_post'              => CFQR_CAP_EDIT,
 			'read_post'              => CFQR_CAP_READ,
 			'delete_post'            => CFQR_CAP_DELETE,
-			'edit_posts'             => CFQR_CAP_EDIT,
+			'edit_posts'             => CFQR_CAP_READ,
 			'edit_others_posts'      => CFQR_CAP_EDIT,
 			'publish_posts'          => CFQR_CAP_EDIT,
 			'read_private_posts'     => CFQR_CAP_READ,
@@ -80,7 +83,7 @@ class CFQR_CPT {
 				'public'              => true,
 				'publicly_queryable'  => true,
 				'show_ui'             => true,
-				'show_in_menu'        => true,
+				'show_in_menu'        => CFQR_MENU_SLUG,
 				'show_in_rest'        => false,
 				'menu_icon'           => 'dashicons-admin-links',
 				'menu_position'       => 26,
@@ -174,6 +177,7 @@ class CFQR_CPT {
 	 * If the user hasn't supplied a slug for a new cfqr_code post, generate one.
 	 * Validates user-supplied vanity slugs and falls back to auto-gen when invalid.
 	 */
+	// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- WordPress filter signature requires $postarr.
 	public static function auto_assign_slug( $data, $postarr ) {
 		if ( CFQR_POST_TYPE !== ( $data['post_type'] ?? '' ) ) {
 			return $data;

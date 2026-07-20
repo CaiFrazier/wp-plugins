@@ -34,9 +34,9 @@ class CFQR_Redirect_Import {
 	// under 5 MB; 10 MB leaves generous headroom.
 	const MAX_FILE_BYTES = 10485760; // 10 MB.
 
-	// Required headers — case-insensitive, must be in the first non-blank line.
+	/** Required headers, case-insensitive and present in the first non-blank line. */
 	private static $required_headers = array( 'source', 'destination' );
-	// All headers we recognize; anything else is ignored with a warning.
+	/** Recognized headers. Anything else is ignored with a warning. */
 	private static $known_headers = array(
 		'source',
 		'destination',
@@ -61,7 +61,7 @@ class CFQR_Redirect_Import {
 	 */
 	public static function register_page() {
 		add_submenu_page(
-			'edit.php?post_type=' . CFQR_POST_TYPE,
+			CFQR_MENU_SLUG,
 			__( 'Import Redirects', 'cf-qr-redirect' ),
 			__( 'Import Redirects', 'cf-qr-redirect' ),
 			CFQR_REDIRECT_CAP_CREATE,
@@ -210,7 +210,6 @@ class CFQR_Redirect_Import {
 			);
 		}
 
-
 		$result = self::import_file( $tmp, $duplicate_policy );
 		self::flash_and_redirect( $result );
 	}
@@ -254,10 +253,14 @@ class CFQR_Redirect_Import {
 		$headers      = null;
 		$header_index = array();
 		$line_number  = 0;
-		while ( ( $row = fgetcsv( $handle ) ) !== false ) {
+		while ( true ) {
+			$row = fgetcsv( $handle );
+			if ( false === $row ) {
+				break;
+			}
 			++$line_number;
 			if ( null === $row || ( count( $row ) === 1 && '' === trim( (string) $row[0] ) ) ) {
-				continue; // blank line
+				continue; // Skip blank lines.
 			}
 			$headers = array_map(
 				static function ( $h ) {
@@ -301,10 +304,14 @@ class CFQR_Redirect_Import {
 		$header_index = array_flip( $headers );
 
 		$rows_processed = 0;
-		while ( ( $row = fgetcsv( $handle ) ) !== false ) {
+		while ( true ) {
+			$row = fgetcsv( $handle );
+			if ( false === $row ) {
+				break;
+			}
 			++$line_number;
 			if ( count( $row ) === 1 && '' === trim( (string) $row[0] ) ) {
-				continue; // blank line
+				continue; // Skip blank lines.
 			}
 			if ( $rows_processed >= self::MAX_ROWS ) {
 				$result['warnings'][] = sprintf(
@@ -370,31 +377,43 @@ class CFQR_Redirect_Import {
 	 *   ['action' => null, 'error' => '<translated reason>']
 	 */
 	public static function import_row( $parsed, $line_number, $duplicate_policy = 'skip' ) {
-		// --- Source path -----------------------------------------------------
-		$source = CFQR_Redirect_CPT::sanitize_source_path( $parsed['source'] );
-		if ( '' === $source ) {
-			return array( 'action' => null, 'error' => __( 'source is empty.', 'cf-qr-redirect' ) );
-		}
-
 		// --- Mode (default: exact) ------------------------------------------
 		$mode = '' !== $parsed['mode']
 			? CFQR_Redirect_CPT::sanitize_match_mode( $parsed['mode'] )
 			: CFQR_Redirect_CPT::MATCH_EXACT;
 
+		// --- Source ----------------------------------------------------------
+		$source = CFQR_Redirect_CPT::sanitize_source_path( $parsed['source'], $mode );
+		if ( '' === $source ) {
+			return array(
+				'action' => null,
+				'error'  => __( 'source is empty.', 'cf-qr-redirect' ),
+			);
+		}
+
 		// --- Per-mode source validation -------------------------------------
 		$source_error = self::validate_source_for_import( $source, $mode );
 		if ( null !== $source_error ) {
-			return array( 'action' => null, 'error' => $source_error );
+			return array(
+				'action' => null,
+				'error'  => $source_error,
+			);
 		}
 
 		// --- Destination -----------------------------------------------------
 		$dest_raw = trim( (string) $parsed['destination'] );
 		$dest     = '' !== $dest_raw ? esc_url_raw( $dest_raw ) : '';
 		if ( '' === $dest ) {
-			return array( 'action' => null, 'error' => __( 'destination is empty.', 'cf-qr-redirect' ) );
+			return array(
+				'action' => null,
+				'error'  => __( 'destination is empty.', 'cf-qr-redirect' ),
+			);
 		}
 		if ( ! CFQR_URL::is_safe_destination( $dest ) ) {
-			return array( 'action' => null, 'error' => __( 'destination is not a safe http(s) URL.', 'cf-qr-redirect' ) );
+			return array(
+				'action' => null,
+				'error'  => __( 'destination is not a safe http(s) URL.', 'cf-qr-redirect' ),
+			);
 		}
 
 		// --- Status / active / schedule -------------------------------------
@@ -405,7 +424,10 @@ class CFQR_Redirect_Import {
 		$from   = '' !== $parsed['active_from'] ? CFQR_Redirect_CPT::sanitize_iso8601( $parsed['active_from'] ) : '';
 		$until  = '' !== $parsed['active_until'] ? CFQR_Redirect_CPT::sanitize_iso8601( $parsed['active_until'] ) : '';
 		if ( '' !== $from && '' !== $until && strtotime( $until ) <= strtotime( $from ) ) {
-			return array( 'action' => null, 'error' => __( 'active_until must be after active_from.', 'cf-qr-redirect' ) );
+			return array(
+				'action' => null,
+				'error'  => __( 'active_until must be after active_from.', 'cf-qr-redirect' ),
+			);
 		}
 
 		// --- Duplicate detection (exact mode only) --------------------------
@@ -413,7 +435,10 @@ class CFQR_Redirect_Import {
 		if ( CFQR_Redirect_CPT::MATCH_EXACT === $mode ) {
 			$existing_id = self::find_existing_exact( CFQR_Redirect_CPT::normalize_path( $source ) );
 			if ( $existing_id && 'skip' === $duplicate_policy ) {
-				return array( 'action' => 'skipped', 'error' => null );
+				return array(
+					'action' => 'skipped',
+					'error'  => null,
+				);
 			}
 		}
 
@@ -435,7 +460,10 @@ class CFQR_Redirect_Import {
 			$action  = 'imported';
 		}
 		if ( is_wp_error( $post_id ) || ! $post_id ) {
-			return array( 'action' => null, 'error' => __( 'Failed to save row (WordPress error).', 'cf-qr-redirect' ) );
+			return array(
+				'action' => null,
+				'error'  => __( 'Failed to save row (WordPress error).', 'cf-qr-redirect' ),
+			);
 		}
 
 		// --- Meta ------------------------------------------------------------
@@ -460,7 +488,10 @@ class CFQR_Redirect_Import {
 			}
 		}
 
-		return array( 'action' => $action, 'error' => null );
+		return array(
+			'action' => $action,
+			'error'  => null,
+		);
 	}
 
 	/**
@@ -471,8 +502,12 @@ class CFQR_Redirect_Import {
 	 */
 	public static function validate_source_for_import( $source, $mode ) {
 		if ( CFQR_Redirect_CPT::MATCH_REGEX === $mode ) {
-			if ( strlen( $source ) > 500 ) {
-				return __( 'regex pattern is too long (max 500 chars).', 'cf-qr-redirect' );
+			if ( strlen( $source ) > CFQR_Redirect_Router::REGEX_MAX_PATTERN_LENGTH ) {
+				return sprintf(
+					/* translators: %d = max regex pattern length */
+					__( 'regex pattern is too long (max %d chars).', 'cf-qr-redirect' ),
+					CFQR_Redirect_Router::REGEX_MAX_PATTERN_LENGTH
+				);
 			}
 			if ( null === CFQR_Redirect_Router::compile_user_regex( $source ) ) {
 				return __( 'regex pattern does not compile.', 'cf-qr-redirect' );
@@ -529,7 +564,7 @@ class CFQR_Redirect_Import {
 	private static function flash_and_redirect( $payload ) {
 		$key = 'cfqr_rd_import_' . get_current_user_id();
 		set_transient( $key, $payload, 60 );
-		wp_safe_redirect( admin_url( 'edit.php?post_type=' . CFQR_POST_TYPE . '&page=cfqr-redirect-import' ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=cfqr-redirect-import' ) );
 		exit;
 	}
 

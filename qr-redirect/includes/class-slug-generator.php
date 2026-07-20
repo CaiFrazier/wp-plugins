@@ -59,18 +59,21 @@ class CFQR_Slug_Generator {
 		}
 
 		$byte_len = strlen( $bytes );
+		$out_len  = 0;
 		$idx      = 0;
-		while ( strlen( $out ) < $length && $idx < $byte_len ) {
+		while ( $out_len < $length && $idx < $byte_len ) {
 			$byte = ord( $bytes[ $idx++ ] );
 			// Reject bytes that would bias the distribution.
 			if ( $byte < ( 256 - ( 256 % $alpha_len ) ) ) {
 				$out .= $alphabet[ $byte % $alpha_len ];
+				++$out_len;
 			}
 		}
 
 		// Pad with non-cryptographic randomness if we ran out of bytes (extremely rare).
-		while ( strlen( $out ) < $length ) {
+		while ( $out_len < $length ) {
 			$out .= $alphabet[ wp_rand( 0, $alpha_len - 1 ) ];
+			++$out_len;
 		}
 
 		return $out;

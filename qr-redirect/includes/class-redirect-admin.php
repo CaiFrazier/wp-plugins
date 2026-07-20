@@ -19,6 +19,7 @@ class CFQR_Redirect_Admin {
 	const META_NONCE_ACTION = 'cfqr_redirect_save_meta';
 
 	public static function init() {
+		add_filter( 'bulk_actions-edit-' . CFQR_REDIRECT_POST_TYPE, array( __CLASS__, 'filter_bulk_actions' ) );
 		add_filter( 'manage_' . CFQR_REDIRECT_POST_TYPE . '_posts_columns', array( __CLASS__, 'list_columns' ) );
 		add_action( 'manage_' . CFQR_REDIRECT_POST_TYPE . '_posts_custom_column', array( __CLASS__, 'render_list_column' ), 10, 2 );
 		add_filter( 'manage_edit-' . CFQR_REDIRECT_POST_TYPE . '_sortable_columns', array( __CLASS__, 'sortable_columns' ) );
@@ -35,11 +36,34 @@ class CFQR_Redirect_Admin {
 	}
 
 	/**
+	 * Hide core bulk actions that the current redirect role cannot perform.
+	 *
+	 * The CPT's edit_posts primitive intentionally maps to the read capability
+	 * so the list screen is reachable. Core therefore assumes Bulk Edit should
+	 * be visible unless the plugin removes it here.
+	 *
+	 * @param array<string,string> $actions List-table bulk actions.
+	 * @return array<string,string> Capability-filtered actions.
+	 */
+	public static function filter_bulk_actions( $actions ) {
+		if ( ! current_user_can( CFQR_REDIRECT_CAP_EDIT ) ) {
+			unset( $actions['edit'] );
+		}
+		if ( ! current_user_can( CFQR_REDIRECT_CAP_DELETE ) ) {
+			unset( $actions['trash'] );
+		}
+		return $actions;
+	}
+
+	/**
 	 * Override the columns shown on the Redirects list table.
 	 */
 	public static function list_columns( $columns ) {
-		return array(
-			'cb'             => $columns['cb'] ?? '',
+		$new = array();
+		if ( current_user_can( CFQR_REDIRECT_CAP_EDIT ) || current_user_can( CFQR_REDIRECT_CAP_DELETE ) ) {
+			$new['cb'] = $columns['cb'] ?? '';
+		}
+		return $new + array(
 			'title'          => __( 'Label', 'cf-qr-redirect' ),
 			'cfqr_rd_source' => __( 'Source', 'cf-qr-redirect' ),
 			'cfqr_rd_dest'   => __( 'Destination', 'cf-qr-redirect' ),
@@ -116,8 +140,8 @@ class CFQR_Redirect_Admin {
 						esc_url(
 							add_query_arg(
 								array(
-									'post_type'              => CFQR_REDIRECT_POST_TYPE,
-									CFQR_REDIRECT_TAXONOMY   => $term->slug,
+									'post_type'            => CFQR_REDIRECT_POST_TYPE,
+									CFQR_REDIRECT_TAXONOMY => $term->slug,
 								),
 								admin_url( 'edit.php' )
 							)
@@ -213,7 +237,8 @@ class CFQR_Redirect_Admin {
 					<option value="<?php echo esc_attr( $term->slug ); ?>" <?php selected( $group, $term->slug ); ?>><?php echo esc_html( $term->name ); ?></option>
 				<?php endforeach; ?>
 			</select>
-		<?php endif;
+			<?php
+		endif;
 	}
 
 	public static function apply_filters( $query ) {
@@ -277,17 +302,17 @@ class CFQR_Redirect_Admin {
 	public static function render_meta_box( $post ) {
 		wp_nonce_field( self::META_NONCE_ACTION, self::META_NONCE_FIELD );
 
-		$source   = (string) get_post_meta( $post->ID, CFQR_Redirect_CPT::META_SOURCE_PATH, true );
-		$dest     = (string) get_post_meta( $post->ID, CFQR_Redirect_CPT::META_DESTINATION, true );
-		$mode     = (string) get_post_meta( $post->ID, CFQR_Redirect_CPT::META_MATCH_MODE, true );
-		$status   = (int) get_post_meta( $post->ID, CFQR_Redirect_CPT::META_STATUS_CODE, true );
-		$active   = (string) get_post_meta( $post->ID, CFQR_Redirect_CPT::META_ACTIVE, true );
-		$hits     = (int) get_post_meta( $post->ID, CFQR_Redirect_CPT::META_HIT_COUNT, true );
-		$created  = (string) get_post_meta( $post->ID, CFQR_Redirect_CPT::META_CREATED_AT, true );
-		$last_hit = (string) get_post_meta( $post->ID, CFQR_Redirect_CPT::META_LAST_HIT_AT, true );
-		$log      = get_post_meta( $post->ID, CFQR_Redirect_CPT::META_DESTINATION_LOG, true );
-		$log      = is_array( $log ) ? $log : array();
-		$from_utc = (string) get_post_meta( $post->ID, CFQR_Redirect_CPT::META_ACTIVE_FROM, true );
+		$source    = (string) get_post_meta( $post->ID, CFQR_Redirect_CPT::META_SOURCE_PATH, true );
+		$dest      = (string) get_post_meta( $post->ID, CFQR_Redirect_CPT::META_DESTINATION, true );
+		$mode      = (string) get_post_meta( $post->ID, CFQR_Redirect_CPT::META_MATCH_MODE, true );
+		$status    = (int) get_post_meta( $post->ID, CFQR_Redirect_CPT::META_STATUS_CODE, true );
+		$active    = (string) get_post_meta( $post->ID, CFQR_Redirect_CPT::META_ACTIVE, true );
+		$hits      = (int) get_post_meta( $post->ID, CFQR_Redirect_CPT::META_HIT_COUNT, true );
+		$created   = (string) get_post_meta( $post->ID, CFQR_Redirect_CPT::META_CREATED_AT, true );
+		$last_hit  = (string) get_post_meta( $post->ID, CFQR_Redirect_CPT::META_LAST_HIT_AT, true );
+		$log       = get_post_meta( $post->ID, CFQR_Redirect_CPT::META_DESTINATION_LOG, true );
+		$log       = is_array( $log ) ? $log : array();
+		$from_utc  = (string) get_post_meta( $post->ID, CFQR_Redirect_CPT::META_ACTIVE_FROM, true );
 		$until_utc = (string) get_post_meta( $post->ID, CFQR_Redirect_CPT::META_ACTIVE_UNTIL, true );
 		// Convert stored UTC back to site-local format that <input type=datetime-local> wants ("Y-m-d\TH:i").
 		$from_local  = self::utc_to_local_datetime_input( $from_utc );
@@ -312,7 +337,7 @@ class CFQR_Redirect_Admin {
 					<div class="cfqr-control">
 						<input type="text" name="cfqr_rd_source" id="cfqr_rd_source" value="<?php echo esc_attr( $source ); ?>" placeholder="/old-page/" class="large-text" required>
 						<p class="description">
-							<?php esc_html_e( 'The path on this site to intercept. Leading slash required. Paste a full URL on this site and the host will be stripped automatically. Cannot start with /r/ (reserved for QR shortlinks) or any wp-* path.', 'cf-qr-redirect' ); ?>
+							<?php esc_html_e( 'For Exact, Wildcard, and Query-aware modes, enter a site path beginning with /. A full URL on this site is reduced to its path. For Regex mode, enter a raw PCRE pattern without delimiters; no leading slash is added. Path modes cannot start with /r/ (reserved for QR shortlinks) or any wp-* path.', 'cf-qr-redirect' ); ?>
 						</p>
 					</div>
 				</div>
@@ -461,7 +486,8 @@ class CFQR_Redirect_Admin {
 						<label class="cfqr-label"></label>
 						<div class="cfqr-control">
 							<ul class="cfqr-audit-log">
-								<?php foreach ( $log as $entry ) :
+								<?php
+								foreach ( $log as $entry ) :
 									$user = isset( $entry['user_id'] ) ? get_user_by( 'id', (int) $entry['user_id'] ) : false;
 									?>
 									<li>
@@ -517,16 +543,13 @@ class CFQR_Redirect_Admin {
 		$mode     = CFQR_Redirect_CPT::sanitize_match_mode( $mode_raw );
 
 		// --- Source path -----------------------------------------------------
-		// CFQR_Redirect_CPT::sanitize_source_path() is the canonical sanitizer
-		// for this field. sanitize_text_field() would collapse whitespace and
-		// strip characters that regex-mode sources need (newlines never appear
-		// in a path, but the linter doesn't know that; more importantly, the
-		// stricter sanitizer would mangle wildcard/regex metachars). The
-		// custom sanitizer enforces leading slash, strips control chars, and
-		// caps length.
+		// CFQR_Redirect_CPT::sanitize_source_path() is the canonical mode-aware
+		// sanitizer for this field. Regex patterns stay raw; path-based modes
+		// receive URL/path normalization. sanitize_text_field() would mangle
+		// regex syntax, so the custom sanitizer performs a narrow cleanup.
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$source_raw = isset( $_POST['cfqr_rd_source'] ) ? wp_unslash( $_POST['cfqr_rd_source'] ) : '';
-		$source     = CFQR_Redirect_CPT::sanitize_source_path( $source_raw );
+		$source     = CFQR_Redirect_CPT::sanitize_source_path( $source_raw, $mode );
 
 		$source_error = self::validate_source( $source, $post_id, $mode );
 		if ( null !== $source_error ) {
@@ -657,11 +680,6 @@ class CFQR_Redirect_Admin {
 		return sprintf( 'UTC%s%02d:%02d', $sign, $hours, $mins );
 	}
 
-	// Regex sources are length-capped at save time so a single pathological
-	// pattern can't blow past sensible PCRE limits. Wildcard/query-aware/exact
-	// fall under the broader 2048-char cap in CFQR_Redirect_CPT::sanitize_source_path.
-	const REGEX_MAX_LEN = 500;
-
 	/**
 	 * Validate a source path against the rules for its match mode. Returns
 	 * null on success, or a translated error message on failure.
@@ -680,11 +698,11 @@ class CFQR_Redirect_Admin {
 		// reject legitimate patterns like `^/old/(.*)$`. The user owns the
 		// pattern; we just verify it compiles and isn't absurdly long.
 		if ( CFQR_Redirect_CPT::MATCH_REGEX === $mode ) {
-			if ( strlen( $source ) > self::REGEX_MAX_LEN ) {
+			if ( strlen( $source ) > CFQR_Redirect_Router::REGEX_MAX_PATTERN_LENGTH ) {
 				return sprintf(
 					/* translators: %d = max regex pattern length */
 					__( 'Regex pattern is too long (max %d characters).', 'cf-qr-redirect' ),
-					self::REGEX_MAX_LEN
+					CFQR_Redirect_Router::REGEX_MAX_PATTERN_LENGTH
 				);
 			}
 			if ( null === CFQR_Redirect_Router::compile_user_regex( $source ) ) {
@@ -757,21 +775,21 @@ class CFQR_Redirect_Admin {
 		return null;
 	}
 
-	private static function maybe_log_destination_change( $post_id, $old, $new ) {
-		if ( $old === $new ) {
+	private static function maybe_log_destination_change( $post_id, $old_value, $new_value ) {
+		if ( $old_value === $new_value ) {
 			return;
 		}
 		$entry = array(
-			'from'    => (string) $old,
-			'to'      => (string) $new,
+			'from'    => (string) $old_value,
+			'to'      => (string) $new_value,
 			'user_id' => get_current_user_id(),
 			'ip'      => isset( $_SERVER['REMOTE_ADDR'] )
 				? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) )
 				: '',
 			'ts'      => gmdate( 'c' ),
 		);
-		$log = get_post_meta( $post_id, CFQR_Redirect_CPT::META_DESTINATION_LOG, true );
-		$log = is_array( $log ) ? $log : array();
+		$log   = get_post_meta( $post_id, CFQR_Redirect_CPT::META_DESTINATION_LOG, true );
+		$log   = is_array( $log ) ? $log : array();
 		array_unshift( $log, $entry );
 		$log = array_slice( $log, 0, 20 );
 		update_post_meta( $post_id, CFQR_Redirect_CPT::META_DESTINATION_LOG, $log );
@@ -828,7 +846,7 @@ class CFQR_Redirect_Admin {
 		}
 	}
 
-	public static function enqueue_assets( $hook ) {
+	public static function enqueue_assets() {
 		$screen = get_current_screen();
 		if ( ! $screen || CFQR_REDIRECT_POST_TYPE !== $screen->post_type ) {
 			return;

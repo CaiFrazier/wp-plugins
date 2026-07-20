@@ -21,6 +21,10 @@ class CFQR_Redirect_Router {
 
 	const DEDUPE_TTL                = 30;
 	const RATE_LIMIT_WRITES_PER_SEC = 10;
+	const REGEX_MAX_PATTERN_LENGTH  = 500;
+	const REGEX_MAX_SUBJECT_LENGTH  = 8192;
+	const REGEX_MATCH_LIMIT         = 100000;
+	const REGEX_DEPTH_LIMIT         = 1000;
 
 	// Object-cache key for the exact-match path → post_id lookup table. Primed
 	// on first miss and busted on save/delete/trash/untrash. The table is small
@@ -239,7 +243,10 @@ class CFQR_Redirect_Router {
 	private static function match_wildcard( $request_uri, $pattern ) {
 		$request_path = (string) wp_parse_url( $request_uri, PHP_URL_PATH );
 		$subject      = CFQR_Redirect_CPT::normalize_path( $request_path );
-		$compiled     = self::compile_wildcard_to_regex( $pattern['source'] );
+		if ( strlen( $subject ) > self::REGEX_MAX_SUBJECT_LENGTH ) {
+			return null;
+		}
+		$compiled = self::compile_wildcard_to_regex( $pattern['source'] );
 		if ( null === $compiled ) {
 			return null;
 		}
@@ -260,7 +267,8 @@ class CFQR_Redirect_Router {
 	 * Compile a wildcard source pattern into an anchored, case-insensitive
 	 * regex. The source is normalized first, then quoted to escape regex
 	 * metachars, then the escaped "\*" sequences are turned back into capture
-	 * groups. Source "/blog/*" becomes regex "#^/blog/(.*)$#i".
+	 * groups. Source "/blog/*" becomes the anchored pattern body
+	 * "^/blog/(.*)$" with the router's PCRE2 limits prepended.
 	 *
 	 * @return string|null Delimited regex, or null if the source compiled to nothing useful.
 	 */
@@ -274,8 +282,9 @@ class CFQR_Redirect_Router {
 		// We use (.*) (greedy) rather than ([^/]+) so a single * can match
 		// across path segments. Users who need single-segment matching can
 		// drop into regex mode.
-		$regex = str_replace( '\*', '(.*)', $escaped );
-		return '#^' . $regex . '$#i';
+		$regex  = str_replace( '\*', '(.*)', $escaped );
+		$limits = '(*LIMIT_MATCH=' . self::REGEX_MATCH_LIMIT . ')(*LIMIT_DEPTH=' . self::REGEX_DEPTH_LIMIT . ')';
+		return '#' . $limits . '^' . $regex . '$#i';
 	}
 
 	/**
@@ -283,14 +292,19 @@ class CFQR_Redirect_Router {
 	 * we wrap it in `#…#` at match time. Matches are returned for capture
 	 * substitution into the destination template.
 	 *
-	 * Safety: pattern is length-capped at save time (validate_source in admin),
-	 * @-suppression here catches PCRE compile failures or backtrack-limit hits
-	 * without bubbling warnings to output. Case-sensitivity is up to the user
-	 * (regex mode is the power-user escape hatch; default is case-sensitive).
+	 * Safety: both pattern and subject lengths are capped, and the compiled
+	 * expression carries PCRE2 match/depth limits. A malformed or expensive
+	 * expression therefore fails closed as a non-match without inheriting a
+	 * host's potentially permissive global pcre.* settings. Case-sensitivity is
+	 * up to the user (regex mode is the power-user escape hatch; default is
+	 * case-sensitive).
 	 */
 	private static function match_regex( $request_uri, $pattern ) {
 		$request_path = (string) wp_parse_url( $request_uri, PHP_URL_PATH );
-		$compiled     = self::compile_user_regex( $pattern['source'] );
+		if ( strlen( $request_path ) > self::REGEX_MAX_SUBJECT_LENGTH ) {
+			return null;
+		}
+		$compiled = self::compile_user_regex( $pattern['source'] );
 		if ( null === $compiled ) {
 			return null;
 		}
@@ -305,17 +319,18 @@ class CFQR_Redirect_Router {
 	}
 
 	/**
-	 * Wrap a user-supplied regex pattern with delimiters. Escapes any literal
-	 * `#` in the pattern so the delimiter never clashes with the body.
-	 * Returns null if the pattern fails to compile (verified with a dry-run
-	 * preg_match against an empty subject — false return signals compile fail).
+	 * Wrap a user-supplied regex pattern with delimiters and explicit PCRE2
+	 * resource limits. Escapes any literal `#` in the pattern so the delimiter
+	 * never clashes with the body. Returns null when the pattern is empty, over
+	 * the length limit, or fails to compile.
 	 */
 	public static function compile_user_regex( $source ) {
 		$source = (string) $source;
-		if ( '' === $source ) {
+		if ( '' === $source || strlen( $source ) > self::REGEX_MAX_PATTERN_LENGTH ) {
 			return null;
 		}
-		$delimited = '#' . str_replace( '#', '\#', $source ) . '#';
+		$limits    = '(*LIMIT_MATCH=' . self::REGEX_MATCH_LIMIT . ')(*LIMIT_DEPTH=' . self::REGEX_DEPTH_LIMIT . ')';
+		$delimited = '#' . $limits . str_replace( '#', '\#', $source ) . '#';
 		// Dry-run compile check. preg_match returns false on PCRE error,
 		// 0 on no-match-against-empty, 1 on match-against-empty (unlikely
 		// but possible for `.*`-style patterns). We only treat false as a
@@ -709,7 +724,7 @@ class CFQR_Redirect_Router {
 			0,
 			32
 		);
-		$key = 'cfqr_rd_seen_' . $fingerprint;
+		$key         = 'cfqr_rd_seen_' . $fingerprint;
 		if ( false !== get_transient( $key ) ) {
 			return true;
 		}

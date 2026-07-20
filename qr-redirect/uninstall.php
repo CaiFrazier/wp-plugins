@@ -78,7 +78,7 @@ function cfqr_uninstall_cleanup() {
 		'cfqr_export_redirects',
 		'cfqr_manage_redirect_groups',
 		'cfqr_manage_404_captures',
-		'manage_qr_codes', // legacy cap from 1.0.x
+		'manage_qr_codes', // Legacy cap from 1.0.x.
 	);
 	if ( function_exists( 'wp_roles' ) ) {
 		foreach ( wp_roles()->roles as $role_name => $_data ) {
@@ -124,14 +124,14 @@ function cfqr_uninstall_cleanup() {
 if ( is_multisite() ) {
 	// 'number' => 0 lifts the default 100-site cap so every blog on a large
 	// network is cleaned. get_sites() with fields=ids returns a flat id list.
-	$blog_ids = get_sites(
+	$cfqr_blog_ids = get_sites(
 		array(
 			'fields' => 'ids',
 			'number' => 0,
 		)
 	);
-	foreach ( $blog_ids as $blog_id ) {
-		switch_to_blog( $blog_id );
+	foreach ( $cfqr_blog_ids as $cfqr_site_id ) {
+		switch_to_blog( $cfqr_site_id );
 		cfqr_uninstall_cleanup();
 		restore_current_blog();
 	}

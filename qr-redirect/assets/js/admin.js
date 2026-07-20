@@ -4,6 +4,7 @@
  */
 (function ($) {
 	'use strict';
+	var i18n = window.cfqrAdminL10n || {};
 
 	if (typeof QRCode === 'undefined') {
 		return;
@@ -74,7 +75,7 @@
 		var $btn = $(this);
 		var original = $btn.text();
 		var done = function () {
-			$btn.text('Copied!');
+			$btn.text(i18n.copied || original);
 			setTimeout(function () { $btn.text(original); }, 1200);
 		};
 		if (navigator.clipboard && navigator.clipboard.writeText) {

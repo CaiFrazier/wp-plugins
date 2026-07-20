@@ -50,6 +50,9 @@ if ( ! defined( 'CFQR_REDIRECT_TAXONOMY' ) ) {
 if ( ! defined( 'CFQR_OPTION_KEY' ) ) {
 	define( 'CFQR_OPTION_KEY', 'cfqr_settings' );
 }
+if ( ! defined( 'CFQR_MENU_SLUG' ) ) {
+	define( 'CFQR_MENU_SLUG', 'cfqr' );
+}
 foreach (
 	array(
 		'CFQR_CAP_READ'                       => 'cfqr_read_codes',
@@ -63,7 +66,6 @@ foreach (
 		'CFQR_REDIRECT_CAP_CREATE'            => 'cfqr_create_redirects',
 		'CFQR_REDIRECT_CAP_EDIT'              => 'cfqr_edit_redirects',
 		'CFQR_REDIRECT_CAP_DELETE'            => 'cfqr_delete_redirects',
-		'CFQR_REDIRECT_CAP_EXPORT'            => 'cfqr_export_redirects',
 		'CFQR_REDIRECT_CAP_MANAGE_GROUPS'     => 'cfqr_manage_redirect_groups',
 		'CFQR_REDIRECT_CAP_MANAGE_404'        => 'cfqr_manage_404_captures',
 	) as $const => $value
@@ -135,7 +137,9 @@ if ( ! function_exists( 'register_taxonomy' ) ) {
 	}
 }
 if ( ! function_exists( 'register_post_type' ) ) {
-	function register_post_type( ...$args ) {
+	$GLOBALS['cfqr_test_registered_post_types'] = array();
+	function register_post_type( $post_type, $args = array() ) {
+		$GLOBALS['cfqr_test_registered_post_types'][ $post_type ] = $args;
 		return true;
 	}
 }
@@ -367,6 +371,18 @@ function cfqr_rd_invoke_private( $class, $method, array $args ) {
 
 // ---------- Tests ----------------------------------------------------------
 
+cfqr_rd_section( 'Redirect capability mapping' );
+
+CFQR_Redirect_CPT::register();
+$redirect_caps = $GLOBALS['cfqr_test_registered_post_types'][ CFQR_REDIRECT_POST_TYPE ]['capabilities'];
+$redirect_args = $GLOBALS['cfqr_test_registered_post_types'][ CFQR_REDIRECT_POST_TYPE ];
+
+cfqr_rd_assert_equal( 'redirect list screen uses read capability', CFQR_REDIRECT_CAP_READ, $redirect_caps['edit_posts'] );
+cfqr_rd_assert_equal( 'redirect list screen uses stable plugin menu parent', CFQR_MENU_SLUG, $redirect_args['show_in_menu'] );
+cfqr_rd_assert_equal( 'redirect row editing remains separately protected', CFQR_REDIRECT_CAP_EDIT, $redirect_caps['edit_post'] );
+cfqr_rd_assert_equal( 'redirect creation remains separately protected', CFQR_REDIRECT_CAP_CREATE, $redirect_caps['create_posts'] );
+cfqr_rd_assert_equal( 'redirect deletion remains separately protected', CFQR_REDIRECT_CAP_DELETE, $redirect_caps['delete_post'] );
+
 cfqr_rd_section( 'CFQR_Redirect_CPT::normalize_path' );
 
 cfqr_rd_assert_equal( 'empty input becomes /', '/', CFQR_Redirect_CPT::normalize_path( '' ) );
@@ -390,6 +406,16 @@ cfqr_rd_assert_equal( 'foreign-host URL left intact (leading-slash forced)', '/h
 cfqr_rd_assert_equal( 'wildcard preserved verbatim', '/blog/*', CFQR_Redirect_CPT::sanitize_source_path( '/blog/*' ) );
 cfqr_rd_assert_equal( 'regex metachars preserved', '/(old|new)/(.*)', CFQR_Redirect_CPT::sanitize_source_path( '/(old|new)/(.*)' ) );
 cfqr_rd_assert_equal( 'control chars stripped', '/foo', CFQR_Redirect_CPT::sanitize_source_path( "/foo\x00\x1F" ) );
+cfqr_rd_assert_equal( 'regex anchor is not path-prefixed', '^/old/(.*)$', CFQR_Redirect_CPT::sanitize_source_path( '^/old/(.*)$', CFQR_Redirect_CPT::MATCH_REGEX ) );
+cfqr_rd_assert_equal( 'regex inline modifier is preserved', '(?i)^/old/(.*)$', CFQR_Redirect_CPT::sanitize_source_path( '(?i)^/old/(.*)$', CFQR_Redirect_CPT::MATCH_REGEX ) );
+cfqr_rd_assert_equal( 'meta sanitizer preserves raw regex', '^/old/(.*)$', CFQR_Redirect_CPT::sanitize_source_meta( '^/old/(.*)$' ) );
+
+cfqr_rd_section( 'CFQR_Redirect_CPT::repair_legacy_regex_source' );
+
+cfqr_rd_assert_equal( 'repairs prefixed caret anchor', '^/old/(.*)$', CFQR_Redirect_CPT::repair_legacy_regex_source( '/^/old/(.*)$' ) );
+cfqr_rd_assert_equal( 'repairs prefixed inline modifier', '(?i)^/old/(.*)$', CFQR_Redirect_CPT::repair_legacy_regex_source( '/(?i)^/old/(.*)$' ) );
+cfqr_rd_assert_equal( 'repairs prefixed absolute anchor', '\\A/old/(.*)$', CFQR_Redirect_CPT::repair_legacy_regex_source( '/\\A/old/(.*)$' ) );
+cfqr_rd_assert_equal( 'leaves ordinary slash pattern unchanged', '/product/(.*)', CFQR_Redirect_CPT::repair_legacy_regex_source( '/product/(.*)' ) );
 
 cfqr_rd_section( 'CFQR_Redirect_CPT::sanitize_match_mode' );
 
@@ -413,19 +439,25 @@ cfqr_rd_section( 'CFQR_Redirect_Router::compile_wildcard_to_regex' );
 $compile = function ( $src ) {
 	return cfqr_rd_invoke_private( 'CFQR_Redirect_Router', 'compile_wildcard_to_regex', array( $src ) );
 };
-cfqr_rd_assert_equal( 'simple wildcard compiles', '#^/blog/(.*)$#i', $compile( '/blog/*' ) );
-cfqr_rd_assert_equal( 'wildcard in middle', '#^/old/(.*)/page$#i', $compile( '/old/*/page' ) );
-cfqr_rd_assert_equal( 'multiple wildcards', '#^/(.*)/(.*)$#i', $compile( '/*/*' ) );
-cfqr_rd_assert_equal( 'normalizes trailing slash before compile', '#^/blog/(.*)$#i', $compile( '/blog/*/' ) );
+$regex_limits = '(*LIMIT_MATCH=' . CFQR_Redirect_Router::REGEX_MATCH_LIMIT . ')(*LIMIT_DEPTH=' . CFQR_Redirect_Router::REGEX_DEPTH_LIMIT . ')';
+cfqr_rd_assert_equal( 'simple wildcard compiles with resource limits', '#' . $regex_limits . '^/blog/(.*)$#i', $compile( '/blog/*' ) );
+cfqr_rd_assert_equal( 'wildcard in middle', '#' . $regex_limits . '^/old/(.*)/page$#i', $compile( '/old/*/page' ) );
+cfqr_rd_assert_equal( 'multiple wildcards', '#' . $regex_limits . '^/(.*)/(.*)$#i', $compile( '/*/*' ) );
+cfqr_rd_assert_equal( 'normalizes trailing slash before compile', '#' . $regex_limits . '^/blog/(.*)$#i', $compile( '/blog/*/' ) );
 cfqr_rd_assert_equal( 'root pattern rejected (would match everything)', null, $compile( '/' ) );
 cfqr_rd_assert_equal( 'empty rejected', null, $compile( '' ) );
 
 cfqr_rd_section( 'CFQR_Redirect_Router::compile_user_regex' );
 
-cfqr_rd_assert_equal( 'simple regex compiles', '#^/old/(.*)$#', CFQR_Redirect_Router::compile_user_regex( '^/old/(.*)$' ) );
-cfqr_rd_assert_equal( 'embedded # is escaped', '#/post\#anchor#', CFQR_Redirect_Router::compile_user_regex( '/post#anchor' ) );
+cfqr_rd_assert_equal( 'simple regex compiles with resource limits', '#' . $regex_limits . '^/old/(.*)$#', CFQR_Redirect_Router::compile_user_regex( '^/old/(.*)$' ) );
+cfqr_rd_assert_equal( 'embedded # is escaped', '#' . $regex_limits . '/post\#anchor#', CFQR_Redirect_Router::compile_user_regex( '/post#anchor' ) );
 cfqr_rd_assert_equal( 'malformed pattern returns null', null, CFQR_Redirect_Router::compile_user_regex( '[unclosed' ) );
 cfqr_rd_assert_equal( 'empty pattern returns null', null, CFQR_Redirect_Router::compile_user_regex( '' ) );
+cfqr_rd_assert_equal(
+	'overlong pattern returns null',
+	null,
+	CFQR_Redirect_Router::compile_user_regex( str_repeat( 'a', CFQR_Redirect_Router::REGEX_MAX_PATTERN_LENGTH + 1 ) )
+);
 
 cfqr_rd_section( 'CFQR_Redirect_Router::apply_captures' );
 
@@ -477,6 +509,9 @@ cfqr_rd_assert_equal( 'non-matching path returns null', null, $result );
 $result = $mw( '/old/abc/page', '/old/*/page' );
 cfqr_rd_assert( 'wildcard in middle captures middle segment', is_array( $result ) && 'abc' === ( $result['matches'][1] ?? null ) );
 
+$result = $mw( '/' . str_repeat( 'a', CFQR_Redirect_Router::REGEX_MAX_SUBJECT_LENGTH ), '/*' );
+cfqr_rd_assert_equal( 'overlong wildcard request path fails closed', null, $result );
+
 cfqr_rd_section( 'Regex matcher integration' );
 
 $mr = function ( $request_uri, $source ) {
@@ -495,6 +530,14 @@ cfqr_rd_assert_equal( 'non-matching returns null', null, $result );
 
 $result = $mr( '/foo', '[unclosed' );
 cfqr_rd_assert_equal( 'malformed pattern returns null (no PHP warning)', null, $result );
+
+$result = $mr( '/' . str_repeat( 'a', CFQR_Redirect_Router::REGEX_MAX_SUBJECT_LENGTH ), '^/a+$' );
+cfqr_rd_assert_equal( 'overlong request path fails closed', null, $result );
+
+$started = microtime( true );
+$result  = $mr( '/' . str_repeat( 'a', 4096 ) . 'X', '^/(a+)+$' );
+cfqr_rd_assert_equal( 'catastrophic-backtracking pattern fails closed', null, $result );
+cfqr_rd_assert( 'catastrophic-backtracking guard returns promptly', ( microtime( true ) - $started ) < 1.0 );
 
 cfqr_rd_section( 'Query-aware matcher integration' );
 

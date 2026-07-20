@@ -32,7 +32,8 @@ class CFQR_Router {
 	 * Inspect the parsed query and act if this is a singular cfqr_code request.
 	 */
 	public static function maybe_redirect() {
-		if ( ! is_singular( CFQR_POST_TYPE ) ) {
+		$post = self::resolve_requested_code();
+		if ( ! $post ) {
 			return;
 		}
 
@@ -48,11 +49,6 @@ class CFQR_Router {
 			exit;
 		}
 
-		$post = get_queried_object();
-		if ( ! $post || CFQR_POST_TYPE !== $post->post_type ) {
-			return;
-		}
-
 		// Draft / pending / private codes are deactivated; signal 410 Gone.
 		if ( 'publish' !== $post->post_status ) {
 			self::send_gone();
@@ -62,7 +58,7 @@ class CFQR_Router {
 		$destination = (string) get_post_meta( $post->ID, CFQR_CPT::META_DESTINATION, true );
 		$destination = trim( $destination );
 
-		// Reject empty, javascript:, data: schemes.
+		// Reject empty destinations and unsafe URI schemes.
 		if ( ! self::is_safe_destination( $destination ) ) {
 			self::send_gone();
 			exit;
@@ -106,6 +102,32 @@ class CFQR_Router {
 		// validated by CFQR_URL::is_safe_destination() above.
 		wp_redirect( $target, $status ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
 		exit;
+	}
+
+	/**
+	 * Resolve the code requested through the plugin rewrite namespace.
+	 *
+	 * WordPress does not expose unpublished posts through is_singular() for a
+	 * logged-out request. Resolve the rewrite query variable directly when the
+	 * normal queried object is unavailable so known draft, private, pending,
+	 * and trashed codes can return the documented 410 response. Unknown slugs
+	 * still fall through to WordPress's normal 404 handling.
+	 *
+	 * @return WP_Post|null Requested QR code, or null for an unrelated/unknown request.
+	 */
+	private static function resolve_requested_code() {
+		if ( is_singular( CFQR_POST_TYPE ) ) {
+			$post = get_queried_object();
+			return $post && CFQR_POST_TYPE === $post->post_type ? $post : null;
+		}
+
+		$slug = get_query_var( CFQR_POST_TYPE, '' );
+		if ( ! is_string( $slug ) || '' === $slug || false !== strpos( $slug, '/' ) ) {
+			return null;
+		}
+
+		$post = get_page_by_path( $slug, OBJECT, CFQR_POST_TYPE );
+		return $post && CFQR_POST_TYPE === $post->post_type ? $post : null;
 	}
 
 	/**
@@ -244,6 +266,10 @@ class CFQR_Router {
 		nocache_headers();
 		header( 'X-Robots-Tag: noindex, nofollow', true );
 		header( 'Content-Type: text/html; charset=utf-8' );
-		echo '<!doctype html><html><head><meta charset="utf-8"><title>410 Gone</title><meta name="robots" content="noindex,nofollow"></head><body><h1>This QR code is no longer active.</h1></body></html>';
+		printf(
+			'<!doctype html><html><head><meta charset="utf-8"><title>%1$s</title><meta name="robots" content="noindex,nofollow"></head><body><h1>%2$s</h1></body></html>',
+			esc_html__( '410 Gone', 'cf-qr-redirect' ),
+			esc_html__( 'This QR code is no longer active.', 'cf-qr-redirect' )
+		);
 	}
 }

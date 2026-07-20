@@ -14,6 +14,9 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', __DIR__ . '/' );
 }
+if ( ! defined( 'OBJECT' ) ) {
+	define( 'OBJECT', 'OBJECT' );
+}
 
 // Constants the plugin expects.
 define( 'CFQR_VERSION', 'test' );
@@ -23,11 +26,38 @@ define( 'CFQR_PLUGIN_URL', 'https://example.test/wp-content/plugins/cf-qr-redire
 define( 'CFQR_POST_TYPE', 'cfqr_code' );
 define( 'CFQR_REWRITE_SLUG', 'r' );
 define( 'CFQR_OPTION_KEY', 'cfqr_settings' );
+define( 'CFQR_MENU_SLUG', 'cfqr' );
+define( 'CFQR_CAP_READ', 'cfqr_read_codes' );
+define( 'CFQR_CAP_CREATE', 'cfqr_create_codes' );
+define( 'CFQR_CAP_EDIT', 'cfqr_edit_codes' );
+define( 'CFQR_CAP_DELETE', 'cfqr_delete_codes' );
 
 // In-memory option store for the settings class.
 $GLOBALS['cfqr_test_options']  = array();
 $GLOBALS['cfqr_test_postmeta'] = array();
 $GLOBALS['cfqr_test_posts']    = array();
+$GLOBALS['cfqr_test_registered_post_types'] = array();
+$GLOBALS['cfqr_test_is_singular']           = false;
+$GLOBALS['cfqr_test_queried_object']        = null;
+$GLOBALS['cfqr_test_query_vars']            = array();
+$GLOBALS['cfqr_test_pages_by_path']         = array();
+
+function register_post_type( $post_type, $args = array() ) {
+	$GLOBALS['cfqr_test_registered_post_types'][ $post_type ] = $args;
+	return true;
+}
+function is_singular( $post_type = '' ) {
+	return $GLOBALS['cfqr_test_is_singular'];
+}
+function get_queried_object() {
+	return $GLOBALS['cfqr_test_queried_object'];
+}
+function get_query_var( $key, $default = '' ) {
+	return $GLOBALS['cfqr_test_query_vars'][ $key ] ?? $default;
+}
+function get_page_by_path( $path, $output = OBJECT, $post_type = 'page' ) {
+	return $GLOBALS['cfqr_test_pages_by_path'][ $path ] ?? null;
+}
 
 function get_option( $key, $default = false ) {
 	return $GLOBALS['cfqr_test_options'][ $key ] ?? $default;
@@ -189,6 +219,7 @@ require_once __DIR__ . '/../includes/class-cpt.php';
 // to action hooks and call deeply WP-internal helpers. Destination-safety lives
 // in the shared CFQR_URL helper, so we can test it directly.
 require_once __DIR__ . '/../includes/class-analytics.php';
+require_once __DIR__ . '/../includes/class-router.php';
 // SEO-plugin compat: pure array/boolean transforms, no WP calls — safe to load
 // and test directly. init() only registers filters, which we don't invoke here.
 require_once __DIR__ . '/../includes/class-seo-compat.php';
@@ -233,6 +264,69 @@ function assert_equal( $expected, $actual, $msg = '' ) {
 }
 
 // ---------- Tests ----------------------------------------------------------
+
+echo "\n== QR request resolution ==\n";
+
+$resolve_code = function () {
+	$method = new ReflectionMethod( 'CFQR_Router', 'resolve_requested_code' );
+	if ( PHP_VERSION_ID < 80100 ) {
+		$method->setAccessible( true );
+	}
+	return $method->invoke( null );
+};
+
+it( 'published singular request uses the queried object', function () use ( $resolve_code ) {
+	$GLOBALS['cfqr_test_is_singular']    = true;
+	$GLOBALS['cfqr_test_queried_object'] = (object) array(
+		'post_type'   => CFQR_POST_TYPE,
+		'post_status' => 'publish',
+	);
+	assert_equal( $GLOBALS['cfqr_test_queried_object'], $resolve_code() );
+} );
+
+it( 'unpublished rewrite request resolves directly by slug', function () use ( $resolve_code ) {
+	$draft = (object) array(
+		'post_type'   => CFQR_POST_TYPE,
+		'post_status' => 'draft',
+	);
+	$GLOBALS['cfqr_test_is_singular']                   = false;
+	$GLOBALS['cfqr_test_queried_object']                = null;
+	$GLOBALS['cfqr_test_query_vars'][ CFQR_POST_TYPE ]  = 'retired-code';
+	$GLOBALS['cfqr_test_pages_by_path']['retired-code'] = $draft;
+	assert_equal( $draft, $resolve_code() );
+} );
+
+it( 'unknown rewrite slug falls through to WordPress', function () use ( $resolve_code ) {
+	$GLOBALS['cfqr_test_is_singular']                  = false;
+	$GLOBALS['cfqr_test_query_vars'][ CFQR_POST_TYPE ] = 'missing-code';
+	assert_equal( null, $resolve_code() );
+} );
+
+echo "\n== QR capability mapping ==\n";
+
+CFQR_CPT::register();
+$qr_caps = $GLOBALS['cfqr_test_registered_post_types'][ CFQR_POST_TYPE ]['capabilities'];
+$qr_args = $GLOBALS['cfqr_test_registered_post_types'][ CFQR_POST_TYPE ];
+
+it( 'QR list screen uses read capability', function () use ( $qr_caps ) {
+	assert_equal( CFQR_CAP_READ, $qr_caps['edit_posts'] );
+} );
+
+it( 'QR list screen uses stable plugin menu parent', function () use ( $qr_args ) {
+	assert_equal( CFQR_MENU_SLUG, $qr_args['show_in_menu'] );
+} );
+
+it( 'QR row editing remains separately protected', function () use ( $qr_caps ) {
+	assert_equal( CFQR_CAP_EDIT, $qr_caps['edit_post'] );
+} );
+
+it( 'QR creation remains separately protected', function () use ( $qr_caps ) {
+	assert_equal( CFQR_CAP_CREATE, $qr_caps['create_posts'] );
+} );
+
+it( 'QR deletion remains separately protected', function () use ( $qr_caps ) {
+	assert_equal( CFQR_CAP_DELETE, $qr_caps['delete_post'] );
+} );
 
 echo "\n== Slug Generator ==\n";
 

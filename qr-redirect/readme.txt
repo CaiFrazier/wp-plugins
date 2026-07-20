@@ -4,7 +4,7 @@ Tags: qr code, redirect, shortlink, analytics, ga4
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,7 +44,7 @@ QR codes printed on physical media outlive the campaigns they're created for. Ho
 
 = Capability gating =
 
-Admin actions are gated by six plugin-prefixed capabilities, all granted to the Administrator role on activation:
+QR actions are gated by six plugin-prefixed capabilities, all granted to the Administrator role on activation:
 
 * `cfqr_read_codes` — view QR codes
 * `cfqr_create_codes` — create new codes
@@ -53,11 +53,13 @@ Admin actions are gated by six plugin-prefixed capabilities, all granted to the 
 * `cfqr_export_codes` — bulk PNG ZIP export
 * `cfqr_manage_settings` — change global plugin settings
 
-To delegate full code-management access to Editors (without giving them settings access), call:
+`cfqr_read_codes` is the baseline capability for the QR Codes menu and list screen. Action capabilities do not imply read access. To delegate full code-management access to Editors without settings access, grant read, create, edit, delete, and export:
 
-`get_role( 'editor' )->add_cap( 'cfqr_edit_codes' );`
+`foreach ( array( 'cfqr_read_codes', 'cfqr_create_codes', 'cfqr_edit_codes', 'cfqr_delete_codes', 'cfqr_export_codes' ) as $cap ) { get_role( 'editor' )->add_cap( $cap ); }`
 
-…or use the standard `user_has_cap` filter. There is no plugin-specific filter — the plugin uses WP's role API directly.
+The redirect manager has four action capabilities: `cfqr_read_redirects`, `cfqr_create_redirects`, `cfqr_edit_redirects`, and `cfqr_delete_redirects`. Its list screen requires `cfqr_read_redirects`. Because Redirects is nested under the QR Codes top-level menu, redirect users also need `cfqr_read_codes` for normal menu navigation. Group management uses `cfqr_manage_redirect_groups`; 404 review uses `cfqr_manage_404_captures`; settings use `cfqr_manage_settings`.
+
+You can also use the standard `user_has_cap` filter. There is no plugin-specific capability filter; the plugin uses WordPress's role API directly.
 
 = Privacy & external services =
 
@@ -66,6 +68,10 @@ The plugin itself does not phone home. It does not collect telemetry, ping updat
 When **Intermediate-page mode** is enabled on a code (this is opt-in per code, and disabled by default unless you set a GA4 Measurement ID), each scan loads Google's `gtag.js` script from `https://www.googletagmanager.com/` on the redirect's intermediate page and fires a single `qr_redirect` event into the GA4 property identified by the Measurement ID you configured. This is the standard GA4 integration; data is sent to Google, not to the plugin author. Disclose this in your site's privacy policy if you use Intermediate-page mode.
 
 UTM-injection mode (the default) does not load any external scripts. It appends UTM parameters to the destination URL and issues a 302 redirect; analytics happen on the destination side.
+
+The plugin is intentionally capable of redirecting to external http(s) URLs. That is required for printed QR codes and migration redirects whose destinations are hosted elsewhere. Only users with the plugin's edit capabilities can create or change destinations, and every saved destination is checked to reject credentials, localhost, private/reserved IP literals, non-http(s) schemes, and oversized URLs. Security scanners may describe this capability as an "open redirect"; it is an authenticated administrative feature, not a visitor-controlled redirect parameter.
+
+Regex and wildcard redirect patterns are also restricted to privileged users. Raw regex patterns are capped at 500 characters, request paths are capped before pattern matching, and every compiled expression carries explicit PCRE2 match and depth limits. Patterns that fail to compile or exhaust a limit are treated as non-matches and normal WordPress routing continues.
 
 = Third-party libraries =
 
@@ -99,9 +105,9 @@ Drafts and unpublished codes return 410 Gone. This is the correct HTTP status fo
 
 Add this to a small mu-plugin or your theme's `functions.php`:
 
-`get_role( 'editor' )->add_cap( 'cfqr_edit_codes' );`
+`foreach ( array( 'cfqr_read_codes', 'cfqr_create_codes', 'cfqr_edit_codes', 'cfqr_delete_codes', 'cfqr_export_codes' ) as $cap ) { get_role( 'editor' )->add_cap( $cap ); }`
 
-To revoke, call `remove_cap( 'cfqr_edit_codes' )` on the role. The other capabilities (`cfqr_read_codes`, `cfqr_create_codes`, `cfqr_delete_codes`, `cfqr_export_codes`, `cfqr_manage_settings`) can be granted/revoked the same way for finer-grained delegation.
+To revoke, call `remove_cap()` for each capability no longer needed. Keep `cfqr_read_codes` for any role that needs the QR Codes top-level menu, including redirect-only roles. Grant `cfqr_manage_settings` separately if the role may change global settings.
 
 = What's the slug character set? =
 
@@ -142,6 +148,18 @@ The standard redirect manager depends on the object cache the same way. Its rout
 
 == Changelog ==
 
+= 1.3.1 =
+
+* Security: Regex and wildcard redirects now carry explicit PCRE2 match and depth limits and skip request paths over 8192 characters. Raw regex patterns over 500 characters are rejected. Patterns that exhaust a limit fail closed as non-matches.
+* Fix: Read-only QR and redirect roles can now reach their CPT list screens through a stable plugin menu parent without receiving WordPress's unrelated core `edit_posts` capability. Delegated edit, trash, restore, and delete requests derive the plugin post type before WordPress authorizes the admin menu. Unauthorized edit, delete, and export bulk actions remain hidden, and the Groups management screen is linked for roles that can manage groups.
+* Fix: Regex sources retain the raw delimiter-free PCRE entered in the editor or CSV importer. The upgrade repairs unambiguously anchored patterns that earlier versions incorrectly prefixed with a slash.
+* Fix: Unpublished and trashed QR slugs now return the documented 410 Gone response to logged-out visitors instead of falling through to WordPress's generic 404 page.
+* Fix: Network activation and deactivation now initialize capabilities, rewrite rules, version state, and scheduled 404 cleanup on every site. Sites created while the plugin is network-active are initialized automatically.
+* Fix: Removed the unused `cfqr_export_redirects` capability. Upgrades remove the retired capability from every role; redirect export will receive a capability when the feature exists.
+* Internationalization: The 410 response and JavaScript copy/export status messages now use the plugin text domain.
+* Quality: `composer test` now runs both standalone suites. CI verifies tests, PHPCS, Composer metadata, and PHP syntax across PHP 8.0, 8.2, 8.4, and 8.5.
+* Docs: Documented the intentional, capability-gated external redirect behavior and the regex execution limits.
+
 = 1.3.0 =
 
 Hardening and correctness release closing the remaining must-fix items from the 1.1.1 code audit.
@@ -174,7 +192,7 @@ Major feature release. Adds a full standard redirect manager alongside the exist
 * Same atomic-CAST hit counter, per-fingerprint dedupe (HMAC-SHA256, 30-sec window), and per-slug rate limit (10 writes/sec) as the QR router.
 * Unified destination safety check shared with the QR side — rejects credentials, localhost, private/reserved IPs, non-http(s) schemes.
 * Self-redirect loop guard at both save time (exact mode) and request time (all modes, post-substitution).
-* Five new granular capabilities — `cfqr_read_redirects`, `cfqr_create_redirects`, `cfqr_edit_redirects`, `cfqr_delete_redirects`, `cfqr_export_redirects`.
+* Four new granular capabilities — `cfqr_read_redirects`, `cfqr_create_redirects`, `cfqr_edit_redirects`, `cfqr_delete_redirects`.
 * Destination change audit log (append-only, last 20 entries per redirect, user/IP/timestamp).
 * `Cache-Control: no-store` on every redirect response so CDNs don't cache the redirect itself across destination edits.
 
@@ -188,10 +206,11 @@ Major feature release. Adds a full standard redirect manager alongside the exist
 
 **Other changes.**
 
-* Activation grants the seven new capabilities to administrators (auto-migrated on first load via the existing version-bump grant logic).
+* Regex sources now retain the raw delimiter-free PCRE entered in the editor or CSV import. The 1.3.1 upgrade repairs unambiguous anchored patterns that earlier versions incorrectly prefixed with a slash.
+* Activation grants the six new capabilities to administrators (auto-migrated on first load via the existing version-bump grant logic).
 * Activation schedules the 404 cleanup cron; deactivation unschedules it.
-* Uninstall extends to delete `cfqr_redirect` and `cfqr_404` posts, taxonomy terms, and the seven new caps. Multisite-aware as before.
-* Tests: 90 new assertions in `tests/test-redirect.php` (path normalization, sanitizers, wildcard/regex compile + capture, query-aware subset match, capture substitution, schedule window evaluator, CSV row parser/validator, 404 path hashing). Combined with the original suite that's 129 tests passing.
+* Uninstall extends to delete `cfqr_redirect` and `cfqr_404` posts, taxonomy terms, and the six new caps. Multisite-aware as before.
+* Tests: The redirect suite covers path normalization, sanitizers, wildcard/regex compile + capture, query-aware subset matching, capture substitution, schedule evaluation, CSV validation, 404 throttling, and redirect-loop detection. Run `composer test` to execute both standalone suites; the exact assertion count is reported by the test output rather than maintained in this changelog.
 
 = 1.0.3 =
 

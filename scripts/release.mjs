@@ -379,9 +379,8 @@ function regeneratePotFile() {
 			`--domain=${ config.potDomain }`,
 			'--exclude=tests,node_modules,vendor,build,dist',
 			'--skip-audit',
-			// These plugins are self-hosted, not on wordpress.org. Override
-			// WP-CLI's slug-derived wordpress.org support URL with the real
-			// bug-report address (matches the in-plugin "Report a bug" link).
+			// Override WP-CLI's slug-derived support URL with the designated
+			// bug-report address used by the plugins.
 			'--headers={"Report-Msgid-Bugs-To":"bugs@caifrazier.com"}',
 		],
 		pluginRoot

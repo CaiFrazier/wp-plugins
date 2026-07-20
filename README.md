@@ -81,7 +81,7 @@ Run from each plugin directory:
 | `cf-bulk-meta-editor/` | `composer test` |
 | `cf-chunked-upload/` | `composer test`, `npm run test:js` |
 | `cf-content-calendar/` | `composer test` |
-| `qr-redirect/` | `php tests/test-suite.php` |
+| `qr-redirect/` | `composer test` |
 | `cf-media-manager/` | `composer test` |
 | `shared/` | `composer test` |
 

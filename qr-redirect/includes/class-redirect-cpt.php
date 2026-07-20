@@ -19,15 +19,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class CFQR_Redirect_CPT {
 
-	const META_SOURCE_PATH      = '_cfqr_source_path';
-	const META_DESTINATION      = '_cfqr_destination';
-	const META_MATCH_MODE       = '_cfqr_match_mode';
-	const META_STATUS_CODE      = '_cfqr_status_code';
-	const META_ACTIVE           = '_cfqr_active';
-	const META_HIT_COUNT        = '_cfqr_hit_count';
-	const META_CREATED_AT       = '_cfqr_created_at';
-	const META_LAST_HIT_AT      = '_cfqr_last_hit_at';
-	const META_DESTINATION_LOG  = '_cfqr_destination_log';
+	const META_SOURCE_PATH     = '_cfqr_source_path';
+	const META_DESTINATION     = '_cfqr_destination';
+	const META_MATCH_MODE      = '_cfqr_match_mode';
+	const META_STATUS_CODE     = '_cfqr_status_code';
+	const META_ACTIVE          = '_cfqr_active';
+	const META_HIT_COUNT       = '_cfqr_hit_count';
+	const META_CREATED_AT      = '_cfqr_created_at';
+	const META_LAST_HIT_AT     = '_cfqr_last_hit_at';
+	const META_DESTINATION_LOG = '_cfqr_destination_log';
 	// Normalized form of source_path used by the router's exact-match lookup.
 	// Maintained alongside META_SOURCE_PATH so the matcher never re-normalizes
 	// on the request path; it just hashes and compares.
@@ -58,15 +58,15 @@ class CFQR_Redirect_CPT {
 	 */
 	public static function register_taxonomy() {
 		$labels = array(
-			'name'              => _x( 'Groups', 'taxonomy general name', 'cf-qr-redirect' ),
-			'singular_name'     => _x( 'Group', 'taxonomy singular name', 'cf-qr-redirect' ),
-			'search_items'      => __( 'Search Groups', 'cf-qr-redirect' ),
-			'all_items'         => __( 'All Groups', 'cf-qr-redirect' ),
-			'edit_item'         => __( 'Edit Group', 'cf-qr-redirect' ),
-			'update_item'       => __( 'Update Group', 'cf-qr-redirect' ),
-			'add_new_item'      => __( 'Add New Group', 'cf-qr-redirect' ),
-			'new_item_name'     => __( 'New Group Name', 'cf-qr-redirect' ),
-			'menu_name'         => __( 'Groups', 'cf-qr-redirect' ),
+			'name'                       => _x( 'Groups', 'taxonomy general name', 'cf-qr-redirect' ),
+			'singular_name'              => _x( 'Group', 'taxonomy singular name', 'cf-qr-redirect' ),
+			'search_items'               => __( 'Search Groups', 'cf-qr-redirect' ),
+			'all_items'                  => __( 'All Groups', 'cf-qr-redirect' ),
+			'edit_item'                  => __( 'Edit Group', 'cf-qr-redirect' ),
+			'update_item'                => __( 'Update Group', 'cf-qr-redirect' ),
+			'add_new_item'               => __( 'Add New Group', 'cf-qr-redirect' ),
+			'new_item_name'              => __( 'New Group Name', 'cf-qr-redirect' ),
+			'menu_name'                  => __( 'Groups', 'cf-qr-redirect' ),
 			'separate_items_with_commas' => __( 'Separate groups with commas', 'cf-qr-redirect' ),
 		);
 
@@ -81,7 +81,7 @@ class CFQR_Redirect_CPT {
 				'show_ui'            => true,
 				'show_in_menu'       => true,
 				'show_in_rest'       => false,
-				'show_admin_column'  => false, // we render our own column with prettier styling
+				'show_admin_column'  => false, // The plugin renders its own styled column.
 				'show_tagcloud'      => false,
 				'rewrite'            => false,
 				'query_var'          => false,
@@ -100,7 +100,7 @@ class CFQR_Redirect_CPT {
 	/**
 	 * Register the cfqr_redirect CPT. Not public, not publicly_queryable, not in
 	 * REST — the router intercepts requests directly by source path. show_in_menu
-	 * nests admin items under the existing QR Codes top-level menu so the plugin
+	 * nests admin items under the plugin's QR Codes top-level menu so the plugin
 	 * presents one cohesive surface instead of two parallel menus.
 	 */
 	public static function register() {
@@ -121,12 +121,15 @@ class CFQR_Redirect_CPT {
 		);
 
 		// Granular caps mirror the QR set so delegation is consistent across both CPTs.
+		// WordPress uses edit_posts to authorize the list screen and menu, so that
+		// primitive maps to the read capability. Row actions remain protected by
+		// their separate edit, create, and delete capabilities.
 		// map_meta_cap=false stops WP from falling back to edit_posts.
 		$caps = array(
 			'edit_post'              => CFQR_REDIRECT_CAP_EDIT,
 			'read_post'              => CFQR_REDIRECT_CAP_READ,
 			'delete_post'            => CFQR_REDIRECT_CAP_DELETE,
-			'edit_posts'             => CFQR_REDIRECT_CAP_EDIT,
+			'edit_posts'             => CFQR_REDIRECT_CAP_READ,
 			'edit_others_posts'      => CFQR_REDIRECT_CAP_EDIT,
 			'publish_posts'          => CFQR_REDIRECT_CAP_EDIT,
 			'read_private_posts'     => CFQR_REDIRECT_CAP_READ,
@@ -148,7 +151,7 @@ class CFQR_Redirect_CPT {
 				'show_ui'             => true,
 				// Nest under the QR Codes top-level menu — gives the plugin one
 				// branded surface instead of two parallel top-level entries.
-				'show_in_menu'        => 'edit.php?post_type=' . CFQR_POST_TYPE,
+				'show_in_menu'        => CFQR_MENU_SLUG,
 				'show_in_rest'        => false,
 				'capabilities'        => $caps,
 				'map_meta_cap'        => false,
@@ -175,7 +178,7 @@ class CFQR_Redirect_CPT {
 		$keys = array(
 			self::META_SOURCE_PATH       => array(
 				'type'     => 'string',
-				'sanitize' => array( __CLASS__, 'sanitize_source_path' ),
+				'sanitize' => array( __CLASS__, 'sanitize_source_meta' ),
 			),
 			self::META_SOURCE_NORMALIZED => array(
 				'type'     => 'string',
@@ -309,14 +312,40 @@ class CFQR_Redirect_CPT {
 	}
 
 	/**
-	 * Sanitize a user-entered source path. Preserves wildcards (*) and regex
-	 * metachars verbatim — match mode is what decides how the string is
-	 * interpreted at routing time. Strips host if the user pasted a full URL.
+	 * Apply the storage-safe portion of source sanitization.
+	 *
+	 * Registered meta sanitizers do not receive the redirect's match mode, so
+	 * this callback must not normalize the value as a URL path. Mode-aware
+	 * callers use sanitize_source_path() before saving; this final gate only
+	 * removes control characters and enforces the storage length limit.
+	 *
+	 * @param mixed $value Source value.
+	 * @return string Cleaned source value.
 	 */
-	public static function sanitize_source_path( $value ) {
+	public static function sanitize_source_meta( $value ) {
 		$value = trim( (string) $value );
-		if ( '' === $value ) {
-			return '';
+		$value = preg_replace( '/[\x00-\x1F\x7F]/', '', $value );
+		if ( strlen( $value ) > 2048 ) {
+			$value = substr( $value, 0, 2048 );
+		}
+		return $value;
+	}
+
+	/**
+	 * Sanitize a user-entered redirect source for its selected match mode.
+	 *
+	 * Regex sources are raw PCRE bodies without delimiters and must remain
+	 * byte-for-byte intact after the narrow storage cleanup. Other modes match
+	 * URL paths, so they receive same-site URL stripping and a leading slash.
+	 *
+	 * @param mixed  $value Source value.
+	 * @param string $mode  Redirect match mode.
+	 * @return string Sanitized source.
+	 */
+	public static function sanitize_source_path( $value, $mode = self::MATCH_EXACT ) {
+		$value = self::sanitize_source_meta( $value );
+		if ( '' === $value || self::MATCH_REGEX === $mode ) {
+			return $value;
 		}
 		// If the user pasted a full URL on this site, peel off the origin so we
 		// store just the path. Avoids storing values that won't match the
@@ -330,15 +359,25 @@ class CFQR_Redirect_CPT {
 		if ( '' !== $value && '/' !== $value[0] ) {
 			$value = '/' . $value;
 		}
-		// Strip any control chars; allow everything else (regex needs ^$.*+?[](){}|\, wildcards need *).
-		// sanitize_text_field is too aggressive — it collapses whitespace which can mangle regex patterns.
-		// We want a narrow strip: drop NULs and other ASCII control characters.
-		$value = preg_replace( '/[\x00-\x1F\x7F]/', '', $value );
-		// Cap length to avoid pathological inputs.
-		if ( strlen( $value ) > 2048 ) {
-			$value = substr( $value, 0, 2048 );
-		}
 		return $value;
+	}
+
+	/**
+	 * Repair a regex source damaged by the legacy path sanitizer.
+	 *
+	 * Before 1.3.1, regex sources that began with an anchor or inline option
+	 * group were incorrectly prefixed with a slash. Only unambiguous shapes are
+	 * repaired; ordinary slash-prefixed patterns are left untouched.
+	 *
+	 * @param mixed $source Stored regex source.
+	 * @return string Repaired or original source.
+	 */
+	public static function repair_legacy_regex_source( $source ) {
+		$source = self::sanitize_source_meta( $source );
+		if ( preg_match( '/^\/(?:\^|\\\\A|\(\?[a-zA-Z-]+(?:\)|:))/', $source ) ) {
+			return substr( $source, 1 );
+		}
+		return $source;
 	}
 
 	/**

@@ -47,7 +47,7 @@ Run these from each plugin directory after installing dependencies.
 | `cf-content-calendar/` | `composer test` | `npm run build` |
 | `cf-media-list-view/` | `composer test` | n/a |
 | `cf-post-list-view/` | Not present yet | n/a |
-| `qr-redirect/` | `php tests/test-suite.php` | n/a |
+| `qr-redirect/` | `composer test` | n/a |
 | `schema-override-manager/` | Not present yet | `npm run build` |
 | `shared/` | `composer test` | n/a |
 | `cf-media-manager/` | `composer test` | n/a |

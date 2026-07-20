@@ -23,15 +23,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class CFQR_Redirect_404 {
 
-	const META_PATH      = '_cfqr_404_path';
-	const META_HIT_COUNT = '_cfqr_hit_count';
+	const META_PATH       = '_cfqr_404_path';
+	const META_HIT_COUNT  = '_cfqr_hit_count';
 	const META_FIRST_SEEN = '_cfqr_first_seen';
 	const META_LAST_SEEN  = '_cfqr_last_seen';
 	const META_REFERER    = '_cfqr_last_referer';
 	const META_IGNORED    = '_cfqr_ignored';
 
-	const RETENTION_DAYS  = 90;
-	const CRON_HOOK       = 'cfqr_404_cleanup';
+	const RETENTION_DAYS = 90;
+	const CRON_HOOK      = 'cfqr_404_cleanup';
 	// Path length cap. Anything longer is almost certainly probing junk and
 	// we don't want it filling our datastore.
 	const MAX_PATH_LENGTH = 512;
@@ -115,19 +115,19 @@ class CFQR_Redirect_404 {
 		register_post_type(
 			CFQR_404_POST_TYPE,
 			array(
-				'labels'             => $labels,
-				'public'             => false,
-				'publicly_queryable' => false,
-				'show_ui'            => true,
-				'show_in_menu'       => 'edit.php?post_type=' . CFQR_POST_TYPE,
-				'show_in_rest'       => false,
-				'capabilities'       => $caps,
-				'map_meta_cap'       => false,
-				'has_archive'        => false,
-				'hierarchical'       => false,
-				'supports'           => array( 'title' ),
-				'rewrite'            => false,
-				'query_var'          => false,
+				'labels'              => $labels,
+				'public'              => false,
+				'publicly_queryable'  => false,
+				'show_ui'             => true,
+				'show_in_menu'        => CFQR_MENU_SLUG,
+				'show_in_rest'        => false,
+				'capabilities'        => $caps,
+				'map_meta_cap'        => false,
+				'has_archive'         => false,
+				'hierarchical'        => false,
+				'supports'            => array( 'title' ),
+				'rewrite'             => false,
+				'query_var'           => false,
 				'exclude_from_search' => true,
 			)
 		);
@@ -158,9 +158,9 @@ class CFQR_Redirect_404 {
 		$request_uri = isset( $_SERVER['REQUEST_URI'] )
 			? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) )
 			: '';
-		$path = (string) wp_parse_url( $request_uri, PHP_URL_PATH );
+		$path        = (string) wp_parse_url( $request_uri, PHP_URL_PATH );
 		if ( '' === $path || '/' === $path ) {
-			return; // root 404 means the site is broken; not a redirect target
+			return; // A root 404 means the site is broken, not a redirect target.
 		}
 		if ( strlen( $path ) > self::MAX_PATH_LENGTH ) {
 			return;
@@ -345,8 +345,9 @@ class CFQR_Redirect_404 {
 		}
 	}
 
-	// ---------- Admin list table --------------------------------------------
-
+	/**
+	 * Define the admin list-table columns.
+	 */
 	public static function list_columns( $columns ) {
 		return array(
 			'cb'              => $columns['cb'] ?? '',
@@ -501,7 +502,7 @@ class CFQR_Redirect_404 {
 			$path = (string) $post->post_title;
 		}
 
-		$create_url = add_query_arg(
+		$create_url  = add_query_arg(
 			array(
 				'post_type'             => CFQR_REDIRECT_POST_TYPE,
 				'cfqr_prefill_source'   => rawurlencode( $path ),

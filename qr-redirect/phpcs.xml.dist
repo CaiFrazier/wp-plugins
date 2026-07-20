@@ -15,4 +15,17 @@
 			</property>
 		</properties>
 	</rule>
+
+	<!--
+		The shared ruleset deliberately does not require boilerplate docblocks on
+		every function or property. These child sniffs otherwise still require
+		@param/@var tags whenever a concise explanatory docblock is present,
+		which contradicts that documented repository policy.
+	-->
+	<rule ref="Squiz.Commenting.FunctionComment.MissingParamTag">
+		<severity>0</severity>
+	</rule>
+	<rule ref="Squiz.Commenting.VariableComment.MissingVar">
+		<severity>0</severity>
+	</rule>
 </ruleset>

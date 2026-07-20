@@ -17,7 +17,19 @@ class CFQR_Admin {
 	const META_NONCE_FIELD  = 'cfqr_meta_nonce';
 	const META_NONCE_ACTION = 'cfqr_save_meta';
 
+	/**
+	 * Settings submenu hook suffix.
+	 *
+	 * @var string
+	 */
+	private static $settings_hook = '';
+
 	public static function init() {
+		// Use a distinct parent slug so custom CPT list screens remain reachable
+		// for delegated roles that intentionally lack the core edit_posts cap.
+		add_action( 'admin_menu', array( __CLASS__, 'register_main_menu' ), 9 );
+		add_action( 'admin_menu', array( __CLASS__, 'register_navigation_pages' ), 11 );
+
 		// List screen columns.
 		add_filter( 'manage_' . CFQR_POST_TYPE . '_posts_columns', array( __CLASS__, 'list_columns' ) );
 		add_action( 'manage_' . CFQR_POST_TYPE . '_posts_custom_column', array( __CLASS__, 'render_list_column' ), 10, 2 );
@@ -120,8 +132,11 @@ class CFQR_Admin {
 	 * Override the columns shown on the QR Codes list table.
 	 */
 	public static function list_columns( $columns ) {
-		$new = array(
-			'cb'          => $columns['cb'] ?? '',
+		$new = array();
+		if ( current_user_can( CFQR_CAP_EDIT ) || current_user_can( CFQR_CAP_DELETE ) || current_user_can( CFQR_CAP_EXPORT ) ) {
+			$new['cb'] = $columns['cb'] ?? '';
+		}
+		$new += array(
 			'title'       => __( 'Label', 'cf-qr-redirect' ),
 			'cfqr_short'  => __( 'Short URL', 'cf-qr-redirect' ),
 			'cfqr_dest'   => __( 'Destination', 'cf-qr-redirect' ),
@@ -276,7 +291,15 @@ class CFQR_Admin {
 	 * Add our "Download QR PNGs (ZIP)" entry to the bulk-actions menu.
 	 */
 	public static function register_bulk_actions( $actions ) {
-		$actions['cfqr_zip'] = __( 'Download QR PNGs (ZIP)', 'cf-qr-redirect' );
+		if ( ! current_user_can( CFQR_CAP_EDIT ) ) {
+			unset( $actions['edit'] );
+		}
+		if ( ! current_user_can( CFQR_CAP_DELETE ) ) {
+			unset( $actions['trash'] );
+		}
+		if ( current_user_can( CFQR_CAP_EXPORT ) ) {
+			$actions['cfqr_zip'] = __( 'Download QR PNGs (ZIP)', 'cf-qr-redirect' );
+		}
 		return $actions;
 	}
 
@@ -334,7 +357,78 @@ class CFQR_Admin {
 			5 * MINUTE_IN_SECONDS
 		);
 
-		return admin_url( 'edit.php?post_type=' . CFQR_POST_TYPE . '&page=cfqr-zip-export&token=' . rawurlencode( $token ) );
+		return admin_url( 'admin.php?page=cfqr-zip-export&token=' . rawurlencode( $token ) );
+	}
+
+	/**
+	 * Register the plugin's stable top-level menu parent.
+	 *
+	 * WordPress collapses a custom post type's only accessible submenu. For a
+	 * read-only role without the core edit_posts cap, that loses the CPT parent
+	 * mapping and makes edit.php reject the otherwise-authorized list screen. A
+	 * distinct parent preserves the mapping without granting Posts access.
+	 */
+	public static function register_main_menu() {
+		$hook = add_menu_page(
+			__( 'QR Codes', 'cf-qr-redirect' ),
+			__( 'QR Codes', 'cf-qr-redirect' ),
+			CFQR_CAP_READ,
+			CFQR_MENU_SLUG,
+			array( __CLASS__, 'render_main_menu_fallback' ),
+			'dashicons-admin-links',
+			26
+		);
+		add_action( 'load-' . $hook, array( __CLASS__, 'redirect_main_menu' ) );
+	}
+
+	/**
+	 * Redirect the top-level menu entry to the QR list before output begins.
+	 */
+	public static function redirect_main_menu() {
+		wp_safe_redirect( admin_url( 'edit.php?post_type=' . CFQR_POST_TYPE ) );
+		exit;
+	}
+
+	/**
+	 * Render a usable fallback if another plugin prevents the load-hook redirect.
+	 */
+	public static function render_main_menu_fallback() {
+		?>
+		<div class="wrap">
+			<h1><?php esc_html_e( 'QR Codes', 'cf-qr-redirect' ); ?></h1>
+			<p><a class="button button-primary" href="<?php echo esc_url( admin_url( 'edit.php?post_type=' . CFQR_POST_TYPE ) ); ?>"><?php esc_html_e( 'View QR Codes', 'cf-qr-redirect' ); ?></a></p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Add creation and taxonomy links omitted for CPTs under a custom parent.
+	 */
+	public static function register_navigation_pages() {
+		// add_menu_page() creates a redundant submenu pointing back to the parent.
+		remove_submenu_page( CFQR_MENU_SLUG, CFQR_MENU_SLUG );
+
+		add_submenu_page(
+			CFQR_MENU_SLUG,
+			__( 'Add New QR Code', 'cf-qr-redirect' ),
+			__( 'Add QR Code', 'cf-qr-redirect' ),
+			CFQR_CAP_CREATE,
+			'post-new.php?post_type=' . CFQR_POST_TYPE
+		);
+		add_submenu_page(
+			CFQR_MENU_SLUG,
+			__( 'Add New Redirect', 'cf-qr-redirect' ),
+			__( 'Add Redirect', 'cf-qr-redirect' ),
+			CFQR_REDIRECT_CAP_CREATE,
+			'post-new.php?post_type=' . CFQR_REDIRECT_POST_TYPE
+		);
+		add_submenu_page(
+			CFQR_MENU_SLUG,
+			__( 'Redirect Groups', 'cf-qr-redirect' ),
+			__( 'Groups', 'cf-qr-redirect' ),
+			CFQR_REDIRECT_CAP_MANAGE_GROUPS,
+			'edit-tags.php?taxonomy=' . CFQR_REDIRECT_TAXONOMY . '&post_type=' . CFQR_REDIRECT_POST_TYPE
+		);
 	}
 
 	/**
@@ -343,7 +437,7 @@ class CFQR_Admin {
 	 */
 	public static function register_export_page() {
 		$hook = add_submenu_page(
-			'edit.php?post_type=' . CFQR_POST_TYPE,
+			CFQR_MENU_SLUG,
 			__( 'Export QR Codes', 'cf-qr-redirect' ),
 			__( 'Export QR Codes', 'cf-qr-redirect' ),
 			CFQR_CAP_EXPORT,
@@ -351,7 +445,7 @@ class CFQR_Admin {
 			array( __CLASS__, 'render_export_page' )
 		);
 		// Hide from the sidebar — only reachable via the bulk-action redirect.
-		remove_submenu_page( 'edit.php?post_type=' . CFQR_POST_TYPE, 'cfqr-zip-export' );
+		remove_submenu_page( CFQR_MENU_SLUG, 'cfqr-zip-export' );
 	}
 
 	/**
@@ -961,7 +1055,7 @@ class CFQR_Admin {
 	 */
 	public static function quick_edit_inline_script() {
 		$screen = get_current_screen();
-		if ( ! $screen || $screen->post_type !== CFQR_POST_TYPE ) {
+		if ( ! $screen || CFQR_POST_TYPE !== $screen->post_type ) {
 			return;
 		}
 		?>
@@ -991,8 +1085,8 @@ class CFQR_Admin {
 	 */
 	public static function enqueue_assets( $hook ) {
 		$screen             = get_current_screen();
-		$is_cpt_screen      = $screen && $screen->post_type === CFQR_POST_TYPE;
-		$is_settings_screen = ( 'cfqr_code_page_cfqr-settings' === $hook );
+		$is_cpt_screen      = $screen && CFQR_POST_TYPE === $screen->post_type;
+		$is_settings_screen = ( self::$settings_hook === $hook );
 		$is_export_screen   = $screen && false !== strpos( (string) $screen->id, 'cfqr-zip-export' );
 
 		if ( ! $is_cpt_screen && ! $is_settings_screen && ! $is_export_screen ) {
@@ -1006,7 +1100,7 @@ class CFQR_Admin {
 			CFQR_VERSION
 		);
 
-		if ( $is_cpt_screen && $screen->base === 'post' ) {
+		if ( $is_cpt_screen && 'post' === $screen->base ) {
 			// Bundled qrcode.js gets its own pinned version string so a plugin
 			// upgrade doesn't bust browser caches for an unchanged library.
 			wp_enqueue_script(
@@ -1023,12 +1117,32 @@ class CFQR_Admin {
 				CFQR_VERSION,
 				true
 			);
+			wp_localize_script(
+				'cfqr-admin',
+				'cfqrAdminL10n',
+				array(
+					'copied' => __( 'Copied!', 'cf-qr-redirect' ),
+				)
+			);
 		}
 
 		if ( $is_export_screen ) {
 			wp_enqueue_script( 'cfqr-qrcode', CFQR_PLUGIN_URL . 'assets/js/qrcode.min.js', array(), CFQR_QRCODE_LIB_VERSION, true );
 			wp_enqueue_script( 'cfqr-jszip', CFQR_PLUGIN_URL . 'assets/js/jszip.min.js', array(), '3.10.1', true );
 			wp_enqueue_script( 'cfqr-export', CFQR_PLUGIN_URL . 'assets/js/export.js', array( 'cfqr-qrcode', 'cfqr-jszip' ), CFQR_VERSION, true );
+			wp_localize_script(
+				'cfqr-export',
+				'cfqrExportL10n',
+				array(
+					'parseError'  => __( 'Could not parse export data:', 'cf-qr-redirect' ),
+					'noCodes'     => __( 'No codes to export.', 'cf-qr-redirect' ),
+					/* translators: 1: number generated, 2: total number of QR codes. */
+					'generated'   => __( 'Generated %1$d of %2$d…', 'cf-qr-redirect' ),
+					'compressing' => __( 'Compressing ZIP…', 'cf-qr-redirect' ),
+					'done'        => __( 'Done. The ZIP download started; you can close this tab.', 'cf-qr-redirect' ),
+					'failed'      => __( 'Export failed:', 'cf-qr-redirect' ),
+				)
+			);
 		}
 	}
 
@@ -1036,8 +1150,8 @@ class CFQR_Admin {
 	 * Register the Settings → QR Redirects submenu.
 	 */
 	public static function register_settings_page() {
-		add_submenu_page(
-			'edit.php?post_type=' . CFQR_POST_TYPE,
+		self::$settings_hook = add_submenu_page(
+			CFQR_MENU_SLUG,
 			__( 'QR Redirect Settings', 'cf-qr-redirect' ),
 			__( 'Settings', 'cf-qr-redirect' ),
 			CFQR_CAP_SETTINGS,

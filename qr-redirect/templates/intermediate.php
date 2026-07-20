@@ -52,11 +52,15 @@ $json_flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
 <meta charset="utf-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="referrer" content="no-referrer">
-<?php /* 10s meta-refresh is a true belt-and-suspenders fallback. The JS path
+<?php
+/**
+ * 10s meta-refresh is a true belt-and-suspenders fallback. The JS path
 		below normally wins within ~500ms; raising the delay from 3s to 10s
 		avoids losing GA4 events on slow (e.g. 3G) connections where the
 		gtag library hadn't finished loading at the 3s mark. JS-off users
-		are handled by the immediate-fire <noscript> path elsewhere. */ ?>
+		are handled by the immediate-fire <noscript> path elsewhere.
+ */
+?>
 <meta http-equiv="refresh" content="10;url=<?php echo esc_url( $destination ); ?>">
 <title>Redirecting&hellip;</title>
 <style>html,body{margin:0;padding:0;background:#fff;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}.wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;font-size:14px;color:#666}</style>

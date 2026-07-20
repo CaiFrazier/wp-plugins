@@ -12,7 +12,10 @@
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0"
     },
     "scripts": {
-        "test": "php tests/test-suite.php",
+        "test": [
+            "php tests/test-suite.php",
+            "php tests/test-redirect.php"
+        ],
         "lint": "phpcs"
     },
     "config": {

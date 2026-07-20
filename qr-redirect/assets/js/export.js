@@ -7,8 +7,9 @@
  */
 (function () {
 	'use strict';
+	var i18n = window.cfqrExportL10n;
 
-	if (typeof QRCode === 'undefined' || typeof JSZip === 'undefined') {
+	if (!i18n || typeof QRCode === 'undefined' || typeof JSZip === 'undefined') {
 		return;
 	}
 
@@ -40,15 +41,19 @@
 		bar.style.width = pct + '%';
 	}
 
+	function formatProgress(template, completed, count) {
+		return template.replace('%1$d', completed).replace('%2$d', count);
+	}
+
 	var payload;
 	try {
 		payload = JSON.parse(node.textContent || '[]');
 	} catch (e) {
-		setStatus('Could not parse export data: ' + e.message, true);
+		setStatus(i18n.parseError + ' ' + e.message, true);
 		return;
 	}
 	if (!Array.isArray(payload) || payload.length === 0) {
-		setStatus('No codes to export.', true);
+		setStatus(i18n.noCodes, true);
 		return;
 	}
 
@@ -95,7 +100,7 @@
 				done += 1;
 				setProgress(done);
 				if (statusText) {
-					statusText.textContent = 'Generated ' + done + ' of ' + total + '…';
+					statusText.textContent = formatProgress(i18n.generated, done, total);
 				}
 				resolve();
 			}, 30);
@@ -113,7 +118,7 @@
 	}
 
 	processSequentially(payload).then(function () {
-		if (statusText) statusText.textContent = 'Compressing ZIP…';
+		if (statusText) statusText.textContent = i18n.compressing;
 		return zip.generateAsync({ type: 'blob' });
 	}).then(function (blob) {
 		var url = URL.createObjectURL(blob);
@@ -126,9 +131,9 @@
 		document.body.removeChild(a);
 		// Revoke after a short delay so Safari doesn't cancel the download mid-stream.
 		setTimeout(function () { URL.revokeObjectURL(url); }, 5000);
-		setStatus('✓ Done. The ZIP download started — you can close this tab.', false, true);
+		setStatus(i18n.done, false, true);
 	}).catch(function (err) {
-		setStatus('Export failed: ' + (err && err.message ? err.message : err), true);
+		setStatus(i18n.failed + ' ' + (err && err.message ? err.message : err), true);
 	});
 
 })();
