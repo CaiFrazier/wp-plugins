@@ -49,6 +49,76 @@ final class RestController {
 				],
 			]
 		);
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/support',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ $this, 'handle_support' ],
+				'permission_callback' => '__return_true',
+			]
+		);
+	}
+
+	/**
+	 * Accept a multipart Continuum bug report and diagnostics ZIP.
+	 *
+	 * @param \WP_REST_Request $request Incoming multipart request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function handle_support( \WP_REST_Request $request ) {
+		$body    = $request->get_params();
+		$ip      = $this->get_client_ip();
+		$limiter = new RateLimiter(
+			(int) $this->settings->get( 'rate_limit_max' ),
+			(int) $this->settings->get( 'rate_limit_window' )
+		);
+		if ( $limiter->is_exceeded( $ip ) ) {
+			return new \WP_Error( 'cff_rate_limited', __( 'Too many submissions. Please try again later.', 'cf-forms' ), [ 'status' => 429 ] );
+		}
+		$limiter->record( $ip );
+		if ( ! empty( $body[ self::HONEYPOT_FIELD ] ) ) {
+			do_action( 'cff_spam_detected', 'continuum-support', $ip, 'honeypot' );
+			return $this->success();
+		}
+		$rendered_at = isset( $body['rendered_at'] ) ? (int) $body['rendered_at'] : 0;
+		$min_elapsed = (int) $this->settings->get( 'min_elapsed_seconds' );
+		if ( $min_elapsed > 0 && $rendered_at > 0 && ( time() - $rendered_at ) < $min_elapsed ) {
+			do_action( 'cff_spam_detected', 'continuum-support', $ip, 'time_trap' );
+			return $this->success();
+		}
+
+		$description = sanitize_textarea_field( wp_unslash( $body['description'] ?? '' ) );
+		$email       = sanitize_email( wp_unslash( $body['email'] ?? '' ) );
+		$app_version = sanitize_text_field( wp_unslash( $body['app_version'] ?? '' ) );
+		if ( strlen( $description ) < 20 ) {
+			return new \WP_Error( 'cff_support_description', __( 'Describe the problem and the steps that led to it.', 'cf-forms' ), [ 'status' => 400 ] );
+		}
+		if ( '' !== $email && ! is_email( $email ) ) {
+			return new \WP_Error( 'cff_support_email', __( 'Enter a valid contact email.', 'cf-forms' ), [ 'status' => 400 ] );
+		}
+
+		$files      = $request->get_file_params();
+		$attachment = SupportUpload::store( is_array( $files['diagnostics'] ?? null ) ? $files['diagnostics'] : [] );
+		if ( is_wp_error( $attachment ) ) {
+			return $attachment;
+		}
+		$fields   = [
+			'description' => $description,
+			'email'       => $email,
+			'app_version' => $app_version,
+			'attachment'  => basename( $attachment ),
+		];
+		$entry_id = EntryPostType::create( 'continuum-support', $fields, $ip, sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ) );
+		if ( ! $entry_id ) {
+			wp_delete_file( $attachment );
+			return new \WP_Error( 'cff_storage_failed', __( 'Could not store the support request.', 'cf-forms' ), [ 'status' => 500 ] );
+		}
+		EntryPostType::record_attachment( $entry_id, $attachment );
+		$sent = Mailer::notify( (string) $this->settings->get( 'notification_email' ), 'continuum-support', $fields, $entry_id, [ $attachment ] );
+		EntryPostType::record_notification( $entry_id, $sent );
+		do_action( 'cff_entry_created', $entry_id, 'continuum-support', $fields );
+		return $this->success();
 	}
 
 	public function handle_submit( \WP_REST_Request $request ) {

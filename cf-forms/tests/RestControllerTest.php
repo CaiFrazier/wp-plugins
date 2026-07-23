@@ -194,4 +194,61 @@ final class RestControllerTest extends TestCase {
 		$this->assertInstanceOf( \WP_Error::class, $response );
 		$this->assertSame( 'cff_rate_limited', $response->get_error_code() );
 	}
+
+	public function test_continuum_support_stores_and_mails_a_valid_zip(): void {
+		$tmp = tempnam( sys_get_temp_dir(), 'cff-zip-' );
+		$zip = new \ZipArchive();
+		$this->assertTrue( $zip->open( $tmp, \ZipArchive::OVERWRITE ) );
+		$zip->addFromString( 'diagnostics.json', '{"version":"test"}' );
+		$zip->close();
+		$request = new \WP_REST_Request(
+			[],
+			[
+				'description' => 'Continuum crashed while opening a project dashboard.',
+				'email'       => 'owner@example.com',
+				'app_version' => '1.0.0-beta.12',
+				'rendered_at' => time() - 10,
+			],
+			[
+				'diagnostics' => [
+					'name' => 'continuum-diagnostics.zip', 'tmp_name' => $tmp,
+					'size' => filesize( $tmp ), 'error' => UPLOAD_ERR_OK,
+				],
+			]
+		);
+
+		$response = $this->controller()->handle_support( $request );
+		$this->assertSame( [ 'success' => true ], $response->get_data() );
+		$this->assertCount( 1, $GLOBALS['cff_test_inserted_posts'] );
+		$this->assertCount( 1, $GLOBALS['cff_test_mail'] );
+		$this->assertCount( 1, $GLOBALS['cff_test_mail'][0]['attachments'] );
+		$entry_id = $this->actions_named( 'cff_entry_created' )[0]['args'][0];
+		$this->assertFileExists( get_post_meta( $entry_id, EntryPostType::META_ATTACHMENT, true ) );
+	}
+
+	public function test_continuum_support_rejects_a_fake_zip(): void {
+		$tmp = tempnam( sys_get_temp_dir(), 'cff-not-zip-' );
+		file_put_contents( $tmp, "PK\x03\x04not actually a zip" );
+		$request = new \WP_REST_Request(
+			[],
+			[ 'description' => 'The app fails every time the project is opened.', 'rendered_at' => time() - 10 ],
+			[ 'diagnostics' => [ 'name' => 'fake.zip', 'tmp_name' => $tmp, 'size' => filesize( $tmp ), 'error' => UPLOAD_ERR_OK ] ]
+		);
+
+		$response = $this->controller()->handle_support( $request );
+		$this->assertInstanceOf( \WP_Error::class, $response );
+		$this->assertSame( 'cff_support_upload_type', $response->get_error_code() );
+		$this->assertCount( 0, $GLOBALS['cff_test_inserted_posts'] );
+		@unlink( $tmp );
+	}
+
+	public function test_continuum_support_honeypot_is_silently_dropped(): void {
+		$request = new \WP_REST_Request(
+			[],
+			[ 'description' => 'Bot generated support report content here.', 'hp_field' => 'filled', 'rendered_at' => time() - 10 ]
+		);
+		$response = $this->controller()->handle_support( $request );
+		$this->assertSame( [ 'success' => true ], $response->get_data() );
+		$this->assertCount( 0, $GLOBALS['cff_test_inserted_posts'] );
+	}
 }

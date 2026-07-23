@@ -24,6 +24,7 @@ final class Plugin {
 		// register_post_type() must run on WP's 'init' hook, not here: 'plugins_loaded'
 		// (which calls this method) fires too early for taxonomies/rewrite rules.
 		add_action( 'init', [ EntryPostType::class, 'register' ] );
+		add_action( 'before_delete_post', [ EntryPostType::class, 'delete_attachment' ], 10, 2 );
 
 		if ( is_admin() ) {
 			$admin = new Admin( $this->settings );

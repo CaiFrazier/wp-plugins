@@ -27,6 +27,24 @@ if ( ! function_exists( 'sanitize_text_field' ) ) {
 	}
 }
 
+if ( ! function_exists( 'sanitize_textarea_field' ) ) {
+	function sanitize_textarea_field( $value ) {
+		return trim( strip_tags( (string) $value ) );
+	}
+}
+
+if ( ! function_exists( 'sanitize_file_name' ) ) {
+	function sanitize_file_name( $value ) {
+		return preg_replace( '/[^A-Za-z0-9._-]/', '-', basename( (string) $value ) );
+	}
+}
+
+if ( ! function_exists( 'trailingslashit' ) ) {
+	function trailingslashit( $value ) {
+		return rtrim( (string) $value, '/\\' ) . '/';
+	}
+}
+
 if ( ! function_exists( 'sanitize_key' ) ) {
 	function sanitize_key( $key ) {
 		return strtolower( preg_replace( '/[^a-z0-9_\-]/i', '', (string) $key ) );
@@ -219,7 +237,7 @@ if ( ! function_exists( 'admin_url' ) ) {
 
 if ( ! function_exists( 'wp_mail' ) ) {
 	function wp_mail( $to, $subject, $message, $headers = '', $attachments = [] ) {
-		$GLOBALS['cff_test_mail'][] = compact( 'to', 'subject', 'message', 'headers' );
+		$GLOBALS['cff_test_mail'][] = compact( 'to', 'subject', 'message', 'headers', 'attachments' );
 		return $GLOBALS['cff_test_mail_result'] ?? true;
 	}
 }
@@ -268,10 +286,12 @@ if ( ! class_exists( 'WP_REST_Request' ) ) {
 	class WP_REST_Request { // phpcs:ignore Generic.Files.OneObjectStructurePerFile
 		private array $json;
 		private array $params;
+		private array $files;
 
-		public function __construct( array $json = [], array $params = [] ) {
+		public function __construct( array $json = [], array $params = [], array $files = [] ) {
 			$this->json   = $json;
 			$this->params = $params;
+			$this->files  = $files;
 		}
 
 		public function get_json_params() {
@@ -285,6 +305,35 @@ if ( ! class_exists( 'WP_REST_Request' ) ) {
 		public function get_param( $key ) {
 			return $this->json[ $key ] ?? $this->params[ $key ] ?? null;
 		}
+
+		public function get_file_params() {
+			return $this->files;
+		}
+	}
+}
+
+if ( ! function_exists( 'wp_upload_dir' ) ) {
+	function wp_upload_dir() {
+		$base = $GLOBALS['cff_test_upload_dir'] ?? sys_get_temp_dir() . '/cff-test-uploads';
+		return [ 'basedir' => $base, 'error' => false ];
+	}
+}
+
+if ( ! function_exists( 'wp_mkdir_p' ) ) {
+	function wp_mkdir_p( $directory ) {
+		return is_dir( $directory ) || mkdir( $directory, 0777, true );
+	}
+}
+
+if ( ! function_exists( 'wp_unique_filename' ) ) {
+	function wp_unique_filename( $directory, $filename ) {
+		return uniqid( 'support-', true ) . '-' . $filename;
+	}
+}
+
+if ( ! function_exists( 'wp_delete_file' ) ) {
+	function wp_delete_file( $path ) {
+		return @unlink( $path );
 	}
 }
 
@@ -345,6 +394,22 @@ if ( ! function_exists( 'register_post_meta' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wp_generate_uuid4' ) ) {
+	function wp_generate_uuid4() {
+		return sprintf(
+			'%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+			mt_rand( 0, 0xffff ),
+			mt_rand( 0, 0xffff ),
+			mt_rand( 0, 0xffff ),
+			mt_rand( 0, 0x0fff ) | 0x4000,
+			mt_rand( 0, 0x3fff ) | 0x8000,
+			mt_rand( 0, 0xffff ),
+			mt_rand( 0, 0xffff ),
+			mt_rand( 0, 0xffff )
+		);
+	}
+}
+
 // -----------------------------------------------------------------------------
 // Reset state between tests. Tests call this in setUp().
 // -----------------------------------------------------------------------------
@@ -366,6 +431,7 @@ function cff_test_reset_state(): void {
 	$GLOBALS['cff_test_mail_result']       = true;
 	$GLOBALS['cff_test_post_types']        = [];
 	$GLOBALS['cff_test_registered_meta']   = [];
+	$GLOBALS['cff_test_upload_dir']        = sys_get_temp_dir() . '/cff-test-uploads-' . uniqid();
 }
 
 cff_test_reset_state();
@@ -379,7 +445,7 @@ if ( file_exists( $autoload ) ) {
 	require_once $autoload;
 } else {
 	$includes = __DIR__ . '/../includes';
-	foreach ( [ 'EntryPostType', 'Sanitizer', 'RateLimiter', 'Settings', 'Mailer', 'RestController', 'Admin', 'Plugin' ] as $cls ) {
+	foreach ( [ 'EntryPostType', 'Sanitizer', 'RateLimiter', 'Settings', 'Mailer', 'SupportUpload', 'RestController', 'Admin', 'Plugin' ] as $cls ) {
 		$path = $includes . '/' . $cls . '.php';
 		if ( file_exists( $path ) ) {
 			require_once $path;

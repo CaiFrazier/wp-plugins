@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Mailer {
 
-	public static function notify( string $to, string $form_id, array $fields, int $entry_id ): bool {
+	public static function notify( string $to, string $form_id, array $fields, int $entry_id, array $attachments = [] ): bool {
 		/**
 		 * Filter the notification recipient. Return an empty string to skip mail
 		 * entirely (the submission is still stored).
@@ -54,7 +54,7 @@ final class Mailer {
 
 		$headers = (array) apply_filters( 'cff_notification_headers', $headers, $form_id, $fields );
 
-		return wp_mail( $to, $subject, $body, $headers );
+		return wp_mail( $to, $subject, $body, $headers, $attachments );
 	}
 
 	/**

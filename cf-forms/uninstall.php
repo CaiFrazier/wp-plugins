@@ -16,6 +16,10 @@ function cff_uninstall_cleanup() {
 	);
 
 	foreach ( $entry_ids as $entry_id ) {
+		$attachment = get_post_meta( (int) $entry_id, '_cff_attachment_path', true );
+		if ( is_string( $attachment ) && '' !== $attachment ) {
+			wp_delete_file( $attachment );
+		}
 		wp_delete_post( (int) $entry_id, true );
 	}
 

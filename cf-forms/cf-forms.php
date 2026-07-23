@@ -3,7 +3,7 @@
  * Plugin Name:       CF Forms
  * Plugin URI:        https://github.com/caifrazier/cf-forms
  * Description:       Backend infrastructure for site forms: a REST submission endpoint, spam-resistant validation, entry storage, and admin notification email. No front-end form markup; bring your own HTML and POST to the endpoint.
- * Version:           0.1.0
+ * Version:           0.2.0
  * Requires at least: 6.2
  * Requires PHP:      8.0
  * Author:            Cai Frazier
@@ -15,7 +15,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CFF_VERSION', '0.1.0' );
+define( 'CFF_VERSION', '0.2.0' );
 define( 'CFF_FILE', __FILE__ );
 define( 'CFF_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CFF_URL', plugin_dir_url( __FILE__ ) );
@@ -29,6 +29,7 @@ require_once CFF_DIR . 'includes/Sanitizer.php';
 require_once CFF_DIR . 'includes/RateLimiter.php';
 require_once CFF_DIR . 'includes/EntryPostType.php';
 require_once CFF_DIR . 'includes/Mailer.php';
+require_once CFF_DIR . 'includes/SupportUpload.php';
 require_once CFF_DIR . 'includes/RestController.php';
 require_once CFF_DIR . 'includes/Admin.php';
 require_once CFF_DIR . 'includes/Plugin.php';

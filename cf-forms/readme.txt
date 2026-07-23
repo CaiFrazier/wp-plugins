@@ -4,7 +4,7 @@ Tags: forms, rest-api, contact form, spam
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 0.1.0
+Stable tag: 0.2.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -53,6 +53,9 @@ Actions:
 * `cff_spam_detected` ( `string $form_id`, `string $ip`, `string $reason` ) - fires on a honeypot or time-trap trip (`$reason` is `honeypot` or `time_trap`).
 
 == Changelog ==
+
+= 0.2.0 =
+* Add a rate-limited Continuum support endpoint with ZIP signature validation, a 20 MB cap, private file permissions, entry storage, and SMTP notification attachment.
 
 = 0.1.0 =
 * Initial release: REST submission endpoint, entry storage, honeypot + time-trap + rate-limit validation, notification email with Reply-To, extensibility hooks. No front-end form markup yet.

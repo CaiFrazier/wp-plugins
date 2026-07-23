@@ -17,6 +17,7 @@ final class EntryPostType {
 	const META_USER_AGENT = '_cff_user_agent';
 	const META_STATUS     = '_cff_status';
 	const META_MAIL_SENT  = '_cff_mail_sent';
+	const META_ATTACHMENT = '_cff_attachment_path';
 
 	const STATUS_NEW  = 'new';
 	const STATUS_READ = 'read';
@@ -101,5 +102,25 @@ final class EntryPostType {
 	 */
 	public static function record_notification( int $entry_id, bool $sent ): void {
 		update_post_meta( $entry_id, self::META_MAIL_SENT, $sent ? '1' : '0' );
+	}
+
+	public static function record_attachment( int $entry_id, string $path ): void {
+		update_post_meta( $entry_id, self::META_ATTACHMENT, $path );
+	}
+
+	/**
+	 * Remove a private support archive when its owning entry is deleted.
+	 *
+	 * @param int    $entry_id Entry post ID.
+	 * @param object $post     Post object supplied by WordPress.
+	 */
+	public static function delete_attachment( int $entry_id, $post ): void {
+		if ( ! is_object( $post ) || self::SLUG !== ( $post->post_type ?? '' ) ) {
+			return;
+		}
+		$path = get_post_meta( $entry_id, self::META_ATTACHMENT, true );
+		if ( is_string( $path ) && '' !== $path ) {
+			wp_delete_file( $path );
+		}
 	}
 }
