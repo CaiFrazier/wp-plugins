@@ -74,7 +74,7 @@ final class AltTextManager {
 	 * existing AuditRunner::mark_all_stale() hook surface.
 	 */
 	public function missing_count(): int {
-		$query = new \WP_Query( array(
+		$args  = array(
 			'post_type'      => 'attachment',
 			'post_status'    => 'inherit',
 			'post_mime_type' => 'image',
@@ -109,7 +109,9 @@ final class AltTextManager {
 					),
 				),
 			),
-		) );
+		);
+
+		$query = new \WP_Query( $args );
 
 		return (int) $query->found_posts;
 	}
@@ -246,11 +248,13 @@ final class AltTextManager {
 			$saved++;
 		}
 
-		wp_send_json_success( array(
+		$payload = array(
 			'items'   => $items,
 			'saved'   => $saved,
 			'skipped' => $skipped,
-		) );
+		);
+
+		wp_send_json_success( $payload );
 	}
 	// Request::post_* helpers carry their own phpcs:ignore comments so
 	// per-endpoint nonce-verification pragmas are no longer needed.

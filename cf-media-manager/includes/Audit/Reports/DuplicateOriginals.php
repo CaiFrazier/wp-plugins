@@ -126,15 +126,27 @@ final class DuplicateOriginals implements AuditReportInterface, AuditReportCsvEx
 
 	private function parse_cursor( ?string $cursor ): array {
 		if ( null === $cursor ) {
-			return array( 'phase' => 'gather', 'after_id' => 0 );
+			return array(
+				'phase'    => 'gather',
+				'after_id' => 0,
+			);
 		}
 		if ( preg_match( '/^gather:(\d+)$/', $cursor, $m ) ) {
-			return array( 'phase' => 'gather', 'after_id' => (int) $m[1] );
+			return array(
+				'phase'    => 'gather',
+				'after_id' => (int) $m[1],
+			);
 		}
 		if ( preg_match( '/^emit:(\d+)$/', $cursor, $m ) ) {
-			return array( 'phase' => 'emit', 'offset' => (int) $m[1] );
+			return array(
+				'phase'  => 'emit',
+				'offset' => (int) $m[1],
+			);
 		}
-		return array( 'phase' => 'gather', 'after_id' => 0 );
+		return array(
+			'phase'    => 'gather',
+			'after_id' => 0,
+		);
 	}
 
 	// =====================================================================
@@ -179,7 +191,7 @@ final class DuplicateOriginals implements AuditReportInterface, AuditReportCsvEx
 			return $this->run_emit_chunk( $ctx, 0, $prior_totals );
 		}
 
-		$state = $this->read_state();
+		$state        = $this->read_state();
 		$hashed_added = 0;
 
 		foreach ( $rows as $row ) {
@@ -211,7 +223,7 @@ final class DuplicateOriginals implements AuditReportInterface, AuditReportCsvEx
 				);
 			}
 			$state['hashes'][ $hash ]['ids'][] = $id;
-			$hashed_added++;
+			++$hashed_added;
 		}
 
 		$this->write_state( $state );
@@ -247,7 +259,7 @@ final class DuplicateOriginals implements AuditReportInterface, AuditReportCsvEx
 		if ( 0 === $offset ) {
 			// On entry to emit phase, snapshot the in-use set once for
 			// the whole phase so every group sees consistent attribution.
-			$in_use_result = ( $this->in_use_callback )( false );
+			$in_use_result       = ( $this->in_use_callback )( false );
 			$state['in_use_ids'] = isset( $in_use_result['ids'] ) && is_array( $in_use_result['ids'] )
 				? array_fill_keys( array_map( 'intval', $in_use_result['ids'] ), true )
 				: array();
@@ -269,8 +281,8 @@ final class DuplicateOriginals implements AuditReportInterface, AuditReportCsvEx
 			if ( null === $receipt ) {
 				continue;
 			}
-			$items[]  = $receipt;
-			$flagged++;
+			$items[] = $receipt;
+			++$flagged;
 			$savings += (int) $receipt['potential_savings_bytes'];
 		}
 
@@ -364,25 +376,28 @@ final class DuplicateOriginals implements AuditReportInterface, AuditReportCsvEx
 		foreach ( $rows as $row ) {
 			$id       = (int) $row['ID'];
 			$copies[] = array(
-				'id'                => $id,
-				'title'             => (string) $row['post_title'],
-				'mime'              => (string) $row['post_mime_type'],
-				'date_uploaded'     => (string) $row['post_date'],
+				'id'                  => $id,
+				'title'               => (string) $row['post_title'],
+				'mime'                => (string) $row['post_mime_type'],
+				'date_uploaded'       => (string) $row['post_date'],
 				'attached_to_post_id' => (int) $row['post_parent'],
-				'is_in_use'         => isset( $in_use_set[ $id ] ),
+				'is_in_use'           => isset( $in_use_set[ $id ] ),
 			);
 		}
 		// Stable sort: in-use first, then oldest date, then lowest ID.
-		usort( $copies, function ( $a, $b ) {
-			if ( $a['is_in_use'] !== $b['is_in_use'] ) {
-				return $a['is_in_use'] ? -1 : 1;
+		usort(
+			$copies,
+			function ( $a, $b ) {
+				if ( $a['is_in_use'] !== $b['is_in_use'] ) {
+					return $a['is_in_use'] ? -1 : 1;
+				}
+				$cmp = strcmp( (string) $a['date_uploaded'], (string) $b['date_uploaded'] );
+				if ( 0 !== $cmp ) {
+					return $cmp;
+				}
+				return $a['id'] <=> $b['id'];
 			}
-			$cmp = strcmp( (string) $a['date_uploaded'], (string) $b['date_uploaded'] );
-			if ( 0 !== $cmp ) {
-				return $cmp;
-			}
-			return $a['id'] <=> $b['id'];
-		} );
+		);
 
 		$primary       = array_shift( $copies );
 		$duplicate_ids = array_map( fn( $c ) => $c['id'], $copies );
@@ -401,8 +416,8 @@ final class DuplicateOriginals implements AuditReportInterface, AuditReportCsvEx
 			'potential_savings_bytes' => $savings,
 			'potential_savings_human' => function_exists( 'size_format' ) ? size_format( $savings ) : (string) $savings,
 			'why'                     => array(
-				'reason'    => 'exact_hash_match',
-				'algorithm' => self::HASH_ALGO,
+				'reason'     => 'exact_hash_match',
+				'algorithm'  => self::HASH_ALGO,
 				'group_size' => count( $duplicate_ids ) + 1,
 			),
 		);
@@ -415,7 +430,10 @@ final class DuplicateOriginals implements AuditReportInterface, AuditReportCsvEx
 	private function read_state(): array {
 		$raw = get_transient( self::STATE_TRANSIENT );
 		if ( ! is_array( $raw ) ) {
-			return array( 'hashes' => array(), 'in_use_ids' => array() );
+			return array(
+				'hashes'     => array(),
+				'in_use_ids' => array(),
+			);
 		}
 		if ( ! isset( $raw['hashes'] ) || ! is_array( $raw['hashes'] ) ) {
 			$raw['hashes'] = array();
@@ -471,7 +489,7 @@ final class DuplicateOriginals implements AuditReportInterface, AuditReportCsvEx
 				$errors[ $id ] = __( 'Could not trash attachment.', 'cf-media-manager' );
 				continue;
 			}
-			$processed++;
+			++$processed;
 		}
 
 		if ( empty( $errors ) ) {
@@ -488,7 +506,7 @@ final class DuplicateOriginals implements AuditReportInterface, AuditReportCsvEx
 				continue;
 			}
 			$this->ignored->ignore( self::ID, $hash );
-			$processed++;
+			++$processed;
 		}
 		return ActionResult::ok( $processed );
 	}
@@ -501,7 +519,7 @@ final class DuplicateOriginals implements AuditReportInterface, AuditReportCsvEx
 				continue;
 			}
 			$this->ignored->unignore( self::ID, $hash );
-			$processed++;
+			++$processed;
 		}
 		return ActionResult::ok( $processed );
 	}
@@ -516,15 +534,42 @@ final class DuplicateOriginals implements AuditReportInterface, AuditReportCsvEx
 
 	public function csv_columns(): array {
 		return array(
-			array( 'key' => 'group_hash',              'label' => __( 'Group Hash', 'cf-media-manager' ) ),
-			array( 'key' => 'group_size',              'label' => __( 'Group Size', 'cf-media-manager' ) ),
-			array( 'key' => 'size_bytes',              'label' => __( 'File Size (bytes)', 'cf-media-manager' ) ),
-			array( 'key' => 'size_human',              'label' => __( 'File Size', 'cf-media-manager' ) ),
-			array( 'key' => 'potential_savings_bytes', 'label' => __( 'Potential Savings (bytes)', 'cf-media-manager' ) ),
-			array( 'key' => 'primary_id',              'label' => __( 'Primary ID (keep)', 'cf-media-manager' ) ),
-			array( 'key' => 'primary_title',           'label' => __( 'Primary Title', 'cf-media-manager' ) ),
-			array( 'key' => 'primary_in_use',          'label' => __( 'Primary In Use', 'cf-media-manager' ) ),
-			array( 'key' => 'duplicate_ids',           'label' => __( 'Duplicate IDs (trash)', 'cf-media-manager' ) ),
+			array(
+				'key'   => 'group_hash',
+				'label' => __( 'Group Hash', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'group_size',
+				'label' => __( 'Group Size', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'size_bytes',
+				'label' => __( 'File Size (bytes)', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'size_human',
+				'label' => __( 'File Size', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'potential_savings_bytes',
+				'label' => __( 'Potential Savings (bytes)', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'primary_id',
+				'label' => __( 'Primary ID (keep)', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'primary_title',
+				'label' => __( 'Primary Title', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'primary_in_use',
+				'label' => __( 'Primary In Use', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'duplicate_ids',
+				'label' => __( 'Duplicate IDs (trash)', 'cf-media-manager' ),
+			),
 		);
 	}
 

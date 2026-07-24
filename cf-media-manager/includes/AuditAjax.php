@@ -52,12 +52,12 @@ final class AuditAjax {
 
 	public function register_hooks(): void {
 		$endpoints = array(
-			'audit_dashboard'    => 'dashboard',
-			'audit_scan_chunk'   => 'scan_chunk',
-			'audit_scan_cancel'  => 'scan_cancel',
-			'audit_detail'       => 'detail',
-			'audit_bulk'         => 'bulk',
-			'audit_export_csv'   => 'export_csv',
+			'audit_dashboard'   => 'dashboard',
+			'audit_scan_chunk'  => 'scan_chunk',
+			'audit_scan_cancel' => 'scan_cancel',
+			'audit_detail'      => 'detail',
+			'audit_bulk'        => 'bulk',
+			'audit_export_csv'  => 'export_csv',
 		);
 		foreach ( $endpoints as $slug => $method ) {
 			add_action( 'wp_ajax_' . Plugin::AJAX_PREFIX . $slug, array( $this, $method ) );
@@ -247,21 +247,23 @@ final class AuditAjax {
 
 		$results = $this->runner->results( $report_id, $page, $per_page );
 		if ( null === $results ) {
-			wp_send_json_success( array(
-				'items'    => array(),
-				'total'    => 0,
-				'page'     => 1,
-				'per_page' => $per_page,
-				'pages'    => 0,
-				'totals'   => array(),
-				'is_stale' => false,
-				'no_scan'  => true,
-			) );
+			wp_send_json_success(
+				array(
+					'items'    => array(),
+					'total'    => 0,
+					'page'     => 1,
+					'per_page' => $per_page,
+					'pages'    => 0,
+					'totals'   => array(),
+					'is_stale' => false,
+					'no_scan'  => true,
+				)
+			);
 		}
 
-		$report                     = $this->runner->get( $report_id );
-		$results['supports_bulk']   = $report ? $report->supports_bulk() : array();
-		$results['csv_exportable']  = $report instanceof AuditReportCsvExportable;
+		$report                    = $this->runner->get( $report_id );
+		$results['supports_bulk']  = $report ? $report->supports_bulk() : array();
+		$results['csv_exportable'] = $report instanceof AuditReportCsvExportable;
 
 		wp_send_json_success( $results );
 	}
@@ -326,13 +328,15 @@ final class AuditAjax {
 
 		$result = $this->runner->bulk( $report_id, $action, $ids );
 
-		wp_send_json_success( array(
-			'success'   => $result->success,
-			'processed' => $result->processed,
-			'skipped'   => $result->skipped,
-			'errors'    => $result->errors,
-			'message'   => $result->message,
-		) );
+		wp_send_json_success(
+			array(
+				'success'   => $result->success,
+				'processed' => $result->processed,
+				'skipped'   => $result->skipped,
+				'errors'    => $result->errors,
+				'message'   => $result->message,
+			)
+		);
 	}
 
 	/**

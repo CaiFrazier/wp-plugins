@@ -150,7 +150,7 @@ final class UnusedAttachments implements AuditReportInterface, AuditReportCsvExp
 			}
 
 			$items[] = $this->build_receipt( $id, $row, $checked_list, $builders_seen, $scan_age_sec );
-			$flagged++;
+			++$flagged;
 		}
 
 		$last_id  = (int) end( $rows )['ID'];
@@ -193,9 +193,9 @@ final class UnusedAttachments implements AuditReportInterface, AuditReportCsvExp
 			// the scan window.
 		}
 
-		$result    = ( $this->in_use_callback )( $force );
-		$ids       = is_array( $result['ids'] ?? null ) ? array_map( 'intval', $result['ids'] ) : array();
-		$snapshot  = array(
+		$result   = ( $this->in_use_callback )( $force );
+		$ids      = is_array( $result['ids'] ?? null ) ? array_map( 'intval', $result['ids'] ) : array();
+		$snapshot = array(
 			'ids_set'    => array_fill_keys( $ids, true ),
 			'scanned_at' => isset( $result['scanned_at'] ) ? (int) $result['scanned_at'] : null,
 			'builders'   => is_array( $result['builders'] ?? null ) ? $result['builders'] : array(),
@@ -265,10 +265,10 @@ final class UnusedAttachments implements AuditReportInterface, AuditReportCsvExp
 				? size_format( $size_bytes )
 				: '',
 			'why'                 => array(
-				'reason'            => 'not_referenced_anywhere',
-				'checked'           => $checked,
-				'builders_active'   => $builders_active,
-				'scan_age_seconds'  => $scan_age_seconds,
+				'reason'           => 'not_referenced_anywhere',
+				'checked'          => $checked,
+				'builders_active'  => $builders_active,
+				'scan_age_seconds' => $scan_age_seconds,
 			),
 		);
 	}
@@ -331,7 +331,7 @@ final class UnusedAttachments implements AuditReportInterface, AuditReportCsvExp
 				$errors[ $id ] = __( 'Could not trash attachment.', 'cf-media-manager' );
 				continue;
 			}
-			$processed++;
+			++$processed;
 		}
 
 		if ( empty( $errors ) ) {
@@ -348,7 +348,7 @@ final class UnusedAttachments implements AuditReportInterface, AuditReportCsvExp
 				continue;
 			}
 			$this->ignored->ignore( self::ID, $id );
-			$processed++;
+			++$processed;
 		}
 		return ActionResult::ok( $processed );
 	}
@@ -361,7 +361,7 @@ final class UnusedAttachments implements AuditReportInterface, AuditReportCsvExp
 				continue;
 			}
 			$this->ignored->unignore( self::ID, $id );
-			$processed++;
+			++$processed;
 		}
 		return ActionResult::ok( $processed );
 	}
@@ -376,14 +376,38 @@ final class UnusedAttachments implements AuditReportInterface, AuditReportCsvExp
 
 	public function csv_columns(): array {
 		return array(
-			array( 'key' => 'id',                  'label' => __( 'Attachment ID', 'cf-media-manager' ) ),
-			array( 'key' => 'title',               'label' => __( 'Title', 'cf-media-manager' ) ),
-			array( 'key' => 'mime',                'label' => __( 'MIME', 'cf-media-manager' ) ),
-			array( 'key' => 'date_uploaded',       'label' => __( 'Date Uploaded', 'cf-media-manager' ) ),
-			array( 'key' => 'attached_to_post_id', 'label' => __( 'Attached To Post ID', 'cf-media-manager' ) ),
-			array( 'key' => 'size_bytes',          'label' => __( 'Size (bytes)', 'cf-media-manager' ) ),
-			array( 'key' => 'size_human',          'label' => __( 'Size', 'cf-media-manager' ) ),
-			array( 'key' => 'scan_age_seconds',    'label' => __( 'In-Use Scan Age (s)', 'cf-media-manager' ) ),
+			array(
+				'key'   => 'id',
+				'label' => __( 'Attachment ID', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'title',
+				'label' => __( 'Title', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'mime',
+				'label' => __( 'MIME', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'date_uploaded',
+				'label' => __( 'Date Uploaded', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'attached_to_post_id',
+				'label' => __( 'Attached To Post ID', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'size_bytes',
+				'label' => __( 'Size (bytes)', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'size_human',
+				'label' => __( 'Size', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'scan_age_seconds',
+				'label' => __( 'In-Use Scan Age (s)', 'cf-media-manager' ),
+			),
 		);
 	}
 

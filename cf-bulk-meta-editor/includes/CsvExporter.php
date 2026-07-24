@@ -30,7 +30,7 @@ class CsvExporter {
 		// this point today. The extra pass guards against future callers
 		// composing the filename from looser sources without re-auditing the
 		// Content-Disposition emit.
-		$filename       = sanitize_file_name( "bulk-meta-export-{$post_type_safe}-{$date}.csv" );
+		$filename = sanitize_file_name( "bulk-meta-export-{$post_type_safe}-{$date}.csv" );
 
 		while ( ob_get_level() > 0 ) {
 			ob_end_clean();

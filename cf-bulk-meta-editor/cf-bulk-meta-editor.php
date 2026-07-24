@@ -15,10 +15,10 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'BME_VERSION', '1.0.4' );
-define( 'BME_FILE', __FILE__ );
-define( 'BME_DIR', plugin_dir_path( __FILE__ ) );
-define( 'BME_URL', plugin_dir_url( __FILE__ ) );
+define( 'CFBME_VERSION', '1.0.4' );
+define( 'CFBME_FILE', __FILE__ );
+define( 'CFBME_DIR', plugin_dir_path( __FILE__ ) );
+define( 'CFBME_URL', plugin_dir_url( __FILE__ ) );
 
 /**
  * Use Composer's autoloader if it has been generated; otherwise fall back to a
@@ -27,14 +27,14 @@ define( 'BME_URL', plugin_dir_url( __FILE__ ) );
  * dev). Production .zip distributions always bundle vendor/ via the release
  * script, so the fallback is purely a dev convenience.
  */
-if ( file_exists( BME_DIR . 'vendor/autoload.php' ) ) {
-	require_once BME_DIR . 'vendor/autoload.php';
+if ( file_exists( CFBME_DIR . 'vendor/autoload.php' ) ) {
+	require_once CFBME_DIR . 'vendor/autoload.php';
 } else {
 	spl_autoload_register(
 		static function ( $class ) {
 			if ( 0 === strpos( $class, 'BulkMetaEditor\\' ) ) {
 				$relative = substr( $class, strlen( 'BulkMetaEditor\\' ) );
-				$path     = BME_DIR . 'includes/' . str_replace( '\\', '/', $relative ) . '.php';
+				$path     = CFBME_DIR . 'includes/' . str_replace( '\\', '/', $relative ) . '.php';
 				if ( is_file( $path ) ) {
 					require_once $path;
 				}
@@ -42,7 +42,7 @@ if ( file_exists( BME_DIR . 'vendor/autoload.php' ) ) {
 			}
 			if ( 0 === strpos( $class, 'CFShared\\' ) ) {
 				$relative = substr( $class, strlen( 'CFShared\\' ) );
-				$path     = dirname( BME_DIR ) . '/shared/src/' . str_replace( '\\', '/', $relative ) . '.php';
+				$path     = dirname( CFBME_DIR ) . '/shared/src/' . str_replace( '\\', '/', $relative ) . '.php';
 				if ( is_file( $path ) ) {
 					require_once $path;
 				}
@@ -64,16 +64,16 @@ if ( file_exists( BME_DIR . 'vendor/autoload.php' ) ) {
  * class-load fatal.
  */
 function cfbme_environment_ok(): bool {
-	return file_exists( BME_DIR . 'vendor/autoload.php' )
-		&& file_exists( BME_DIR . 'build/editor.asset.php' );
+	return file_exists( CFBME_DIR . 'vendor/autoload.php' )
+		&& file_exists( CFBME_DIR . 'build/editor.asset.php' );
 }
 
 function cfbme_environment_error_message(): string {
 	$missing = [];
-	if ( ! file_exists( BME_DIR . 'vendor/autoload.php' ) ) {
+	if ( ! file_exists( CFBME_DIR . 'vendor/autoload.php' ) ) {
 		$missing[] = 'vendor/autoload.php (run <code>composer install --no-dev</code>)';
 	}
-	if ( ! file_exists( BME_DIR . 'build/editor.asset.php' ) ) {
+	if ( ! file_exists( CFBME_DIR . 'build/editor.asset.php' ) ) {
 		$missing[] = 'build/ assets (run <code>npm install &amp;&amp; npm run build</code>)';
 	}
 	return 'CF Bulk Meta Editor cannot start because the following are missing: '
@@ -82,13 +82,13 @@ function cfbme_environment_error_message(): string {
 }
 
 register_activation_hook(
-	BME_FILE,
+	CFBME_FILE,
 	static function () {
 		if ( cfbme_environment_ok() ) {
 			return;
 		}
 		// Roll back the activation before WP redirects back to the plugins screen.
-		deactivate_plugins( plugin_basename( BME_FILE ), true );
+		deactivate_plugins( plugin_basename( CFBME_FILE ), true );
 		wp_die(
 			wp_kses_post( cfbme_environment_error_message() ),
 			'Plugin activation failed',

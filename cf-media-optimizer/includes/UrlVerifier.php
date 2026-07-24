@@ -93,7 +93,7 @@ final class UrlVerifier {
 	 * @param string $url Absolute http/https URL to fetch.
 	 */
 	public static function fetch( string $url ): array {
-		$current = $url;
+		$current  = $url;
 		$response = null;
 
 		for ( $hop = 0; $hop <= Options::VERIFY_MAX_HOPS; $hop++ ) {
@@ -349,7 +349,7 @@ final class UrlVerifier {
 			return call_user_func( self::$http_override, $url, $pinned_ip, $args );
 		}
 
-		$parts = wp_parse_url( $url );
+		$parts  = wp_parse_url( $url );
 		$scheme = isset( $parts['scheme'] ) ? strtolower( (string) $parts['scheme'] ) : 'http';
 		$port   = isset( $parts['port'] ) ? (int) $parts['port'] : ( 'https' === $scheme ? 443 : 80 );
 

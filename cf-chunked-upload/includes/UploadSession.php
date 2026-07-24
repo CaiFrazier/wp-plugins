@@ -398,7 +398,7 @@ final class UploadSession {
 			$raw  = @file_get_contents( $meta_path );
 			$meta = $raw ? json_decode( $raw, true ) : null;
 			if ( is_array( $meta ) && isset( $meta['owner_id'] ) && (int) $meta['owner_id'] === $user_id ) {
-				$count++;
+				++$count;
 			}
 		}
 		return $count;

@@ -174,7 +174,7 @@ final class CachePurger {
 					return defined( 'BORLABS_CACHE_PLUGIN_FILE' );
 				},
 				'purge'  => static function () {
-					// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- third-party hook (Borlabs Cache); intentional integration.
+					// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound, WordPress.NamingConventions.ValidHookName.NotLowercase -- third-party hook (Borlabs Cache); intentional integration.
 					do_action( 'borlabsCache/cache/flushAll' );
 				},
 			],

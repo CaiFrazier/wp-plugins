@@ -55,26 +55,26 @@ final class Ajax {
 		// AJAX action names. Keeps the prefix in one place so a future
 		// rename only edits the constant.
 		$endpoints = array(
-			'status'            => 'status',
-			'convert_batch'     => 'convert_batch',
-			'save_quality'      => 'save_quality',
-			'save_settings'     => 'save_settings',
-			'delete_all'        => 'delete_all',
-			'count_variants'    => 'count_variants',
-			'attachment_status' => 'attachment_status',
-			'dismiss_purge'     => 'dismiss_purge',
-			'verify_url'        => 'verify_url',
-			'purge_caches'      => 'purge_caches',
-			'detect_caches'     => 'detect_caches',
-			'queue_start'       => 'queue_start',
-			'queue_status'      => 'queue_status',
-			'queue_cancel'      => 'queue_cancel',
-			'queue_clear'       => 'queue_clear',
-			'in_use_scan'       => 'in_use_scan',
-			'dismiss_explainer' => 'dismiss_explainer',
-			'backfill_manifest' => 'backfill_manifest',
-			'diagnose_variant'  => 'diagnose_variant',
-			'claim_variant'     => 'claim_variant',
+			'status'                     => 'status',
+			'convert_batch'              => 'convert_batch',
+			'save_quality'               => 'save_quality',
+			'save_settings'              => 'save_settings',
+			'delete_all'                 => 'delete_all',
+			'count_variants'             => 'count_variants',
+			'attachment_status'          => 'attachment_status',
+			'dismiss_purge'              => 'dismiss_purge',
+			'verify_url'                 => 'verify_url',
+			'purge_caches'               => 'purge_caches',
+			'detect_caches'              => 'detect_caches',
+			'queue_start'                => 'queue_start',
+			'queue_status'               => 'queue_status',
+			'queue_cancel'               => 'queue_cancel',
+			'queue_clear'                => 'queue_clear',
+			'in_use_scan'                => 'in_use_scan',
+			'dismiss_explainer'          => 'dismiss_explainer',
+			'backfill_manifest'          => 'backfill_manifest',
+			'diagnose_variant'           => 'diagnose_variant',
+			'claim_variant'              => 'claim_variant',
 			'delete_conflicting_variant' => 'delete_conflicting_variant',
 		);
 		foreach ( $endpoints as $slug => $method ) {
@@ -320,11 +320,11 @@ final class Ajax {
 		$rewrite_favicons = Request::post_bool( 'rewrite_favicons' );
 		$alt_fallback     = Request::post_bool( 'alt_fallback' );
 		$max_source_mb    = max( 1, min( Options::HARD_MAX_SOURCE_MB, Request::post_int( 'max_source_mb', Options::DEFAULT_MAX_SOURCE_MB ) ) );
-		$scope_in   = Request::post_key( 'scope' );
-		$filter_in  = Request::post_key( 'filter_mode' );
-		$scope      = in_array( $scope_in, array( 'all', 'guests' ), true ) ? $scope_in : 'all';
-		$filter     = in_array( $filter_in, array( 'none', 'blacklist', 'whitelist' ), true ) ? $filter_in : 'none';
-		$patterns   = Request::post_textarea( 'filter_patterns' );
+		$scope_in         = Request::post_key( 'scope' );
+		$filter_in        = Request::post_key( 'filter_mode' );
+		$scope            = in_array( $scope_in, array( 'all', 'guests' ), true ) ? $scope_in : 'all';
+		$filter           = in_array( $filter_in, array( 'none', 'blacklist', 'whitelist' ), true ) ? $filter_in : 'none';
+		$patterns         = Request::post_textarea( 'filter_patterns' );
 		if ( strlen( $patterns ) > Options::MAX_PATTERNS_LEN ) {
 			$patterns = substr( $patterns, 0, Options::MAX_PATTERNS_LEN );
 		}
@@ -515,9 +515,9 @@ final class Ajax {
 		// block backfill.
 		//
 		// Distinguishing "fresh start" from "continuing" via the cursor:
-		//   - cursor empty + lock held → second click, reject with 409.
-		//   - cursor empty + lock free → first chunk of a new run, take it.
-		//   - cursor non-empty         → continuing our own run, refresh lock.
+		// - cursor empty + lock held → second click, reject with 409.
+		// - cursor empty + lock free → first chunk of a new run, take it.
+		// - cursor non-empty         → continuing our own run, refresh lock.
 		//
 		// Dry-run requests are read-only and skip the lock entirely so the
 		// confirmation prompt can run during an in-flight commit.
@@ -532,9 +532,9 @@ final class Ajax {
 		}
 
 		// Cursor format:
-		//   ""                 → start from the beginning
-		//   "<subtree>"        → continue at subtree <subtree>, offset 0
-		//   "<subtree>:<off>"  → resume at subtree <subtree>, file offset <off>
+		// ""                 → start from the beginning
+		// "<subtree>"        → continue at subtree <subtree>, offset 0
+		// "<subtree>:<off>"  → resume at subtree <subtree>, file offset <off>
 		//
 		// The outer cursor (subtree name) is what VariantScanner understands.
 		// The inner offset is added so a single oversized subtree can be split
@@ -543,7 +543,7 @@ final class Ajax {
 		$offset       = 0;
 		if ( '' !== $cursor && false !== strpos( $cursor, ':' ) ) {
 			list( $outer_cursor, $offset_str ) = explode( ':', $cursor, 2 );
-			$offset = max( 0, (int) $offset_str );
+			$offset                            = max( 0, (int) $offset_str );
 		}
 
 		$scanner  = new VariantScanner( $this->paths );
@@ -879,7 +879,7 @@ final class Ajax {
 				update_meta_cache( 'post', $int_ids );
 			}
 			foreach ( $int_ids as $id_int ) {
-				$all[]  = $id_int;
+				$all[] = $id_int;
 				++$total;
 				if ( $this->converter->is_attachment_converted( $id_int ) ) {
 					++$done;
@@ -893,6 +893,7 @@ final class Ajax {
 			if ( $page > 100000 ) {
 				break;
 			}
+			// phpcs:ignore Squiz.PHP.DisallowSizeFunctionsInLoops.Found -- $ids is re-fetched to the next page each iteration; count() is the "was this page full?" test and must be re-evaluated.
 		} while ( count( $ids ) === $size );
 
 		return array( $total, $done, $pending, $all );
@@ -987,7 +988,7 @@ final class Ajax {
 
 		// Diagnostic verdict — translate the raw flags into a one-line
 		// summary the admin can act on.
-		$verdict = $this->summarize_diagnosis( $report );
+		$verdict           = $this->summarize_diagnosis( $report );
 		$report['verdict'] = $verdict;
 
 		wp_send_json_success( $report );

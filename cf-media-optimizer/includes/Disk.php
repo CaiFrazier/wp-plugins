@@ -152,9 +152,10 @@ final class Disk {
 			}
 		}
 		$units = [ 'B', 'KB', 'MB', 'GB', 'TB' ];
+		$max   = count( $units ) - 1;
 		$i     = 0;
 		$v     = (float) max( 0, $bytes );
-		while ( $v >= 1024 && $i < count( $units ) - 1 ) {
+		while ( $v >= 1024 && $i < $max ) {
 			$v /= 1024;
 			++$i;
 		}

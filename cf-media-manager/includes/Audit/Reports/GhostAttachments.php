@@ -148,13 +148,13 @@ final class GhostAttachments implements AuditReportInterface, AuditReportCsvExpo
 		$parent        = (int) $row['post_parent'];
 
 		return array(
-			'id'                  => $id,
-			'title'               => (string) $row['post_title'],
-			'mime'                => (string) $row['post_mime_type'],
-			'date_uploaded'       => (string) $row['post_date'],
-			'expected_path'       => $expected_path,
-			'attached_file_meta'  => (string) $attached_file,
-			'why'                 => array(
+			'id'                 => $id,
+			'title'              => (string) $row['post_title'],
+			'mime'               => (string) $row['post_mime_type'],
+			'date_uploaded'      => (string) $row['post_date'],
+			'expected_path'      => $expected_path,
+			'attached_file_meta' => (string) $attached_file,
+			'why'                => array(
 				'reason'                => 'file_missing',
 				'checked'               => array( 'get_attached_file', 'file_exists' ),
 				'attached_to_post_id'   => $parent,
@@ -277,15 +277,42 @@ final class GhostAttachments implements AuditReportInterface, AuditReportCsvExpo
 
 	public function csv_columns(): array {
 		return array(
-			array( 'key' => 'id',                  'label' => __( 'Attachment ID', 'cf-media-manager' ) ),
-			array( 'key' => 'title',               'label' => __( 'Title', 'cf-media-manager' ) ),
-			array( 'key' => 'mime',                'label' => __( 'MIME', 'cf-media-manager' ) ),
-			array( 'key' => 'date_uploaded',       'label' => __( 'Date Uploaded', 'cf-media-manager' ) ),
-			array( 'key' => 'expected_path',       'label' => __( 'Expected Path', 'cf-media-manager' ) ),
-			array( 'key' => 'attached_file_meta',  'label' => __( '_wp_attached_file', 'cf-media-manager' ) ),
-			array( 'key' => 'attached_to_post_id', 'label' => __( 'Attached To Post ID', 'cf-media-manager' ) ),
-			array( 'key' => 'featured_for_posts',  'label' => __( 'Featured For Post IDs', 'cf-media-manager' ) ),
-			array( 'key' => 'has_active_refs',     'label' => __( 'Has Active References', 'cf-media-manager' ) ),
+			array(
+				'key'   => 'id',
+				'label' => __( 'Attachment ID', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'title',
+				'label' => __( 'Title', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'mime',
+				'label' => __( 'MIME', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'date_uploaded',
+				'label' => __( 'Date Uploaded', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'expected_path',
+				'label' => __( 'Expected Path', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'attached_file_meta',
+				'label' => __( '_wp_attached_file', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'attached_to_post_id',
+				'label' => __( 'Attached To Post ID', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'featured_for_posts',
+				'label' => __( 'Featured For Post IDs', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'has_active_refs',
+				'label' => __( 'Has Active References', 'cf-media-manager' ),
+			),
 		);
 	}
 

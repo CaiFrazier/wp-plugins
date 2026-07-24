@@ -25,7 +25,6 @@
 		<properties>
 			<property name="prefixes" type="array">
 				<element value="cfbme"/>
-				<element value="BME"/>
 				<element value="BulkMetaEditor"/>
 			</property>
 		</properties>

@@ -302,7 +302,7 @@ final class RestApi {
 		if ( ! UploadSession::is_valid_id( $upload_id ) ) {
 			return new \WP_Error( 'cf_cu_invalid_upload_id', __( 'Malformed upload id.', 'cf-chunked-upload' ), [ 'status' => 400 ] );
 		}
-		$session = new UploadSession( $this->paths, $upload_id );
+		$session   = new UploadSession( $this->paths, $upload_id );
 		$owner_err = $this->owner_error( $session );
 		if ( null !== $owner_err ) {
 			return $owner_err;

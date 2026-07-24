@@ -23,14 +23,14 @@ class LibraryRestController {
 	 * Orderby values accepted from the client mapped to WP_Query orderby strings.
 	 */
 	const ORDERBY_MAP = array(
-		'id'                 => 'ID',
-		'title'              => 'title',
-		'slug'               => 'name',
-		'date_uploaded'      => 'date',
-		'date_uploaded_gmt'  => 'date',
-		'date_modified'      => 'modified',
-		'date_modified_gmt'  => 'modified',
-		'menu_order'         => 'menu_order',
+		'id'                => 'ID',
+		'title'             => 'title',
+		'slug'              => 'name',
+		'date_uploaded'     => 'date',
+		'date_uploaded_gmt' => 'date',
+		'date_modified'     => 'modified',
+		'date_modified_gmt' => 'modified',
+		'menu_order'        => 'menu_order',
 	);
 
 	public function register_routes(): void {

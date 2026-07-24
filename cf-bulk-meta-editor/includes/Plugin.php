@@ -41,7 +41,7 @@ class Plugin {
 		// for the very first log line, but Settings is initialised here which
 		// gives us the canonical level for the rest of the request.
 		$opts = $this->settings->get();
-		if ( ! ( defined( 'BME_DEBUG' ) && BME_DEBUG ) ) {
+		if ( ! ( defined( 'CFBME_DEBUG' ) && CFBME_DEBUG ) ) {
 			$this->logger->set_threshold( $opts['debug_mode'] ? ( $opts['log_level'] ?? 'debug' ) : 'warn' );
 		}
 
@@ -59,7 +59,7 @@ class Plugin {
 		// production sites pay zero overhead and only operators chasing a bug
 		// take the per-write hashmap lookup hit. The diagnostics page surfaces
 		// these traces from the log and notes the requirement.
-		$trace_enabled = ( defined( 'BME_DEBUG' ) && BME_DEBUG )
+		$trace_enabled = ( defined( 'CFBME_DEBUG' ) && CFBME_DEBUG )
 			|| ! empty( $opts['debug_mode'] );
 		if ( $trace_enabled && ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) ) {
 			add_action( 'updated_post_meta', [ $this, 'trace_meta_updated' ], 10, 4 );
@@ -70,7 +70,7 @@ class Plugin {
 			'plugin',
 			'Bulk Meta Editor initialised',
 			[
-				'version'    => BME_VERSION,
+				'version'    => CFBME_VERSION,
 				'wp'         => get_bloginfo( 'version' ),
 				'php'        => PHP_VERSION,
 				'is_admin'   => is_admin(),

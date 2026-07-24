@@ -55,7 +55,10 @@ final class RateLimit {
 			// First request: start at capacity, immediately consume one token.
 			set_transient(
 				$key,
-				[ 'tokens' => (float) ( $capacity - 1 ), 'last' => $now ],
+				[
+					'tokens' => (float) ( $capacity - 1 ),
+					'last'   => $now,
+				],
 				self::TRANSIENT_TTL
 			);
 			return true;
@@ -71,7 +74,10 @@ final class RateLimit {
 			// throttling doesn't grant a disproportionate refill burst.
 			set_transient(
 				$key,
-				[ 'tokens' => $tokens, 'last' => $now ],
+				[
+					'tokens' => $tokens,
+					'last'   => $now,
+				],
 				self::TRANSIENT_TTL
 			);
 			return false;
@@ -79,7 +85,10 @@ final class RateLimit {
 
 		set_transient(
 			$key,
-			[ 'tokens' => $tokens - 1.0, 'last' => $now ],
+			[
+				'tokens' => $tokens - 1.0,
+				'last'   => $now,
+			],
 			self::TRANSIENT_TTL
 		);
 		return true;

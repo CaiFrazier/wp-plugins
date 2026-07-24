@@ -37,7 +37,7 @@ final class AuditPage {
 		<div class="cf-audit-root" data-cf-audit-root>
 
 			<!-- ============================================================
-				 Dashboard view — card grid
+				Dashboard view — card grid
 			============================================================ -->
 			<section class="cf-audit-dashboard" data-cf-audit-view="dashboard">
 				<header class="cf-audit-toolbar">
@@ -61,7 +61,7 @@ final class AuditPage {
 
 				<div class="cf-audit-cards" data-cf-audit-cards>
 					<!-- JS injects card markup here. The empty state below
-						 shows while the first dashboard fetch is in flight. -->
+						shows while the first dashboard fetch is in flight. -->
 					<div class="cf-audit-cards-loading">
 						<?php esc_html_e( 'Loading audit dashboard…', 'cf-media-manager' ); ?>
 					</div>
@@ -69,7 +69,7 @@ final class AuditPage {
 			</section>
 
 			<!-- ============================================================
-				 Detail view — full-pane takeover for one report
+				Detail view — full-pane takeover for one report
 			============================================================ -->
 			<section class="cf-audit-detail" data-cf-audit-view="detail" hidden>
 				<header class="cf-audit-detail-header">

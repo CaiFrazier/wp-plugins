@@ -40,19 +40,21 @@ final class Preflight {
 	 */
 	public function check( string $destination, string $file_name, int $file_size ): array {
 		$result = [
-			'diskOk'               => true,
-			'freeBytes'            => null,
-			'destinationOk'        => true,
-			'quotaRemainingBytes'  => null,
-			'concurrentSlotsLeft'  => null,
-			'wpCronHealthy'        => ! ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ),
-			'finfoAvailable'       => function_exists( 'finfo_open' ),
-			'extensionAllowed'     => true,
-			'estimatedChunks'      => max( 1, $file_size > 0
+			'diskOk'              => true,
+			'freeBytes'           => null,
+			'destinationOk'       => true,
+			'quotaRemainingBytes' => null,
+			'concurrentSlotsLeft' => null,
+			'wpCronHealthy'       => ! ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ),
+			'finfoAvailable'      => function_exists( 'finfo_open' ),
+			'extensionAllowed'    => true,
+			'estimatedChunks'     => max(
+				1,
+				$file_size > 0
 				? (int) ceil( $file_size / max( 1, $this->settings->chunk_size_bytes() ) )
 				: 1
 			),
-			'warnings'             => [],
+			'warnings'            => [],
 		];
 
 		// --- Disk space -------------------------------------------------------
@@ -63,7 +65,7 @@ final class Preflight {
 			if ( false !== $free ) {
 				$result['freeBytes'] = (int) $free;
 				if ( $file_size > 0 && (int) $free < $file_size * 2 ) {
-					$result['diskOk']   = false;
+					$result['diskOk']     = false;
 					$result['warnings'][] = __( 'Disk space may be insufficient to assemble this file.', 'cf-chunked-upload' );
 				}
 			}
@@ -91,8 +93,8 @@ final class Preflight {
 		$user_id = function_exists( 'get_current_user_id' ) ? get_current_user_id() : 0;
 		$limit   = $this->settings->per_user_quota_bytes();
 		if ( $limit > 0 && $user_id > 0 ) {
-			$used                        = (int) get_option( 'cf_cu_quota_' . $user_id, 0 );
-			$remaining                   = max( 0, $limit - $used );
+			$used                          = (int) get_option( 'cf_cu_quota_' . $user_id, 0 );
+			$remaining                     = max( 0, $limit - $used );
 			$result['quotaRemainingBytes'] = $remaining;
 			if ( $file_size > 0 && $remaining < $file_size ) {
 				$result['warnings'][] = __( 'This file would exceed your storage quota.', 'cf-chunked-upload' );
@@ -102,7 +104,7 @@ final class Preflight {
 		// --- Concurrent cap ---------------------------------------------------
 		$cap = $this->settings->max_concurrent_uploads_per_user();
 		if ( $cap > 0 && $user_id > 0 ) {
-			$active                      = UploadSession::count_user_sessions( $this->paths, $user_id );
+			$active                        = UploadSession::count_user_sessions( $this->paths, $user_id );
 			$result['concurrentSlotsLeft'] = max( 0, $cap - $active );
 			if ( $result['concurrentSlotsLeft'] === 0 ) {
 				$result['warnings'][] = __( 'You have reached the maximum number of concurrent uploads.', 'cf-chunked-upload' );
@@ -118,7 +120,7 @@ final class Preflight {
 		if ( 'import' === $destination && '' !== $file_name ) {
 			$allowed = $this->settings->allowed_extensions();
 			if ( [] !== $allowed ) {
-				$ext                      = strtolower( (string) pathinfo( $file_name, PATHINFO_EXTENSION ) );
+				$ext                        = strtolower( (string) pathinfo( $file_name, PATHINFO_EXTENSION ) );
 				$result['extensionAllowed'] = '' !== $ext && in_array( $ext, $allowed, true );
 				if ( ! $result['extensionAllowed'] ) {
 					$result['warnings'][] = __( 'This file type is not in the importer allowlist.', 'cf-chunked-upload' );

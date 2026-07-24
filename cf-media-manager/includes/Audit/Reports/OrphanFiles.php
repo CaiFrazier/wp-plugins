@@ -86,11 +86,40 @@ final class OrphanFiles implements AuditReportInterface, AuditReportCsvExportabl
 	 * cache files, logs, etc.).
 	 */
 	const MEDIA_EXTENSIONS = array(
-		'jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'svg', 'bmp', 'tiff', 'ico',
-		'pdf', 'mp4', 'mov', 'avi', 'wmv', 'flv', 'webm', 'mkv',
-		'mp3', 'wav', 'ogg', 'm4a', 'flac',
-		'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'odt', 'ods',
-		'zip', 'gz', 'tar',
+		'jpg',
+		'jpeg',
+		'png',
+		'gif',
+		'webp',
+		'avif',
+		'svg',
+		'bmp',
+		'tiff',
+		'ico',
+		'pdf',
+		'mp4',
+		'mov',
+		'avi',
+		'wmv',
+		'flv',
+		'webm',
+		'mkv',
+		'mp3',
+		'wav',
+		'ogg',
+		'm4a',
+		'flac',
+		'doc',
+		'docx',
+		'xls',
+		'xlsx',
+		'ppt',
+		'pptx',
+		'odt',
+		'ods',
+		'zip',
+		'gz',
+		'tar',
 	);
 
 	/**
@@ -158,11 +187,11 @@ final class OrphanFiles implements AuditReportInterface, AuditReportCsvExportabl
 			if ( $this->ignored->is_ignored( self::ID, $normalized ) ) {
 				continue;
 			}
-			$abs = $this->paths->upload_dir() . $rel_path;
+			$abs  = $this->paths->upload_dir() . $rel_path;
 			$item = $this->build_receipt( $rel_path, $abs );
 			if ( null !== $item ) {
 				$items[] = $item;
-				$flagged++;
+				++$flagged;
 			}
 		}
 
@@ -350,7 +379,7 @@ final class OrphanFiles implements AuditReportInterface, AuditReportCsvExportabl
 		$rows = $wpdb->get_col(
 			"SELECT meta_value FROM {$wpdb->postmeta} WHERE meta_key = '_wp_attached_file'"
 		);
-		$set = array();
+		$set  = array();
 		if ( is_array( $rows ) ) {
 			foreach ( $rows as $rel ) {
 				$rel = str_replace( '\\', '/', (string) $rel );
@@ -497,11 +526,26 @@ final class OrphanFiles implements AuditReportInterface, AuditReportCsvExportabl
 
 	public function csv_columns(): array {
 		return array(
-			array( 'key' => 'path',        'label' => __( 'Path', 'cf-media-manager' ) ),
-			array( 'key' => 'extension',   'label' => __( 'Extension', 'cf-media-manager' ) ),
-			array( 'key' => 'size_bytes',  'label' => __( 'Size (bytes)', 'cf-media-manager' ) ),
-			array( 'key' => 'size_human',  'label' => __( 'Size', 'cf-media-manager' ) ),
-			array( 'key' => 'mtime_human', 'label' => __( 'Modified', 'cf-media-manager' ) ),
+			array(
+				'key'   => 'path',
+				'label' => __( 'Path', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'extension',
+				'label' => __( 'Extension', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'size_bytes',
+				'label' => __( 'Size (bytes)', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'size_human',
+				'label' => __( 'Size', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'mtime_human',
+				'label' => __( 'Modified', 'cf-media-manager' ),
+			),
 		);
 	}
 

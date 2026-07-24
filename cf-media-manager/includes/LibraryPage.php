@@ -15,10 +15,10 @@ defined( 'ABSPATH' ) || exit;
 
 final class LibraryPage {
 
-	const PAGE_SLUG       = 'cf-media-library';
-	const HOOK_SUFFIX     = 'media_page_cf-media-library';
-	const EXPORT_NONCE    = 'cf_media_manager_export_library_csv';
-	const EXPORT_TRIGGER  = 'cf_media_library_export';
+	const PAGE_SLUG      = 'cf-media-library';
+	const HOOK_SUFFIX    = 'media_page_cf-media-library';
+	const EXPORT_NONCE   = 'cf_media_manager_export_library_csv';
+	const EXPORT_TRIGGER = 'cf_media_library_export';
 
 	public function register_hooks(): void {
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );

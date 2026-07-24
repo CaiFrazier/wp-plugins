@@ -451,7 +451,10 @@ final class AdminPage {
 								wp_kses(
 									/* translators: 1: <strong>Recommended:</strong> label, 2: <code>apple-touch-icon</code> rel value. */
 									__( '%1$s leave this off. iOS rejects %2$s in WebP for home-screen install, and the conventional multi-format favicon declaration (.ico fallback, PNG 32×32 and 192×192, Apple touch PNG) is still the most compatible pattern. Enable only if you have verified every consumer of your favicons can handle .webp.', 'cf-media-optimizer' ),
-									array( 'strong' => array(), 'code' => array() )
+									array(
+										'strong' => array(),
+										'code'   => array(),
+									)
 								),
 								'<strong>' . esc_html__( 'Recommended:', 'cf-media-optimizer' ) . '</strong>',
 								'<code>apple-touch-icon</code>'

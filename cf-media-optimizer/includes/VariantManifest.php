@@ -333,7 +333,7 @@ class VariantManifest {
 			if ( '' === $rel ) {
 				continue;
 			}
-			$abs = $base . ltrim( $rel, '/' );
+			$abs                                       = $base . ltrim( $rel, '/' );
 			$set[ $abs . '|' . (int) $row['post_id'] ] = true;
 		}
 		return $set;
@@ -714,7 +714,7 @@ class VariantManifest {
 	 * the same row between the in-memory `owned_pairs` snapshot and our
 	 * INSERT. Returns the still-needed writes.
 	 *
-	 * @param object                                                            $wpdb_obj
+	 * @param object                                                          $wpdb_obj
 	 * @param array<int,array{post_id:int,meta_key:string,meta_value:string}> $writes
 	 * @return array<int,array{post_id:int,meta_key:string,meta_value:string}>
 	 */
@@ -722,10 +722,10 @@ class VariantManifest {
 		if ( empty( $writes ) ) {
 			return $writes;
 		}
-		$post_ids = array();
+		$post_ids  = array();
 		$meta_keys = array();
 		foreach ( $writes as $row ) {
-			$post_ids[ (int) $row['post_id'] ]   = true;
+			$post_ids[ (int) $row['post_id'] ]      = true;
 			$meta_keys[ (string) $row['meta_key'] ] = true;
 		}
 		$post_ids  = array_keys( $post_ids );
@@ -737,7 +737,7 @@ class VariantManifest {
 		$key_placeholders = implode( ',', array_fill( 0, count( $meta_keys ), '%s' ) );
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders are %d/%s lists, values pass through prepare()
-		$sql = "SELECT post_id, meta_key FROM {$wpdb_obj->postmeta} WHERE post_id IN ($pid_placeholders) AND meta_key IN ($key_placeholders)";
+		$sql      = "SELECT post_id, meta_key FROM {$wpdb_obj->postmeta} WHERE post_id IN ($pid_placeholders) AND meta_key IN ($key_placeholders)";
 		$prepared = $wpdb_obj->prepare( $sql, array_merge( $post_ids, $meta_keys ) );
 		// phpcs:enable
 		if ( false === $prepared || null === $prepared ) {
@@ -773,12 +773,14 @@ class VariantManifest {
 			}
 			$held[ (int) $row['post_id'] . '|' . (string) $row['meta_key'] ] = true;
 		}
-		return array_values( array_filter(
-			$writes,
-			static function ( $row ) use ( $held ) {
-				return ! isset( $held[ (int) $row['post_id'] . '|' . (string) $row['meta_key'] ] );
-			}
-		) );
+		return array_values(
+			array_filter(
+				$writes,
+				static function ( $row ) use ( $held ) {
+					return ! isset( $held[ (int) $row['post_id'] . '|' . (string) $row['meta_key'] ] );
+				}
+			)
+		);
 	}
 
 	/**

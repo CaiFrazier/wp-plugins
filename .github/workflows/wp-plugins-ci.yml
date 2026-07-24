@@ -70,12 +70,9 @@ jobs:
       - name: Run PHPUnit
         run: composer test
 
-      - name: Coding standards (advisory)
-        # Advisory, not blocking: WPCS 3.4 introduced sniffs that several of the
-        # older plugins (and the media pair inherited from them) do not yet
-        # satisfy. Bringing every plugin to WPCS-3.4 conformance is tracked as its
-        # own loop (Codex §7 Polish). PHPUnit + php -l remain hard gates.
-        continue-on-error: true
+      - name: Coding standards
+        # Blocking as of 2026-07-24: the whole line is WPCS-3.4 clean under the
+        # shared ruleset (errors block, warnings inform via ignore_warnings_on_exit).
         run: |
           if [ -f phpcs.xml.dist ]; then
             composer lint

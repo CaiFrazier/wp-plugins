@@ -514,7 +514,11 @@ final class Rewriter {
 	 */
 	private function build_variant_srcsets( ?string $srcset ): array {
 		if ( $srcset === null || $srcset === '' ) {
-			return [ 'webp' => '', 'avif' => '', 'had_srcset' => false ];
+			return [
+				'webp'       => '',
+				'avif'       => '',
+				'had_srcset' => false,
+			];
 		}
 
 		$webp_parts = [];
@@ -571,9 +575,9 @@ final class Rewriter {
 	private function substitute_remaining_urls( string $html ): string {
 		// Match upload-dir JPG/PNG URLs in any of three shapes that show up
 		// in real-world HTML:
-		//   - Absolute            https://site.com/wp-content/uploads/foo.png
-		//   - Protocol-relative   //site.com/wp-content/uploads/foo.png
-		//   - Root-relative       /wp-content/uploads/foo.png
+		// - Absolute            https://site.com/wp-content/uploads/foo.png
+		// - Protocol-relative   //site.com/wp-content/uploads/foo.png
+		// - Root-relative       /wp-content/uploads/foo.png
 		//
 		// The root-relative form is what hand-coded HTML in Divi Code Modules,
 		// Elementor HTML widgets, and similar page-builder blocks tends to
@@ -600,7 +604,7 @@ final class Rewriter {
 		$pattern = '#(' .
 			'(?:https?:)?//' . $escaped_host . $escaped_path . // absolute or protocol-relative
 			'|' .
-			'(?<![A-Za-z0-9_./-])' . $escaped_path .            // root-relative, with lookbehind to avoid mid-path false matches
+			'(?<![A-Za-z0-9_./-])' . $escaped_path . // root-relative, with lookbehind to avoid mid-path false matches
 			')/[^"\'>\s\)\?]+\.(jpe?g|png)(\?[^"\'>\s\)]*)?#i';
 
 		$result = self::safe_preg_replace_callback(
@@ -700,10 +704,12 @@ final class Rewriter {
 		if ( null === $out || PREG_NO_ERROR !== preg_last_error() ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- WP_DEBUG-gated diagnostic.
-				error_log( sprintf(
-					'[cf-media-optimizer] rewriter PCRE failure (%d) — falling back to unchanged HTML',
-					preg_last_error()
-				) );
+				error_log(
+					sprintf(
+						'[cf-media-optimizer] rewriter PCRE failure (%d) — falling back to unchanged HTML',
+						preg_last_error()
+					)
+				);
 			}
 			return null;
 		}

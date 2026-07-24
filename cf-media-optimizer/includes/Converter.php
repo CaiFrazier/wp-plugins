@@ -328,10 +328,10 @@ final class Converter {
 					$this->record_ownership( $attachment_id, $webp_dest, $this->last_avif_written ? $avif_dest : null );
 					return true;
 				}
-				$imagick_failed = true;
+				$imagick_failed         = true;
 				$this->last_skip_reason = __( 'Imagick writeImage returned false for the WebP target — encoder rejected the output.', 'cf-media-optimizer' );
 			} catch ( Throwable $e ) {
-				$imagick_failed = true;
+				$imagick_failed         = true;
 				$this->last_skip_reason = sprintf(
 					/* translators: %s: PHP exception message from Imagick. */
 					__( 'Imagick threw: %s', 'cf-media-optimizer' ),
@@ -523,11 +523,13 @@ final class Converter {
 		}
 		if ( ! is_readable( $src ) ) {
 			++$failed;
-			$add_reason( sprintf(
+			$add_reason(
+				sprintf(
 				/* translators: %s: filename of the missing or unreadable source image. */
-				__( '%s is missing or unreadable on disk.', 'cf-media-optimizer' ),
-				basename( $src )
-			) );
+					__( '%s is missing or unreadable on disk.', 'cf-media-optimizer' ),
+					basename( $src )
+				)
+			);
 			return 0;
 		}
 

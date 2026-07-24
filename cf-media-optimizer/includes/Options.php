@@ -22,31 +22,31 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Options {
 
-	const QUALITY             = 'cf_media_manager_quality';         // int 1-100
-	const REWRITE             = 'cf_media_manager_rewrite';         // bool — master toggle for HTML rewriting
-	const SCOPE               = 'cf_media_manager_rewrite_scope';   // 'all' | 'guests'
-	const FILTER_MODE         = 'cf_media_manager_filter_mode';     // 'none' | 'blacklist' | 'whitelist'
-	const FILTER_PATTERNS     = 'cf_media_manager_filter_patterns'; // newline-separated URL path patterns
-	const BATCH_SIZE          = 'cf_media_manager_batch_size';      // int 1-25 — attachments per AJAX tick AND per cron tick
-	const PURGE_FLAG          = 'cf_media_manager_pending_purge';   // unix timestamp — set after conversion
-	const ENABLE_AVIF         = 'cf_media_manager_enable_avif';     // bool — produce .avif alongside .webp
-	const REWRITE_FAVICONS    = 'cf_media_manager_rewrite_favicons'; // bool — rewrite favicon/touch-icon <link> hrefs to .webp (off by default; iOS does not honor .webp for apple-touch-icon)
-	const ALT_FALLBACK        = 'cf_media_manager_alt_fallback';    // bool — at render time fill empty/missing <img> alt from the attachment's _wp_attachment_image_alt (on by default; rides the rewrite output pass)
-	const MAX_SOURCE_MB       = 'cf_media_manager_max_source_mb';   // int — admin-configurable source filesize cap in MB (clamped to [1, HARD_MAX_SOURCE_MB])
-	const QUEUE_STATE         = 'cf_media_manager_queue_state';     // background queue progress + ids
-	const QUEUE_LOCK          = 'cf_media_manager_queue_lock';      // option (autoload=false) — atomic add_option lock for process_chunk; carries token+expires struct
-	const BACKFILL_DONE       = 'cf_media_manager_backfill_done';   // bool — admin completed the legacy-variant backfill
-	const BACKFILL_LOCK       = 'cf_media_manager_backfill_lock';   // transient — in-flight backfill marker, prevents parallel runs
+	const QUALITY                = 'cf_media_manager_quality';         // int 1-100
+	const REWRITE                = 'cf_media_manager_rewrite';         // bool — master toggle for HTML rewriting
+	const SCOPE                  = 'cf_media_manager_rewrite_scope';   // 'all' | 'guests'
+	const FILTER_MODE            = 'cf_media_manager_filter_mode';     // 'none' | 'blacklist' | 'whitelist'
+	const FILTER_PATTERNS        = 'cf_media_manager_filter_patterns'; // newline-separated URL path patterns
+	const BATCH_SIZE             = 'cf_media_manager_batch_size';      // int 1-25 — attachments per AJAX tick AND per cron tick
+	const PURGE_FLAG             = 'cf_media_manager_pending_purge';   // unix timestamp — set after conversion
+	const ENABLE_AVIF            = 'cf_media_manager_enable_avif';     // bool — produce .avif alongside .webp
+	const REWRITE_FAVICONS       = 'cf_media_manager_rewrite_favicons'; // bool — rewrite favicon/touch-icon <link> hrefs to .webp (off by default; iOS does not honor .webp for apple-touch-icon)
+	const ALT_FALLBACK           = 'cf_media_manager_alt_fallback';    // bool — at render time fill empty/missing <img> alt from the attachment's _wp_attachment_image_alt (on by default; rides the rewrite output pass)
+	const MAX_SOURCE_MB          = 'cf_media_manager_max_source_mb';   // int — admin-configurable source filesize cap in MB (clamped to [1, HARD_MAX_SOURCE_MB])
+	const QUEUE_STATE            = 'cf_media_manager_queue_state';     // background queue progress + ids
+	const QUEUE_LOCK             = 'cf_media_manager_queue_lock';      // option (autoload=false) — atomic add_option lock for process_chunk; carries token+expires struct
+	const BACKFILL_DONE          = 'cf_media_manager_backfill_done';   // bool — admin completed the legacy-variant backfill
+	const BACKFILL_LOCK          = 'cf_media_manager_backfill_lock';   // transient — in-flight backfill marker, prevents parallel runs
 	const MIGRATION_OPTIMIZER_V1 = 'cf_media_manager_migration_optimizer_v1'; // bool — one-time migration marker (retained from the pre-split lineage)
-	const BACKFILL_LOCK_TTL   = 600;                                // seconds — TTL refreshed per chunk; auto-expires if a run dies
-	const DELETE_ON_UNINSTALL = 'cf_media_manager_delete_variants_on_uninstall'; // bool — delete owned variants on plugin uninstall
+	const BACKFILL_LOCK_TTL      = 600;                                // seconds — TTL refreshed per chunk; auto-expires if a run dies
+	const DELETE_ON_UNINSTALL    = 'cf_media_manager_delete_variants_on_uninstall'; // bool — delete owned variants on plugin uninstall
 
 	const DEFAULT_QUALITY = 80;
 	const DEFAULT_BATCH   = 1;
 
-	const MAX_BATCH_IDS    = 100;            // ids per AJAX call
-	const MAX_QUEUE_IDS    = 50000;          // hard ceiling on a single queue start (defense vs UI bypass)
-	const MAX_PIXELS       = 25_000_000;     // ~5000×5000 — guard against decompression bombs and memory exhaustion
+	const MAX_BATCH_IDS = 100;            // ids per AJAX call
+	const MAX_QUEUE_IDS = 50000;          // hard ceiling on a single queue start (defense vs UI bypass)
+	const MAX_PIXELS    = 25_000_000;     // ~5000×5000 — guard against decompression bombs and memory exhaustion
 
 	// Source filesize cap. The active value is the admin-configurable
 	// `MAX_SOURCE_MB` option, clamped to [1, HARD_MAX_SOURCE_MB] by
@@ -56,13 +56,13 @@ final class Options {
 	// pair it with an `image` memory_limit of 512 MB or more at the host.
 	const DEFAULT_MAX_SOURCE_MB = 50;
 	const HARD_MAX_SOURCE_MB    = 200;
-	const MAX_PATTERNS_LEN = 8192;           // bytes — pattern textarea ceiling
-	const VERIFY_TIMEOUT   = 10;             // seconds
-	const VERIFY_MAX_BYTES = 5 * 1024 * 1024; // 5 MB — verifier response cap
-	const VERIFY_MAX_HOPS  = 3;              // redirect hops the verifier will follow
-	const QUEUE_CHUNK_MAX  = 25;             // server-side ceiling on attachments per cron tick
-	const QUEUE_LOCK_TTL   = 300;            // seconds — process_chunk lock TTL
-	const COUNTS_PAGE_SIZE = 1000;           // batch size for paginating attachment ID scans
+	const MAX_PATTERNS_LEN      = 8192;           // bytes — pattern textarea ceiling
+	const VERIFY_TIMEOUT        = 10;             // seconds
+	const VERIFY_MAX_BYTES      = 5 * 1024 * 1024; // 5 MB — verifier response cap
+	const VERIFY_MAX_HOPS       = 3;              // redirect hops the verifier will follow
+	const QUEUE_CHUNK_MAX       = 25;             // server-side ceiling on attachments per cron tick
+	const QUEUE_LOCK_TTL        = 300;            // seconds — process_chunk lock TTL
+	const COUNTS_PAGE_SIZE      = 1000;           // batch size for paginating attachment ID scans
 
 	// Files processed per AJAX call in the legacy-variant backfill's inner
 	// loop. With the pre-built lookup maps a hash-resolve + sibling-probe
