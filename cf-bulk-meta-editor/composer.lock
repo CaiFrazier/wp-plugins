@@ -4,15 +4,15 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "77be69cb47323089d847502d6f034e85",
+    "content-hash": "9453822cefca61dc377016869ae0c51d",
     "packages": [
         {
             "name": "caifrazier/wp-plugins-shared",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "dist": {
                 "type": "path",
                 "url": "../shared",
-                "reference": "75a1cee0e5d96b08eae0f248912bfc7407803544"
+                "reference": "a15864070d283961dc4dea80e7e6837d1939f588"
             },
             "require": {
                 "php": ">=7.4"
@@ -2474,7 +2474,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.4"
+        "php": ">=8.0"
     },
     "platform-dev": {},
     "plugin-api-version": "2.9.0"

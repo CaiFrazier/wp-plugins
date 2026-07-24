@@ -8,11 +8,11 @@
     "packages": [
         {
             "name": "caifrazier/wp-plugins-shared",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "dist": {
                 "type": "path",
                 "url": "../shared",
-                "reference": "75a1cee0e5d96b08eae0f248912bfc7407803544"
+                "reference": "a15864070d283961dc4dea80e7e6837d1939f588"
             },
             "require": {
                 "php": ">=7.4"

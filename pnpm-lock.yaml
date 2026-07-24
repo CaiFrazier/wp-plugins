@@ -69,6 +69,8 @@ importers:
 
   cf-media-manager: {}
 
+  cf-media-optimizer: {}
+
   schema-override-manager:
     dependencies:
       '@wordpress/api-fetch':
