@@ -3,8 +3,8 @@
 namespace CFMediaManager\Tests;
 
 use CFMediaManager\AltTextManager;
-use CFMediaManager\InUseScanner;
-use CFMediaManager\Paths;
+use CFShared\Media\InUseScanner;
+use CFShared\Media\Paths;
 use CFMediaManagerHttpExit;
 use PHPUnit\Framework\TestCase;
 

@@ -44,9 +44,10 @@ use CFMediaManager\Audit\AuditReportCsvExportable;
 use CFMediaManager\Audit\AuditReportInterface;
 use CFMediaManager\Audit\IgnoredStore;
 use CFMediaManager\Audit\ScanContext;
-use CFMediaManager\Paths;
 
 defined( 'ABSPATH' ) || exit;
+
+use CFShared\Media\Paths;
 
 final class OrphanFiles implements AuditReportInterface, AuditReportCsvExportable {
 

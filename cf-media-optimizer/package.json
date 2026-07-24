@@ -1,0 +1,10 @@
+{
+    "name": "cf-media-optimizer",
+    "version": "3.0.0",
+    "description": "CF Media Optimizer release wrapper.",
+    "private": true,
+    "scripts": {
+        "build": "node ../scripts/release.mjs cf-media-optimizer",
+        "clean": "rm -rf dist/*.zip"
+    }
+}

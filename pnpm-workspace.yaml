@@ -3,4 +3,5 @@ packages:
   - "cf-chunked-upload"
   - "cf-content-calendar"
   - "cf-media-manager"
+  - "cf-media-optimizer"
   - "schema-override-manager"

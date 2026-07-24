@@ -6,7 +6,8 @@ A collection of free, focused WordPress utility plugins by Cai Frazier, plus a s
 
 | Plugin | Folder | What it does |
 |---|---|---|
-| CF Media Manager | [`cf-media-manager/`](cf-media-manager/) | Converts JPEG/PNG uploads to WebP and AVIF and serves them through `<picture>` with native browser fallback. Originals are never modified. |
+| CF Media Optimizer | [`cf-media-optimizer/`](cf-media-optimizer/) | Converts JPEG/PNG uploads to WebP and AVIF and serves them through `<picture>` with native browser fallback. Originals are never modified. |
+| CF Media Manager | [`cf-media-manager/`](cf-media-manager/) | Media Library management: a configurable list view with CSV export, a five-report media audit, and a bulk alt-text editor. Pairs with CF Media Optimizer. |
 | CF Bulk Meta Editor | [`cf-bulk-meta-editor/`](cf-bulk-meta-editor/) | Spreadsheet-style editor for SEO meta titles, descriptions, and custom postmeta across all post types. Presets for Yoast, Rank Math, AIOSEO, and The SEO Framework. |
 | CF QR Redirect | [`qr-redirect/`](qr-redirect/) | Self-hosted QR codes and a redirect manager — branded short URLs on your own domain with native GA4 attribution. |
 | CF Chunked Upload | [`cf-chunked-upload/`](cf-chunked-upload/) | Uploads large files by splitting them into browser-side chunks and reassembling them on the server. |
@@ -34,8 +35,6 @@ See [PRODUCT_PRINCIPLES.md](PRODUCT_PRINCIPLES.md) for the full design philosoph
 
 - WordPress 6.2+
 - PHP 8.0+
-
-Some plugins run on lower versions — check the header in each plugin's main file or `readme.txt`.
 
 ## Shared library
 
@@ -83,6 +82,7 @@ Run from each plugin directory:
 | `cf-content-calendar/` | `composer test` |
 | `qr-redirect/` | `composer test` |
 | `cf-media-manager/` | `composer test` |
+| `cf-media-optimizer/` | `composer test` |
 | `shared/` | `composer test` |
 
 Shallow PHP syntax check across every plugin, from the repo root:

@@ -55,6 +55,7 @@ use CFMediaManager\Audit\ScanContext;
 
 defined( 'ABSPATH' ) || exit;
 
+
 final class DuplicateOriginals implements AuditReportInterface, AuditReportCsvExportable {
 
 	const ID = 'duplicate_originals';

@@ -46,6 +46,7 @@ use CFMediaManager\Audit\ScanContext;
 
 defined( 'ABSPATH' ) || exit;
 
+
 final class UnusedAttachments implements AuditReportInterface, AuditReportCsvExportable {
 
 	const ID = 'unused_attachments';

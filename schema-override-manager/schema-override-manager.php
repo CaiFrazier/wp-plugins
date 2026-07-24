@@ -15,7 +15,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'SOM_VERSION', '1.0.0' );
+define( 'SOM_VERSION', '1.0.1' );
 define( 'SOM_FILE', __FILE__ );
 define( 'SOM_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SOM_URL', plugin_dir_url( __FILE__ ) );

@@ -6,7 +6,7 @@ use CFMediaManager\Audit\AuditChunk;
 use CFMediaManager\Audit\IgnoredStore;
 use CFMediaManager\Audit\Reports\OrphanFiles;
 use CFMediaManager\Audit\ScanContext;
-use CFMediaManager\Paths;
+use CFShared\Media\Paths;
 use PHPUnit\Framework\TestCase;
 
 /**

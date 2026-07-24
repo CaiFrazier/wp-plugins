@@ -45,7 +45,6 @@ Run these from each plugin directory after installing dependencies.
 | `cf-bulk-meta-editor/` | `composer test` | `npm run build` |
 | `cf-chunked-upload/` | `composer test` | `npm run test:js`; `npm run build` |
 | `cf-content-calendar/` | `composer test` | `npm run build` |
-| `cf-media-list-view/` | `composer test` | n/a |
 | `cf-post-list-view/` | Not present yet | n/a |
 | `qr-redirect/` | `composer test` | n/a |
 | `schema-override-manager/` | Not present yet | `npm run build` |
@@ -72,7 +71,6 @@ From the repo root:
 node scripts/release.mjs cf-media-manager
 node scripts/release.mjs qr-redirect
 node scripts/release.mjs cf-bulk-meta-editor
-node scripts/release.mjs cf-media-list-view
 node scripts/release.mjs cf-content-calendar
 node scripts/release.mjs cf-post-list-view
 node scripts/release.mjs schema-override-manager

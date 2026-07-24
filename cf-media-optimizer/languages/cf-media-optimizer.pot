@@ -1,0 +1,1516 @@
+# Copyright (C) 2026 Cai Frazier
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: CF Media Optimizer 3.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/cf-media-optimizer\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-07-24T07:41:54+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: cf-media-optimizer\n"
+
+#. Plugin Name of the plugin
+#: cf-media-optimizer.php
+msgid "CF Media Optimizer"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: cf-media-optimizer.php
+msgid "https://github.com/caifrazier/cf-media-optimizer"
+msgstr ""
+
+#. Description of the plugin
+#: cf-media-optimizer.php
+msgid "Converts JPEG/PNG uploads to WebP and AVIF and serves them through &lt;picture&gt; with native browser fallback. Originals are never modified. No nginx or .htaccess config required."
+msgstr ""
+
+#. Author of the plugin
+#: cf-media-optimizer.php
+msgid "Cai Frazier"
+msgstr ""
+
+#. Author URI of the plugin
+#: cf-media-optimizer.php
+msgid "https://caifrazier.com"
+msgstr ""
+
+#: cf-media-optimizer.php:92
+msgid "CF Media Optimizer — Activation blocked"
+msgstr ""
+
+#: cli.php:53
+msgid "Engine"
+msgstr ""
+
+#: cli.php:57
+msgid "AVIF"
+msgstr ""
+
+#: cli.php:58
+msgid "available"
+msgstr ""
+
+#: cli.php:58
+msgid "unavailable"
+msgstr ""
+
+#: cli.php:61
+msgid "Total"
+msgstr ""
+
+#: cli.php:65
+#: includes/AdminPage.php:695
+#: assets/admin.js:1039
+msgid "Converted"
+msgstr ""
+
+#: cli.php:69
+#: includes/AdminPage.php:701
+#: assets/admin.js:1040
+msgid "Pending"
+msgstr ""
+
+#: cli.php:73
+#: includes/AdminPage.php:573
+msgid "Quality"
+msgstr ""
+
+#: cli.php:77
+msgid "Rewriting"
+msgstr ""
+
+#: cli.php:78
+msgid "enabled"
+msgstr ""
+
+#: cli.php:78
+msgid "disabled"
+msgstr ""
+
+#: cli.php:123
+msgid "Nothing to convert."
+msgstr ""
+
+#: cli.php:136
+msgid "Converting"
+msgstr ""
+
+#. translators: 1: number converted, 2: number failed, 3: number of AVIF files written, 4: number of GD fallbacks, 5: size_format() of bytes saved.
+#: cli.php:169
+#, php-format
+msgid "%1$d converted, %2$d failed, %3$d AVIF, %4$d GD fallback(s) — saved %5$s."
+msgstr ""
+
+#. translators: %d: number of attachments that fell back to the GD library after Imagick failed.
+#: cli.php:182
+#, php-format
+msgid "%d file used GD fallback — Imagick failed for it."
+msgid_plural "%d files used GD fallback — Imagick failed for these."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: number of attachments queued, 2: queue backend name (e.g. action-scheduler, wp-cron).
+#: cli.php:226
+#, php-format
+msgid "Queued %1$d attachments (backend: %2$s)."
+msgstr ""
+
+#. translators: 1: queue status (running/complete/cancelled), 2: backend, 3: total, 4: processed, 5: converted, 6: failed, 7: human-readable bytes saved.
+#: cli.php:238
+#, php-format
+msgid ""
+"status:    %1$s\n"
+"backend:   %2$s\n"
+"total:     %3$d\n"
+"processed: %4$d\n"
+"converted: %5$d\n"
+"failed:    %6$d\n"
+"bytes saved: %7$s"
+msgstr ""
+
+#: cli.php:252
+msgid "Queue cancelled."
+msgstr ""
+
+#: cli.php:256
+msgid "Unknown subcommand. Use: start | status | cancel"
+msgstr ""
+
+#. translators: %d: number of files that would be adopted.
+#: cli.php:333
+#, php-format
+msgid "%d file(s) would be adopted. Re-run without --dry-run to commit."
+msgstr ""
+
+#. translators: %d: number of files adopted.
+#: cli.php:338
+#, php-format
+msgid "Adopted %d file(s) into the manifest."
+msgstr ""
+
+#: includes/AdminPage.php:56
+#: includes/AdminPage.php:201
+msgid "Settings"
+msgstr ""
+
+#: includes/AdminPage.php:89
+#: includes/AdminPage.php:90
+#: includes/AdminPage.php:174
+msgid "Media Optimizer"
+msgstr ""
+
+#. translators: %s: link to the CF Media Manager page.
+#: includes/AdminPage.php:183
+#, php-format
+msgid "Media Library auditing, bulk alt text, and the list view are in %s."
+msgstr ""
+
+#: includes/AdminPage.php:184
+msgid "CF Media Manager"
+msgstr ""
+
+#: includes/AdminPage.php:191
+msgid "No WebP support found — install the Imagick PHP extension or enable GD with WebP support."
+msgstr ""
+
+#: includes/AdminPage.php:197
+msgid "Convert"
+msgstr ""
+
+#: includes/AdminPage.php:213
+msgid "Bulk Conversion"
+msgstr ""
+
+#: includes/AdminPage.php:214
+msgid "Recheck the media library for newly uploaded images"
+msgstr ""
+
+#: includes/AdminPage.php:214
+msgid "Recheck"
+msgstr ""
+
+#: includes/AdminPage.php:217
+msgid "Loading…"
+msgstr ""
+
+#: includes/AdminPage.php:224
+msgid "Which images to convert"
+msgstr ""
+
+#: includes/AdminPage.php:227
+msgid "All images in the media library"
+msgstr ""
+
+#: includes/AdminPage.php:231
+msgid "In-use only — images referenced on the front end"
+msgstr ""
+
+#: includes/AdminPage.php:232
+#: assets/admin.js:347
+msgid "scanning…"
+msgstr ""
+
+#: includes/AdminPage.php:233
+msgid "Re-scan the site for image references"
+msgstr ""
+
+#: includes/AdminPage.php:233
+msgid "Rescan"
+msgstr ""
+
+#: includes/AdminPage.php:241
+msgid "Force reconvert all — re-encodes even up-to-date files. Use after changing quality."
+msgstr ""
+
+#: includes/AdminPage.php:246
+msgid "Convert Now"
+msgstr ""
+
+#: includes/AdminPage.php:247
+#: includes/AdminPage.php:274
+#: assets/admin.js:609
+#: assets/admin.js:619
+msgid "Convert in Background"
+msgstr ""
+
+#: includes/AdminPage.php:248
+#: assets/admin.js:512
+msgid "Stop"
+msgstr ""
+
+#: includes/AdminPage.php:249
+#: assets/admin.js:786
+#: assets/admin.js:820
+#: assets/admin.js:850
+#: assets/admin.js:873
+msgid "Delete All Variants"
+msgstr ""
+
+#: includes/AdminPage.php:250
+msgid "All done!"
+msgstr ""
+
+#: includes/AdminPage.php:254
+#: assets/admin.js:919
+msgid "Claim all untracked variants…"
+msgstr ""
+
+#: includes/AdminPage.php:256
+msgid "Claims existing .webp/.avif files into the plugin's ownership manifest in one pass, so Delete All can remove them and the rewriter can serve them. Use this when Convert reports \"An unowned WebP exists in the destination slot\" for many images at once — e.g. variants left by a previous plugin or brought in by a media import. Files that are themselves Media Library attachments are skipped (use Diagnose Attachment to remove those individually). Asks for confirmation before writing, and is safe to re-run anytime."
+msgstr ""
+
+#: includes/AdminPage.php:266
+msgid "Dismiss this explainer permanently"
+msgstr ""
+
+#: includes/AdminPage.php:267
+msgid "Dismiss permanently"
+msgstr ""
+
+#: includes/AdminPage.php:270
+msgid "In-use only"
+msgstr ""
+
+#: includes/AdminPage.php:271
+msgid "scans for images referenced in post content, featured images, page builders (Divi, Elementor, Beaver Builder, Bricks, WPBakery), reusable blocks, block theme templates, widget areas, ACF image fields, WooCommerce galleries, site logo, and site icon. Anything in the media library nothing links to is skipped — a big speed-up on sites with lots of stale imagery."
+msgstr ""
+
+#: includes/AdminPage.php:277
+msgid "queues the run on the server (Action Scheduler) and processes a small batch every few seconds. You can close this tab — conversion keeps going. Reopen this page anytime to see live progress."
+msgstr ""
+
+#: includes/AdminPage.php:279
+msgid "queues the run on the server (WP-Cron) and processes a small batch on each cron tick. You can close this tab — conversion keeps going, but cron only fires when someone visits the site. Reopen this page anytime to see live progress."
+msgstr ""
+
+#: includes/AdminPage.php:293
+msgid "Convert Specific Images"
+msgstr ""
+
+#: includes/AdminPage.php:294
+msgid "Pick individual images from your media library using the standard WordPress media browser."
+msgstr ""
+
+#: includes/AdminPage.php:296
+msgid "Choose Images…"
+msgstr ""
+
+#: includes/AdminPage.php:302
+msgid "Convert Selected"
+msgstr ""
+
+#: includes/AdminPage.php:309
+msgid "Cache Management"
+msgstr ""
+
+#. translators: %s: <code>&lt;picture&gt;</code> markup tag.
+#: includes/AdminPage.php:314
+#, php-format
+msgid "Some page builders (Divi in particular) cache compiled CSS that embeds image URLs. After converting images you typically need to purge those caches before the new %s markup appears in the browser."
+msgstr ""
+
+#: includes/AdminPage.php:321
+msgid "Detecting active caches…"
+msgstr ""
+
+#: includes/AdminPage.php:325
+msgid "Purge All Caches"
+msgstr ""
+
+#. translators: %s: <code>cf_media_manager_purge_caches</code> filter name.
+#: includes/AdminPage.php:335
+#, php-format
+msgid "If you use a cache plugin that isn't detected, hook into %s from your theme or a mu-plugin to add it."
+msgstr ""
+
+#: includes/AdminPage.php:344
+msgid "Verify a Live Page"
+msgstr ""
+
+#: includes/AdminPage.php:345
+msgid "Fetch a public URL and report how many of its images are being served as WebP/AVIF. Useful for confirming the rewrite works against production caches."
+msgstr ""
+
+#: includes/AdminPage.php:349
+#: assets/admin.js:1170
+#: assets/admin.js:1239
+msgid "Verify"
+msgstr ""
+
+#: includes/AdminPage.php:357
+msgid "Diagnose Attachment"
+msgstr ""
+
+#: includes/AdminPage.php:359
+msgid "Pass an attachment ID to see the variant-ownership state for that image. Useful when Convert reports \"An unowned WebP exists in the destination slot\" for a file you expected Adopt to claim. The report tells you exactly why and offers a one-click fix."
+msgstr ""
+
+#: includes/AdminPage.php:362
+msgid "Attachment ID:"
+msgstr ""
+
+#: includes/AdminPage.php:364
+#: assets/admin.js:1368
+#: assets/admin.js:1379
+msgid "Diagnose"
+msgstr ""
+
+#: includes/AdminPage.php:378
+msgid "HTML Rewriting"
+msgstr ""
+
+#: includes/AdminPage.php:385
+#: includes/AdminPage.php:388
+msgid "Enable HTML rewriting"
+msgstr ""
+
+#. translators: 1: <code>&lt;img&gt;</code>, 2: <code>&lt;picture&gt;</code>.
+#: includes/AdminPage.php:393
+#, php-format
+msgid "Wrap upload-dir %1$s tags in %2$s with WebP/AVIF sources."
+msgstr ""
+
+#: includes/AdminPage.php:404
+msgid "Serve modern formats to"
+msgstr ""
+
+#: includes/AdminPage.php:409
+msgid "All visitors"
+msgstr ""
+
+#: includes/AdminPage.php:409
+msgid "(recommended)"
+msgstr ""
+
+#: includes/AdminPage.php:413
+msgid "Logged-out visitors only"
+msgstr ""
+
+#: includes/AdminPage.php:416
+msgid "Use \"logged-out only\" if admin users or page-builder editors need to see original image URLs."
+msgstr ""
+
+#: includes/AdminPage.php:420
+msgid "AVIF output"
+msgstr ""
+
+#: includes/AdminPage.php:424
+msgid "Generate AVIF alongside WebP"
+msgstr ""
+
+#. translators: %s: <code>&lt;picture&gt;</code> markup tag.
+#: includes/AdminPage.php:431
+#, php-format
+msgid "AVIF is typically 20–30%% smaller than WebP at the same visual quality. Browsers without AVIF receive WebP via %s negotiation."
+msgstr ""
+
+#: includes/AdminPage.php:436
+msgid "Your Imagick build does not include the AVIF coder. Install ImageMagick with libavif support to enable."
+msgstr ""
+
+#: includes/AdminPage.php:442
+msgid "Favicon rewriting"
+msgstr ""
+
+#: includes/AdminPage.php:446
+msgid "Rewrite favicon and touch-icon links to WebP"
+msgstr ""
+
+#. translators: 1: <strong>Recommended:</strong> label, 2: <code>apple-touch-icon</code> rel value.
+#: includes/AdminPage.php:453
+#, php-format
+msgid "%1$s leave this off. iOS rejects %2$s in WebP for home-screen install, and the conventional multi-format favicon declaration (.ico fallback, PNG 32×32 and 192×192, Apple touch PNG) is still the most compatible pattern. Enable only if you have verified every consumer of your favicons can handle .webp."
+msgstr ""
+
+#: includes/AdminPage.php:456
+msgid "Recommended:"
+msgstr ""
+
+#: includes/AdminPage.php:464
+msgid "Alt text fallback"
+msgstr ""
+
+#: includes/AdminPage.php:468
+msgid "Apply Media Library alt text to images that render without it"
+msgstr ""
+
+#: includes/AdminPage.php:471
+msgid "At render time, fills an empty or missing alt attribute on any uploads-folder image from that attachment's Media Library alt text (the same field CF Media Optimizer's Accessibility tab edits, when installed). Page builders like Divi store their own per-module alt and ignore the attachment field, so alt set in the media library otherwise never reaches the page. Only adds alt — never overrides an existing one, and skips images marked decorative or aria-hidden. Requires HTML rewriting (above) to be enabled."
+msgstr ""
+
+#: includes/AdminPage.php:476
+msgid "Page filter"
+msgstr ""
+
+#: includes/AdminPage.php:479
+msgid "No filter — rewrite on all pages"
+msgstr ""
+
+#: includes/AdminPage.php:480
+msgid "Blacklist — skip listed pages"
+msgstr ""
+
+#: includes/AdminPage.php:481
+msgid "Whitelist — only rewrite listed pages"
+msgstr ""
+
+#. translators: 1: <strong>Blacklist:</strong> label, 2: <strong>Whitelist:</strong> label.
+#: includes/AdminPage.php:488
+#, php-format
+msgid "%1$s rewrite everywhere except the listed pages.<br>%2$s rewrite only on the listed pages."
+msgstr ""
+
+#: includes/AdminPage.php:491
+msgid "Blacklist:"
+msgstr ""
+
+#: includes/AdminPage.php:492
+msgid "Whitelist:"
+msgstr ""
+
+#: includes/AdminPage.php:499
+msgid "Batch size"
+msgstr ""
+
+#. translators: 1: <strong>1</strong>, 2: <strong>5–10</strong>.
+#: includes/AdminPage.php:506
+#, php-format
+msgid "Attachments processed per AJAX call. %1$s = smoothest progress, %2$s = much faster on large libraries."
+msgstr ""
+
+#: includes/AdminPage.php:515
+msgid "Max source filesize"
+msgstr ""
+
+#: includes/AdminPage.php:517
+msgid "MB"
+msgstr ""
+
+#. translators: 1: default cap in MB, 2: hard ceiling in MB.
+#: includes/AdminPage.php:522
+#, php-format
+msgid "Sources larger than this are skipped (decoder memory cap). Default %1$d MB; hard ceiling %2$d MB. Raise this if you want full-resolution WebP/AVIF for high-megapixel photography — but make sure PHP's memory_limit for image operations can handle the larger decode."
+msgstr ""
+
+#: includes/AdminPage.php:531
+msgid "URL patterns"
+msgstr ""
+
+#. translators: 1: <code>*</code>, 2: <code>#</code>.
+#: includes/AdminPage.php:540
+#, php-format
+msgid "One URL path per line. Use %1$s as a wildcard. Lines starting with %2$s are ignored.<br>Examples: <code>/contact/</code> &nbsp;·&nbsp; <code>/shop/*</code> &nbsp;·&nbsp; <code>*/legacy-gallery/*</code>"
+msgstr ""
+
+#: includes/AdminPage.php:554
+msgid "On uninstall"
+msgstr ""
+
+#: includes/AdminPage.php:558
+msgid "Delete generated WebP and AVIF files when this plugin is uninstalled"
+msgstr ""
+
+#: includes/AdminPage.php:560
+msgid "Only files written by this plugin are removed. Original JPEGs and PNGs are never touched. Leave unchecked to keep generated variants on disk after uninstalling."
+msgstr ""
+
+#: includes/AdminPage.php:566
+msgid "Save Settings"
+msgstr ""
+
+#: includes/AdminPage.php:567
+#: includes/AdminPage.php:583
+msgid "Saved."
+msgstr ""
+
+#: includes/AdminPage.php:575
+msgid "Output quality:"
+msgstr ""
+
+#: includes/AdminPage.php:578
+msgid "80 matches the default of common image-processing libraries (Sharp, etc.) and is visually lossless for most photos. Lower = smaller files. Applied to both WebP and AVIF."
+msgstr ""
+
+#: includes/AdminPage.php:581
+#: includes/AdminPage.php:590
+msgid "Save Quality"
+msgstr ""
+
+#: includes/AdminPage.php:582
+#: includes/AdminPage.php:591
+msgid "Save & Apply"
+msgstr ""
+
+#. translators: 1: "Save Quality" button name in <strong>, 2: "Save & Apply" button name in <strong>.
+#: includes/AdminPage.php:589
+#, php-format
+msgid "%1$s updates the setting only. %2$s re-encodes every existing image at the new quality."
+msgstr ""
+
+#. translators: %s: name of the conversion engine in use (Imagick or GD).
+#: includes/AdminPage.php:605
+#, php-format
+msgid "Conversion engine: %s"
+msgstr ""
+
+#: includes/AdminPage.php:611
+msgid "AVIF available"
+msgstr ""
+
+#: includes/AdminPage.php:613
+msgid "AVIF unavailable"
+msgstr ""
+
+#. translators: 1: plugin version string, 2: WordPress version string.
+#: includes/AdminPage.php:622
+#, php-format
+msgid "Media Optimizer %1$s &nbsp;·&nbsp; WordPress %2$s &nbsp;·&nbsp; <a href=\"mailto:bugs@caifrazier.com\">Report a bug</a>"
+msgstr ""
+
+#. translators: %s: "Media Optimizer:" label in <strong>.
+#: includes/AdminPage.php:660
+#, php-format
+msgid "%s Conversion complete. If you use a page cache or page builder (Divi, WP Engine, WP Rocket, LiteSpeed, etc.), purge it now so existing cached pages reload with the new markup."
+msgstr ""
+
+#: includes/AdminPage.php:661
+msgid "Media Optimizer:"
+msgstr ""
+
+#: includes/AdminPage.php:666
+msgid "Purge All Caches Now"
+msgstr ""
+
+#: includes/AdminPage.php:678
+msgid "WebP"
+msgstr ""
+
+#: includes/AdminPage.php:694
+msgid "WebP converted"
+msgstr ""
+
+#: includes/AdminPage.php:700
+msgid "Not yet converted"
+msgstr ""
+
+#: includes/Ajax.php:527
+msgid "A backfill run is already in progress (or completed within the last 10 minutes). Wait for it to finish, or try again after the lock expires."
+msgstr ""
+
+#. translators: %d: attachment ID, shown as a fallback when no filename is available.
+#: includes/Ajax.php:637
+#: assets/admin.js:478
+#: assets/admin.js:484
+#: assets/admin.js:485
+#: assets/admin.js:1002
+#: assets/admin.js:1035
+#, php-format,js-format
+msgid "ID %d"
+msgstr ""
+
+#: includes/Ajax.php:705
+msgid "Missing or invalid URL."
+msgstr ""
+
+#: includes/Ajax.php:714
+#: includes/UrlVerifier.php:181
+msgid "Invalid URL."
+msgstr ""
+
+#: includes/Ajax.php:722
+msgid "Fetch failed."
+msgstr ""
+
+#: includes/Ajax.php:919
+#: includes/Ajax.php:1010
+#: includes/Ajax.php:1088
+msgid "Invalid attachment ID."
+msgstr ""
+
+#. translators: %s: attachment mime type.
+#: includes/Ajax.php:927
+#, php-format
+msgid "Attachment %s is not a JPEG or PNG."
+msgstr ""
+
+#: includes/Ajax.php:1015
+msgid "Source file not found on disk."
+msgstr ""
+
+#: includes/Ajax.php:1093
+msgid "Source is not a JPEG or PNG attachment."
+msgstr ""
+
+#: includes/Ajax.php:1098
+msgid "Source file not found."
+msgstr ""
+
+#: includes/Ajax.php:1124
+msgid "No conflicting variant attachment found for this image. It may already be resolved — try Convert again."
+msgstr ""
+
+#. translators: %s: comma-separated attachment IDs.
+#: includes/Ajax.php:1140
+#, php-format
+msgid "The conflicting attachment (%s) is referenced on the front end. Deleting it would break that reference — update or remove those references first, then retry."
+msgstr ""
+
+#: includes/Ajax.php:1161
+msgid "Failed to delete the conflicting attachment."
+msgstr ""
+
+#: includes/Ajax.php:1181
+msgid "Source file is missing on disk."
+msgstr ""
+
+#: includes/Ajax.php:1184
+msgid "Source rel path is not in either lookup map — the path in _wp_attached_file likely differs from the on-disk filename (case, encoding, or normalization)."
+msgstr ""
+
+#. translators: 1: this attachment id, 2: id the lookup returned.
+#: includes/Ajax.php:1189
+#, php-format
+msgid "Source rel path maps to attachment %2$d, not %1$d. Two attachments may share the same _wp_attached_file value."
+msgstr ""
+
+#: includes/Ajax.php:1195
+msgid "No WebP at destination slot — nothing to adopt; Convert would proceed normally."
+msgstr ""
+
+#. translators: %d: attachment id the .webp is registered as.
+#: includes/Ajax.php:1200
+#, php-format
+msgid "WebP is itself registered as Media Library attachment %d — Adopt and Claim deliberately skip it. If it is a stale duplicate, use \"Delete the conflicting variant attachment\" below, then Convert again."
+msgstr ""
+
+#: includes/Ajax.php:1205
+msgid "WebP exists and is owned by this attachment — Convert should not be blocked. Try Convert again."
+msgstr ""
+
+#: includes/Ajax.php:1207
+msgid "WebP exists, source resolves correctly, but the manifest row is missing. Click \"Claim this WebP\" to fix."
+msgstr ""
+
+#: includes/Converter.php:146
+msgid "Source is not a supported JPG or PNG."
+msgstr ""
+
+#: includes/Converter.php:152
+#: includes/Converter.php:521
+msgid "Source path is outside the uploads directory."
+msgstr ""
+
+#: includes/Converter.php:156
+msgid "Source file is missing or unreadable."
+msgstr ""
+
+#. translators: 1: actual source size in MB, 2: configured max in MB.
+#: includes/Converter.php:169
+#, php-format
+msgid "Source is %1$.1f MB, larger than the %2$d MB cap (Settings → Max source filesize)."
+msgstr ""
+
+#: includes/Converter.php:178
+#: includes/Converter.php:542
+msgid "Derived WebP path resolved outside the uploads directory."
+msgstr ""
+
+#: includes/Converter.php:225
+msgid "An unowned WebP exists in the destination slot. Open the plugin's \"Diagnose Attachment\" tool (Media → Media Optimizer → Convert tab) and enter this image's ID for the exact cause and a one-click fix."
+msgstr ""
+
+#: includes/Converter.php:258
+msgid "getimagesize() failed — source file is corrupt or not a real image."
+msgstr ""
+
+#: includes/Converter.php:262
+msgid "Source is not a JPEG or PNG (extension matches but file header does not)."
+msgstr ""
+
+#. translators: 1: width, 2: height, 3: pixel cap in megapixels (e.g., 25).
+#: includes/Converter.php:268
+#, php-format
+msgid "Source is %1$d×%2$d, exceeding the %3$d-megapixel cap (decompression-bomb defense)."
+msgstr ""
+
+#: includes/Converter.php:332
+msgid "Imagick writeImage returned false for the WebP target — encoder rejected the output."
+msgstr ""
+
+#. translators: %s: PHP exception message from Imagick.
+#: includes/Converter.php:337
+#, php-format
+msgid "Imagick threw: %s"
+msgstr ""
+
+#: includes/Converter.php:356
+msgid "Imagick failed and GD has no imagewebp() — no WebP encoder available on this host."
+msgstr ""
+
+#: includes/Converter.php:357
+msgid "No WebP encoder available (Imagick missing the WEBP coder and GD has no imagewebp())."
+msgstr ""
+
+#: includes/Converter.php:365
+msgid "GD imagecreatefrompng() failed — source PNG is corrupt or unsupported."
+msgstr ""
+
+#: includes/Converter.php:375
+msgid "GD imagecreatefromjpeg() failed — source JPEG is corrupt or unsupported."
+msgstr ""
+
+#: includes/Converter.php:390
+msgid "GD imagewebp() returned false — encoder rejected the output (check disk space and write permissions)."
+msgstr ""
+
+#. translators: %s: PHP exception message from the GD encoder.
+#: includes/Converter.php:395
+#, php-format
+msgid "GD encoder threw: %s"
+msgstr ""
+
+#. translators: %s: filename of the missing or unreadable source image.
+#: includes/Converter.php:528
+#, php-format
+msgid "%s is missing or unreadable on disk."
+msgstr ""
+
+#: includes/Converter.php:630
+msgid "Conversion already in progress for this attachment (another worker holds the lock)."
+msgstr ""
+
+#: includes/Converter.php:649
+msgid "Attachment has no source file recorded (get_attached_file returned empty)."
+msgstr ""
+
+#: includes/Converter.php:653
+msgid "Attachment has no metadata (wp_get_attachment_metadata returned empty)."
+msgstr ""
+
+#. translators: 1: estimated conversion size, 2: reserve headroom, 3: current free space
+#: includes/Disk.php:136
+#, php-format
+msgid "Not enough disk space for this conversion. Estimated need: %1$s (plus %2$s reserve). Free in uploads directory: %3$s."
+msgstr ""
+
+#. translators: 1: required PHP version 2: detected PHP version
+#: includes/Plugin.php:175
+#, php-format
+msgid "CF Media Optimizer requires PHP %1$s or newer. This site is running PHP %2$s. Ask your host to upgrade PHP, or contact support."
+msgstr ""
+
+#: includes/Plugin.php:182
+msgid "CF Media Optimizer requires either the Imagick extension (with the WEBP coder) or the GD extension (with imagewebp()) to be available in PHP. Neither was detected on this host. Ask your host to enable Imagick or rebuild GD with WebP support."
+msgstr ""
+
+#: includes/Security.php:33
+#: includes/Security.php:62
+msgid "Unauthorized"
+msgstr ""
+
+#: includes/Security.php:61
+msgid "Unauthorized — requires network-admin capability."
+msgstr ""
+
+#: includes/UrlVerifier.php:107
+msgid "Target host did not resolve."
+msgstr ""
+
+#: includes/UrlVerifier.php:111
+msgid "Target resolves to a private or loopback address; refusing to fetch."
+msgstr ""
+
+#. translators: %s: underlying HTTP transport error message.
+#: includes/UrlVerifier.php:121
+#, php-format
+msgid "Fetch failed: %s"
+msgstr ""
+
+#: includes/UrlVerifier.php:139
+msgid "Too many redirects."
+msgstr ""
+
+#. translators: %d: HTTP status code returned by the target URL.
+#: includes/UrlVerifier.php:151
+#, php-format
+msgid "HTTP %d from target URL."
+msgstr ""
+
+#: includes/UrlVerifier.php:158
+msgid "Empty response body."
+msgstr ""
+
+#: includes/UrlVerifier.php:186
+msgid "Only http and https are accepted."
+msgstr ""
+
+#: includes/UrlVerifier.php:192
+msgid "Site host could not be determined."
+msgstr ""
+
+#: includes/UrlVerifier.php:195
+msgid "Redirect to off-site host blocked."
+msgstr ""
+
+#: includes/UrlVerifier.php:202
+msgid "Admin, login, XML-RPC, and REST paths are not allowed."
+msgstr ""
+
+#: includes/UrlVerifier.php:209
+msgid "REST API paths are not allowed."
+msgstr ""
+
+#: includes/UrlVerifier.php:212
+msgid "URLs containing _wpnonce are not allowed."
+msgstr ""
+
+#: assets/admin.js:123
+#, js-format
+msgid "%d B"
+msgstr ""
+
+#: assets/admin.js:126
+#, js-format
+msgid "%s KB"
+msgstr ""
+
+#: assets/admin.js:129
+#, js-format
+msgid "%s MB"
+msgstr ""
+
+#: assets/admin.js:131
+#, js-format
+msgid "%s GB"
+msgstr ""
+
+#: assets/admin.js:212
+msgid "Could not load status — check the browser console."
+msgstr ""
+
+#. translators: %d: HTTP status code from the failed status request.
+#: assets/admin.js:234
+#, js-format
+msgid "Status request failed (HTTP %d)."
+msgstr ""
+
+#: assets/admin.js:272
+msgid "No JPEG or PNG attachments found in the media library."
+msgstr ""
+
+#. translators: 1: <strong>Converting…</strong>, 2: processed count, 3: total count, 4: remaining count.
+#: assets/admin.js:281
+#, js-format
+msgid "%1$s %2$d of %3$d processed — %4$d remaining."
+msgstr ""
+
+#: assets/admin.js:282
+msgid "Converting…"
+msgstr ""
+
+#: assets/admin.js:300
+msgid "Scanning the site for in-use images…"
+msgstr ""
+
+#. translators: %d: number of attachments still pending conversion.
+#: assets/admin.js:315
+#, js-format
+msgid "%d to convert."
+msgstr ""
+
+#: assets/admin.js:318
+msgid "Nothing to do — everything in this scope is already converted."
+msgstr ""
+
+#. translators: 1: done count in <strong>, 2: total count in <strong>, 3: remaining-text trailing clause.
+#: assets/admin.js:322
+#, js-format
+msgid "%1$s of %2$s attachments converted. %3$s"
+msgstr ""
+
+#. translators: 1: in-use count in <strong>, 2: total media-library count in <strong>.
+#: assets/admin.js:373
+#, js-format
+msgid "%1$s of %2$s media-library images are referenced on the front end."
+msgstr ""
+
+#. translators: %s: comma-separated list of detected plugins/builders (e.g. "Divi, ACF").
+#: assets/admin.js:380
+#, js-format
+msgid "Detected: %s."
+msgstr ""
+
+#: assets/admin.js:403
+msgid "In-use scan failed."
+msgstr ""
+
+#: assets/admin.js:423
+msgid "In-use scan request failed."
+msgstr ""
+
+#: assets/admin.js:455
+msgid "Server returned an error — conversion stopped."
+msgstr ""
+
+#. translators: 1: filename or "ID <n>", 2: number of variants that failed.
+#: assets/admin.js:472
+#, js-format
+msgid "%1$s — %2$d variant failed"
+msgid_plural "%1$s — %2$d variants failed"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: filename and/or "ID <n>" label.
+#: assets/admin.js:488
+#, js-format
+msgid "%s skipped"
+msgstr ""
+
+#. translators: %d: HTTP status code.
+#: assets/admin.js:502
+#, js-format
+msgid "AJAX request failed (HTTP %d) — conversion stopped."
+msgstr ""
+
+#. translators: %s: human-readable bytes (e.g. "1.4 MB").
+#: assets/admin.js:526
+#, js-format
+msgid "Saved %s total across all converted images."
+msgstr ""
+
+#. translators: %d: number of attachments AVIF was generated for.
+#: assets/admin.js:533
+#, js-format
+msgid "AVIF written for %d file."
+msgid_plural "AVIF written for %d files."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of files that used the GD fallback after Imagick failed.
+#: assets/admin.js:545
+#, js-format
+msgid "%d file used GD fallback — Imagick failed for it. Check error_log."
+msgid_plural "%d files used GD fallback — Imagick failed for these. Check error_log."
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/admin.js:585
+msgid "Stopping…"
+msgstr ""
+
+#: assets/admin.js:598
+msgid "Queue this run in the background? You can close this tab — conversion will continue on the server."
+msgstr ""
+
+#: assets/admin.js:603
+msgid "Queuing…"
+msgstr ""
+
+#: assets/admin.js:612
+msgid "Could not start queue."
+msgstr ""
+
+#: assets/admin.js:620
+msgid "Queue request failed."
+msgstr ""
+
+#: assets/admin.js:633
+msgid "Running"
+msgstr ""
+
+#: assets/admin.js:634
+msgid "Complete"
+msgstr ""
+
+#: assets/admin.js:635
+msgid "Cancelled"
+msgstr ""
+
+#: assets/admin.js:640
+msgid "Background queue:"
+msgstr ""
+
+#. translators: 1: processed count, 2: total count.
+#: assets/admin.js:647
+#, js-format
+msgid "%1$d / %2$d processed"
+msgstr ""
+
+#. translators: %d: count of successfully converted attachments.
+#: assets/admin.js:653
+#, js-format
+msgid "%d converted"
+msgstr ""
+
+#. translators: %d: count of attachments that failed conversion.
+#: assets/admin.js:658
+#, js-format
+msgid "%d failed"
+msgstr ""
+
+#. translators: %d: count of AVIF files written.
+#: assets/admin.js:664
+#, js-format
+msgid "%d AVIF"
+msgstr ""
+
+#. translators: %s: human-readable bytes (e.g. "1.4 MB").
+#: assets/admin.js:670
+#, js-format
+msgid "%s saved"
+msgstr ""
+
+#: assets/admin.js:677
+msgid "Cancel queue"
+msgstr ""
+
+#: assets/admin.js:679
+msgid "Dismiss"
+msgstr ""
+
+#: assets/admin.js:697
+msgid "Cancel the background queue? Already-converted files will stay; remaining files won’t be processed."
+msgstr ""
+
+#: assets/admin.js:766
+#: assets/admin.js:1484
+msgid "Deleting…"
+msgstr ""
+
+#. translators: 1: chunks done, 2: total chunks.
+#: assets/admin.js:779
+#, js-format
+msgid "Deleting… (%1$d/%2$d)"
+msgstr ""
+
+#. translators: %d: number of files that could not be deleted.
+#: assets/admin.js:790
+#, js-format
+msgid "%d file could not be deleted."
+msgid_plural "%d files could not be deleted."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of variant-shaped files left in place because the plugin did not generate them.
+#: assets/admin.js:802
+#, js-format
+msgid "%d untracked file left in place (not generated by this plugin)."
+msgid_plural "%d untracked files left in place (not generated by this plugin)."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of deleted files.
+#: assets/admin.js:813
+#, js-format
+msgid "Deleted %d file."
+msgid_plural "Deleted %d files."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: HTTP status code.
+#: assets/admin.js:823
+#, js-format
+msgid "Delete AJAX request failed (HTTP %d)."
+msgstr ""
+
+#: assets/admin.js:831
+msgid "Counting…"
+msgstr ""
+
+#. translators: 1: chunks done, 2: total chunks.
+#: assets/admin.js:843
+#, js-format
+msgid "Counting… (%1$d/%2$d)"
+msgstr ""
+
+#: assets/admin.js:852
+msgid "No WebP or AVIF files to delete."
+msgstr ""
+
+#. translators: 1: WebP file count, 2: AVIF file count.
+#: assets/admin.js:857
+#, js-format
+msgid "%1$d WebP, %2$d AVIF"
+msgstr ""
+
+#. translators: 1: total files (e.g. "12 files"), 2: detail like "10 WebP, 2 AVIF", 3: human-readable bytes.
+#: assets/admin.js:863
+#, js-format
+msgid ""
+"Delete %1$s (%2$s, %3$s)?\n"
+"\n"
+"Originals are never touched."
+msgstr ""
+
+#: assets/admin.js:864
+#, js-format
+msgid "%d file"
+msgid_plural "%d files"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: HTTP status code.
+#: assets/admin.js:876
+#, js-format
+msgid "Count AJAX request failed (HTTP %d)."
+msgstr ""
+
+#. translators: 1: chunks done, 2: total chunks, 3: files processed so far.
+#: assets/admin.js:908
+#, js-format
+msgid "Claiming… (subtree %1$d/%2$d, %3$d files)"
+msgstr ""
+
+#. translators: %d: HTTP status code.
+#: assets/admin.js:922
+#, js-format
+msgid "Claim AJAX request failed (HTTP %d)."
+msgstr ""
+
+#: assets/admin.js:931
+msgid ""
+"Claim all untracked WebP/AVIF files into the plugin manifest?\n"
+"\n"
+"Files registered as Media Library attachments are skipped automatically. Manually placed files cannot be distinguished from legacy plugin variants and will be claimed.\n"
+"\n"
+"This runs through every uploads-folder subtree and may take several minutes on a large site."
+msgstr ""
+
+#: assets/admin.js:935
+#: assets/admin.js:1447
+msgid "Claiming…"
+msgstr ""
+
+#: assets/admin.js:937
+msgid "Done"
+msgstr ""
+
+#. translators: %d: number of claimed files.
+#: assets/admin.js:940
+#, js-format
+msgid "Claimed %d file into the manifest."
+msgid_plural "Claimed %d files into the manifest."
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/admin.js:953
+msgid "Quality must be between 1 and 100."
+msgstr ""
+
+#: assets/admin.js:968
+msgid "Save this quality and re-encode every existing variant at the new setting? This may take a while."
+msgstr ""
+
+#: assets/admin.js:980
+msgid "Select Images to Convert"
+msgstr ""
+
+#: assets/admin.js:983
+msgid "Select for Conversion"
+msgstr ""
+
+#: assets/admin.js:1016
+msgid "Loading status…"
+msgstr ""
+
+#: assets/admin.js:1024
+msgid "Could not load attachment status."
+msgstr ""
+
+#. translators: %s: bolded count of already-converted attachments.
+#: assets/admin.js:1053
+#, js-format
+msgid "%s already converted"
+msgstr ""
+
+#. translators: %s: bolded count of pending attachments.
+#: assets/admin.js:1060
+#, js-format
+msgid "%s pending"
+msgstr ""
+
+#. translators: 1: count + word "image(s) selected", 2: comma-joined detail like "5 already converted, 3 pending".
+#: assets/admin.js:1066
+#, js-format
+msgid "%1$s — %2$s."
+msgstr ""
+
+#: assets/admin.js:1067
+#, js-format
+msgid "%d image selected"
+msgid_plural "%d images selected"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/admin.js:1073
+msgid "Failed to load attachment status."
+msgstr ""
+
+#: assets/admin.js:1148
+msgid "Failed to save settings."
+msgstr ""
+
+#: assets/admin.js:1165
+msgid "Fetching…"
+msgstr ""
+
+#: assets/admin.js:1172
+msgid "Verification failed."
+msgstr ""
+
+#: assets/admin.js:1175
+msgid "Error:"
+msgstr ""
+
+#. translators: 1: HTTP status code, 2: percent of modern-format images, 3: AVIF count, 4: WebP count, 5: legacy JPEG/PNG count.
+#: assets/admin.js:1189
+#, js-format
+msgid "<strong>HTTP %1$d</strong> · %2$d%% modern formats — <strong>%3$d</strong> AVIF, <strong>%4$d</strong> WebP, <strong>%5$d</strong> JPEG/PNG outside &lt;picture&gt;."
+msgstr ""
+
+#. translators: %d: number of PNG/ICO favicons kept in their original format by design.
+#: assets/admin.js:1199
+#, js-format
+msgid "<strong>%d</strong> favicon PNG kept as PNG by design (excluded from the legacy count)."
+msgid_plural "<strong>%d</strong> favicon PNGs kept as PNG by design (excluded from the legacy count)."
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/admin.js:1212
+msgid "✓ modern"
+msgstr ""
+
+#: assets/admin.js:1213
+msgid "⚠ legacy format"
+msgstr ""
+
+#: assets/admin.js:1214
+msgid "og:image:"
+msgstr ""
+
+#: assets/admin.js:1220
+msgid "Sample non-modern URLs (outside <picture>):"
+msgstr ""
+
+#: assets/admin.js:1228
+msgid "Favicon PNGs (kept by design):"
+msgstr ""
+
+#. translators: %d: HTTP status code.
+#: assets/admin.js:1244
+#: assets/admin.js:1339
+#: assets/admin.js:1383
+#, js-format
+msgid "Request failed (HTTP %d)."
+msgstr ""
+
+#: assets/admin.js:1271
+msgid "Could not detect caches."
+msgstr ""
+
+#: assets/admin.js:1276
+msgid "No supported cache layers detected. WordPress object cache will still be flushed."
+msgstr ""
+
+#: assets/admin.js:1279
+msgid "Detected:"
+msgstr ""
+
+#: assets/admin.js:1284
+msgid "Detection failed."
+msgstr ""
+
+#: assets/admin.js:1290
+#: assets/notice.js:27
+msgid "Purging…"
+msgstr ""
+
+#: assets/admin.js:1297
+#: assets/notice.js:52
+msgid "Purge failed."
+msgstr ""
+
+#: assets/admin.js:1311
+msgid "failed"
+msgstr ""
+
+#: assets/admin.js:1315
+msgid "Object cache flushed."
+msgstr ""
+
+#. translators: 1: number purged successfully, 2: number that failed.
+#: assets/admin.js:1320
+#, js-format
+msgid "✓ Done. %1$d purged, %2$d failed."
+msgstr ""
+
+#. translators: %d: number of cache layers purged successfully.
+#: assets/admin.js:1326
+#, js-format
+msgid "✓ Done. %d purged."
+msgstr ""
+
+#: assets/admin.js:1360
+msgid "Enter a valid attachment ID."
+msgstr ""
+
+#: assets/admin.js:1363
+msgid "Checking…"
+msgstr ""
+
+#: assets/admin.js:1370
+msgid "Diagnostic failed."
+msgstr ""
+
+#: assets/admin.js:1392
+msgid "Verdict:"
+msgstr ""
+
+#: assets/admin.js:1394
+msgid "Attachment ID"
+msgstr ""
+
+#: assets/admin.js:1395
+msgid "MIME type"
+msgstr ""
+
+#: assets/admin.js:1396
+msgid "Source path"
+msgstr ""
+
+#: assets/admin.js:1397
+msgid "Source exists on disk"
+msgstr ""
+
+#: assets/admin.js:1398
+msgid "Source rel → ID (lookup map)"
+msgstr ""
+
+#: assets/admin.js:1398
+#: assets/admin.js:1399
+msgid "not found"
+msgstr ""
+
+#: assets/admin.js:1399
+msgid "Source rel → parent ID (size map)"
+msgstr ""
+
+#: assets/admin.js:1400
+msgid "WebP path"
+msgstr ""
+
+#: assets/admin.js:1401
+msgid "WebP exists on disk"
+msgstr ""
+
+#: assets/admin.js:1402
+msgid "WebP owned by this attachment"
+msgstr ""
+
+#: assets/admin.js:1403
+msgid "WebP is a separate Media Library attachment"
+msgstr ""
+
+#: assets/admin.js:1405
+msgid "AVIF path"
+msgstr ""
+
+#: assets/admin.js:1406
+msgid "AVIF owned by this attachment"
+msgstr ""
+
+#: assets/admin.js:1407
+msgid "AVIF is a separate Media Library attachment"
+msgstr ""
+
+#: assets/admin.js:1409
+msgid "path_to_id map size"
+msgstr ""
+
+#: assets/admin.js:1410
+msgid "size_to_parent map size"
+msgstr ""
+
+#: assets/admin.js:1417
+#: assets/admin.js:1451
+#: assets/admin.js:1464
+msgid "Claim this WebP for this attachment"
+msgstr ""
+
+#. translators: %d: the duplicate variant attachment ID.
+#: assets/admin.js:1430
+#, js-format
+msgid "Delete the conflicting variant attachment (ID %d)"
+msgstr ""
+
+#: assets/admin.js:1433
+msgid "Permanently removes the duplicate .webp/.avif Media Library attachment occupying this slot, then Convert can regenerate it. Refused automatically if that attachment is referenced on the front end."
+msgstr ""
+
+#: assets/admin.js:1452
+msgid "Claim failed."
+msgstr ""
+
+#: assets/admin.js:1456
+msgid "Claimed"
+msgstr ""
+
+#. translators: %s: comma-joined list of formats claimed (e.g. "webp, avif").
+#: assets/admin.js:1459
+#, js-format
+msgid "Done — claimed: %s. Re-run Diagnose to verify, or try Convert again."
+msgstr ""
+
+#: assets/admin.js:1460
+msgid "(nothing — see Skipped list)"
+msgstr ""
+
+#. translators: %d: HTTP status code.
+#: assets/admin.js:1467
+#, js-format
+msgid "Claim request failed (HTTP %d)."
+msgstr ""
+
+#: assets/admin.js:1480
+msgid ""
+"Permanently delete the duplicate .webp/.avif Media Library attachment occupying this slot?\n"
+"\n"
+"This cannot be undone. Convert can regenerate the derivative afterward. The deletion is refused automatically if the attachment is referenced on the front end."
+msgstr ""
+
+#: assets/admin.js:1491
+msgid "Delete failed."
+msgstr ""
+
+#: assets/admin.js:1495
+msgid "Deleted"
+msgstr ""
+
+#. translators: %s: comma-joined list of deleted attachment IDs.
+#: assets/admin.js:1498
+#, js-format
+msgid "Done — deleted attachment(s): %s. Re-run Diagnose to verify, or try Convert again."
+msgstr ""
+
+#. translators: %d: HTTP status code.
+#: assets/admin.js:1510
+#, js-format
+msgid "Delete request failed (HTTP %d)."
+msgstr ""
+
+#. translators: %d: number of cache layers purged.
+#: assets/notice.js:45
+#, js-format
+msgid "✓ Purged %d cache layer."
+msgid_plural "✓ Purged %d cache layers."
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/notice.js:57
+msgid "Network error."
+msgstr ""

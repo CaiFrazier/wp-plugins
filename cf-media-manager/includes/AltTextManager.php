@@ -4,6 +4,9 @@ namespace CFMediaManager;
 
 defined( 'ABSPATH' ) || exit;
 
+use CFShared\Media\InUseScanner;
+use CFShared\Media\AltMeta;
+
 /**
  * Alt text bulk audit and inline editor.
  *
@@ -26,10 +29,10 @@ defined( 'ABSPATH' ) || exit;
 final class AltTextManager {
 
 	/** WordPress core meta key for attachment alt text. */
-	const META_KEY_ALT = '_wp_attachment_image_alt';
+	const META_KEY_ALT = AltMeta::META_KEY_ALT;
 
 	/** Our flag for "intentionally empty alt — decorative image." */
-	const META_KEY_DECORATIVE = '_cf_media_manager_decorative';
+	const META_KEY_DECORATIVE = AltMeta::META_KEY_DECORATIVE;
 
 	/** Default rows per page in the audit UI. */
 	const PAGE_SIZE = 25;

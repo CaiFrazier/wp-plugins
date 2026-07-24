@@ -58,15 +58,6 @@ const plugins = {
 		composerTest: true,
 		potDomain: 'cf-content-calendar',
 	},
-	'cf-media-list-view': {
-		entry: 'cf-media-list-view.php',
-		zipSlug: 'cf-media-list-view',
-		rootFiles: [ 'cf-media-list-view.php', 'uninstall.php', 'readme.txt' ],
-		rootDirs: [ 'includes', 'assets', 'languages' ],
-		npmBuild: false,
-		composerRuntime: false,
-		composerTest: true,
-	},
 	'cf-post-list-view': {
 		entry: 'cf-post-list-view.php',
 		zipSlug: 'cf-post-list-view',
@@ -115,6 +106,19 @@ const plugins = {
 		composerRuntime: true,
 		composerTest: true,
 		potDomain: 'cf-media-manager',
+	},
+	'cf-media-optimizer': {
+		entry: 'cf-media-optimizer.php',
+		zipSlug: 'cf-media-optimizer',
+		// Like cf-media-manager, ships composer.json alongside the bundled
+		// vendor/ (CFShared\Media is a runtime dependency) so Plugin Check
+		// doesn't warn about a vendor/ with no composer.json beside it.
+		rootFiles: [ 'cf-media-optimizer.php', 'cli.php', 'uninstall.php', 'readme.txt', 'LICENSE', 'composer.json' ],
+		rootDirs: [ 'includes', 'assets', 'languages', 'vendor' ],
+		npmBuild: false,
+		composerRuntime: true,
+		composerTest: true,
+		potDomain: 'cf-media-optimizer',
 	},
 };
 
