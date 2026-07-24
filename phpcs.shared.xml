@@ -16,7 +16,7 @@
 	<arg value="sp"/>
 
 	<config name="minimum_supported_wp_version" value="6.2"/>
-	<config name="testVersion" value="8.0-"/>
+	<config name="testVersion" value="8.1-"/>
 
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
 	<exclude-pattern>*/vendor/*</exclude-pattern>

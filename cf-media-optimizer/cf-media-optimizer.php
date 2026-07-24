@@ -5,7 +5,7 @@
  * Description:       Converts JPEG/PNG uploads to WebP and AVIF and serves them through &lt;picture&gt; with native browser fallback. Originals are never modified. No nginx or .htaccess config required.
  * Version:           3.0.0
  * Requires at least: 6.2
- * Requires PHP:      8.0
+ * Requires PHP:      8.1
  * Author:            Cai Frazier
  * Author URI:        https://caifrazier.com
  * License:           GPLv2 or later

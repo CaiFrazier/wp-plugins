@@ -5,7 +5,7 @@
  * Description:       A developer-focused list view for any registered post type: adjustable columns, sortable headers, live search, SEO meta fields, hierarchy data, taxonomy terms, and CSV export.
  * Version:           1.0.0
  * Requires at least: 6.2
- * Requires PHP:      8.0
+ * Requires PHP:      8.1
  * Author:            Cai Frazier
  * Author URI:        https://caifrazier.com
  * License:           GPL-2.0-or-later

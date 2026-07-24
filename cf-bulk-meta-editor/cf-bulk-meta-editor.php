@@ -5,7 +5,7 @@
  * Description:       Spreadsheet-style editor for SEO meta titles, descriptions, and arbitrary postmeta fields across all post types.
  * Version:           1.0.4
  * Requires at least: 6.2
- * Requires PHP:      8.0
+ * Requires PHP:      8.1
  * Author:            Cai Frazier
  * License:           GPLv2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html

@@ -5,7 +5,7 @@
  * Description:       View, suppress, extend, and inject JSON-LD structured data at the global, post-type template, and per-page level. Works alongside Yoast, Rank Math, and theme-injected schema.
  * Version:           1.0.1
  * Requires at least: 6.2
- * Requires PHP:      8.0
+ * Requires PHP:      8.1
  * Author:            Cai Frazier
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html

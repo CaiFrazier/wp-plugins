@@ -5,7 +5,7 @@
  * Description:       Self-hosted QR code generator and redirect manager with native GA4 analytics integration. Generates branded QR codes pointing to /r/{slug} short URLs on your own domain, plus a standard source→destination redirect manager.
  * Version:           1.3.1
  * Requires at least: 6.2
- * Requires PHP:      8.0
+ * Requires PHP:      8.1
  * Author:            Cai Frazier
  * Author URI:        https://github.com/caifrazier
  * License:           GPLv2 or later

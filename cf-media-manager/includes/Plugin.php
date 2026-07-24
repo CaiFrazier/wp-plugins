@@ -150,11 +150,11 @@ final class Plugin {
 	 * Optimizer it does not require a WebP encoder.
 	 */
 	public static function check_requirements(): ?string {
-		if ( PHP_VERSION_ID < 80000 ) {
+		if ( PHP_VERSION_ID < 80100 ) {
 			return sprintf(
 				/* translators: 1: required PHP version 2: detected PHP version */
 				__( 'CF Media Manager requires PHP %1$s or newer. This site is running PHP %2$s. Ask your host to upgrade PHP, or contact support.', 'cf-media-manager' ),
-				'8.0',
+				'8.1',
 				PHP_VERSION
 			);
 		}

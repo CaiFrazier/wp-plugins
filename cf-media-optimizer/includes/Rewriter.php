@@ -252,7 +252,12 @@ final class Rewriter {
 		// markup including any masked-but-now-orphaned regions; better an
 		// unrewritten page than a blank one.
 		$replaced = self::safe_preg_replace_callback(
-			"#\0CFP(\d+)\0#",
+			// Match the null-byte sentinels via the PCRE \x00 escape rather than
+			// embedding literal NUL bytes in the pattern string — a literal NUL in
+			// the pattern triggers a "Null byte in regex" warning on some PHP/PCRE
+			// builds (e.g. 8.0), which our failOnWarning test config turns into a
+			// failure. The subject still contains real NULs (inserted above).
+			'#\x00CFP(\d+)\x00#',
 			static function ( $m ) use ( $masks ) {
 				return $masks[ (int) $m[1] ] ?? '';
 			},

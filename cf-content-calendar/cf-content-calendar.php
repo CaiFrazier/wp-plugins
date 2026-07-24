@@ -5,7 +5,7 @@
  * Description:       A modern editorial calendar. Drag to reschedule, create drafts from empty day slots, and see your full content picture across post types.
  * Version:           0.1.1
  * Requires at least: 6.2
- * Requires PHP:      8.0
+ * Requires PHP:      8.1
  * Author:            Cai Frazier
  * License:           GPLv2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
