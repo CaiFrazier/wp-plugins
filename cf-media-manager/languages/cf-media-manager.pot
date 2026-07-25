@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-24T07:41:54+00:00\n"
+"POT-Creation-Date: 2026-07-25T19:36:11+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: cf-media-manager\n"
@@ -198,11 +198,11 @@ msgstr ""
 msgid "Media Manager %1$s &nbsp;·&nbsp; WordPress %2$s &nbsp;·&nbsp; <a href=\"mailto:bugs@caifrazier.com\">Report a bug</a>"
 msgstr ""
 
-#: includes/AltTextManager.php:176
+#: includes/AltTextManager.php:178
 msgid "Invalid attachment."
 msgstr ""
 
-#: includes/AltTextManager.php:181
+#: includes/AltTextManager.php:183
 msgid "Not an image attachment."
 msgstr ""
 
@@ -215,62 +215,62 @@ msgid "Attachments whose source files are byte-identical (SHA-256). Receipts ide
 msgstr ""
 
 #. translators: %s: requested bulk-action verb
-#: includes/Audit/Reports/DuplicateOriginals.php:448
+#: includes/Audit/Reports/DuplicateOriginals.php:466
 #: includes/Audit/Reports/GhostAttachments.php:211
-#: includes/Audit/Reports/OrphanFiles.php:413
+#: includes/Audit/Reports/OrphanFiles.php:442
 #: includes/Audit/Reports/OversizedOriginals.php:259
 #: includes/Audit/Reports/UnusedAttachments.php:312
 #, php-format
 msgid "Unknown action: %s"
 msgstr ""
 
-#: includes/Audit/Reports/DuplicateOriginals.php:466
+#: includes/Audit/Reports/DuplicateOriginals.php:484
 #: includes/Audit/Reports/GhostAttachments.php:224
 #: includes/Audit/Reports/OversizedOriginals.php:271
 #: includes/Audit/Reports/UnusedAttachments.php:325
 msgid "Invalid attachment id."
 msgstr ""
 
-#: includes/Audit/Reports/DuplicateOriginals.php:471
+#: includes/Audit/Reports/DuplicateOriginals.php:489
 #: includes/Audit/Reports/GhostAttachments.php:232
 #: includes/Audit/Reports/OversizedOriginals.php:276
 #: includes/Audit/Reports/UnusedAttachments.php:331
 msgid "Could not trash attachment."
 msgstr ""
 
-#: includes/Audit/Reports/DuplicateOriginals.php:519
+#: includes/Audit/Reports/DuplicateOriginals.php:539
 msgid "Group Hash"
 msgstr ""
 
-#: includes/Audit/Reports/DuplicateOriginals.php:520
+#: includes/Audit/Reports/DuplicateOriginals.php:543
 msgid "Group Size"
 msgstr ""
 
-#: includes/Audit/Reports/DuplicateOriginals.php:521
+#: includes/Audit/Reports/DuplicateOriginals.php:547
 msgid "File Size (bytes)"
 msgstr ""
 
-#: includes/Audit/Reports/DuplicateOriginals.php:522
+#: includes/Audit/Reports/DuplicateOriginals.php:551
 msgid "File Size"
 msgstr ""
 
-#: includes/Audit/Reports/DuplicateOriginals.php:523
+#: includes/Audit/Reports/DuplicateOriginals.php:555
 msgid "Potential Savings (bytes)"
 msgstr ""
 
-#: includes/Audit/Reports/DuplicateOriginals.php:524
+#: includes/Audit/Reports/DuplicateOriginals.php:559
 msgid "Primary ID (keep)"
 msgstr ""
 
-#: includes/Audit/Reports/DuplicateOriginals.php:525
+#: includes/Audit/Reports/DuplicateOriginals.php:563
 msgid "Primary Title"
 msgstr ""
 
-#: includes/Audit/Reports/DuplicateOriginals.php:526
+#: includes/Audit/Reports/DuplicateOriginals.php:567
 msgid "Primary In Use"
 msgstr ""
 
-#: includes/Audit/Reports/DuplicateOriginals.php:527
+#: includes/Audit/Reports/DuplicateOriginals.php:571
 msgid "Duplicate IDs (trash)"
 msgstr ""
 
@@ -282,92 +282,92 @@ msgstr ""
 msgid "Media Library entries whose underlying file is missing from disk."
 msgstr ""
 
-#: includes/Audit/Reports/GhostAttachments.php:280
-#: includes/Audit/Reports/OversizedOriginals.php:324
-#: includes/Audit/Reports/UnusedAttachments.php:379
-msgid "Attachment ID"
-msgstr ""
-
-#: includes/Audit/Reports/GhostAttachments.php:281
-#: includes/Audit/Reports/OversizedOriginals.php:325
-#: includes/Audit/Reports/UnusedAttachments.php:380
-msgid "Title"
-msgstr ""
-
 #: includes/Audit/Reports/GhostAttachments.php:282
 #: includes/Audit/Reports/OversizedOriginals.php:326
 #: includes/Audit/Reports/UnusedAttachments.php:381
-msgid "MIME"
-msgstr ""
-
-#: includes/Audit/Reports/GhostAttachments.php:283
-#: includes/Audit/Reports/OversizedOriginals.php:327
-#: includes/Audit/Reports/UnusedAttachments.php:382
-msgid "Date Uploaded"
-msgstr ""
-
-#: includes/Audit/Reports/GhostAttachments.php:284
-msgid "Expected Path"
-msgstr ""
-
-#: includes/Audit/Reports/GhostAttachments.php:285
-msgid "_wp_attached_file"
+msgid "Attachment ID"
 msgstr ""
 
 #: includes/Audit/Reports/GhostAttachments.php:286
-#: includes/Audit/Reports/UnusedAttachments.php:383
+#: includes/Audit/Reports/OversizedOriginals.php:330
+#: includes/Audit/Reports/UnusedAttachments.php:385
+msgid "Title"
+msgstr ""
+
+#: includes/Audit/Reports/GhostAttachments.php:290
+#: includes/Audit/Reports/OversizedOriginals.php:334
+#: includes/Audit/Reports/UnusedAttachments.php:389
+msgid "MIME"
+msgstr ""
+
+#: includes/Audit/Reports/GhostAttachments.php:294
+#: includes/Audit/Reports/OversizedOriginals.php:338
+#: includes/Audit/Reports/UnusedAttachments.php:393
+msgid "Date Uploaded"
+msgstr ""
+
+#: includes/Audit/Reports/GhostAttachments.php:298
+msgid "Expected Path"
+msgstr ""
+
+#: includes/Audit/Reports/GhostAttachments.php:302
+msgid "_wp_attached_file"
+msgstr ""
+
+#: includes/Audit/Reports/GhostAttachments.php:306
+#: includes/Audit/Reports/UnusedAttachments.php:397
 msgid "Attached To Post ID"
 msgstr ""
 
-#: includes/Audit/Reports/GhostAttachments.php:287
+#: includes/Audit/Reports/GhostAttachments.php:310
 msgid "Featured For Post IDs"
 msgstr ""
 
-#: includes/Audit/Reports/GhostAttachments.php:288
+#: includes/Audit/Reports/GhostAttachments.php:314
 msgid "Has Active References"
 msgstr ""
 
-#: includes/Audit/Reports/OrphanFiles.php:116
+#: includes/Audit/Reports/OrphanFiles.php:145
 msgid "Orphan files"
 msgstr ""
 
-#: includes/Audit/Reports/OrphanFiles.php:120
+#: includes/Audit/Reports/OrphanFiles.php:149
 msgid "Files in the uploads directory that no Media Library record points at."
 msgstr ""
 
-#: includes/Audit/Reports/OrphanFiles.php:432
+#: includes/Audit/Reports/OrphanFiles.php:461
 msgid "Empty path."
 msgstr ""
 
-#: includes/Audit/Reports/OrphanFiles.php:438
+#: includes/Audit/Reports/OrphanFiles.php:467
 msgid "Path is outside the uploads directory."
 msgstr ""
 
-#: includes/Audit/Reports/OrphanFiles.php:452
+#: includes/Audit/Reports/OrphanFiles.php:481
 msgid "Could not delete file."
 msgstr ""
 
-#: includes/Audit/Reports/OrphanFiles.php:500
+#: includes/Audit/Reports/OrphanFiles.php:531
 msgid "Path"
 msgstr ""
 
-#: includes/Audit/Reports/OrphanFiles.php:501
+#: includes/Audit/Reports/OrphanFiles.php:535
 msgid "Extension"
 msgstr ""
 
-#: includes/Audit/Reports/OrphanFiles.php:502
-#: includes/Audit/Reports/OversizedOriginals.php:328
-#: includes/Audit/Reports/UnusedAttachments.php:384
+#: includes/Audit/Reports/OrphanFiles.php:539
+#: includes/Audit/Reports/OversizedOriginals.php:342
+#: includes/Audit/Reports/UnusedAttachments.php:401
 msgid "Size (bytes)"
 msgstr ""
 
-#: includes/Audit/Reports/OrphanFiles.php:503
-#: includes/Audit/Reports/OversizedOriginals.php:329
-#: includes/Audit/Reports/UnusedAttachments.php:385
+#: includes/Audit/Reports/OrphanFiles.php:543
+#: includes/Audit/Reports/OversizedOriginals.php:346
+#: includes/Audit/Reports/UnusedAttachments.php:405
 msgid "Size"
 msgstr ""
 
-#: includes/Audit/Reports/OrphanFiles.php:504
+#: includes/Audit/Reports/OrphanFiles.php:547
 msgid "Modified"
 msgstr ""
 
@@ -379,23 +379,23 @@ msgstr ""
 msgid "Image attachments whose source file exceeds the size or dimension threshold. Most often phone photos uploaded at full resolution."
 msgstr ""
 
-#: includes/Audit/Reports/OversizedOriginals.php:330
+#: includes/Audit/Reports/OversizedOriginals.php:350
 msgid "Width"
 msgstr ""
 
-#: includes/Audit/Reports/OversizedOriginals.php:331
+#: includes/Audit/Reports/OversizedOriginals.php:354
 msgid "Height"
 msgstr ""
 
-#: includes/Audit/Reports/OversizedOriginals.php:332
+#: includes/Audit/Reports/OversizedOriginals.php:358
 msgid "Longest Side"
 msgstr ""
 
-#: includes/Audit/Reports/OversizedOriginals.php:333
+#: includes/Audit/Reports/OversizedOriginals.php:362
 msgid "Has Scaled Variant"
 msgstr ""
 
-#: includes/Audit/Reports/OversizedOriginals.php:334
+#: includes/Audit/Reports/OversizedOriginals.php:366
 msgid "Triggered By"
 msgstr ""
 
@@ -407,7 +407,7 @@ msgstr ""
 msgid "Media Library entries the in-use scanner did not find referenced anywhere it looked. This is a best-effort scan, not a guarantee. Open each item and verify before deleting; items are sent to Trash (recoverable), never permanently deleted."
 msgstr ""
 
-#: includes/Audit/Reports/UnusedAttachments.php:386
+#: includes/Audit/Reports/UnusedAttachments.php:409
 msgid "In-Use Scan Age (s)"
 msgstr ""
 
@@ -422,23 +422,23 @@ msgstr ""
 #: includes/AuditAjax.php:166
 #: includes/AuditAjax.php:219
 #: includes/AuditAjax.php:245
-#: includes/AuditAjax.php:293
+#: includes/AuditAjax.php:295
 msgid "Unknown report."
 msgstr ""
 
-#: includes/AuditAjax.php:296
+#: includes/AuditAjax.php:298
 msgid "Missing action."
 msgstr ""
 
-#: includes/AuditAjax.php:299
+#: includes/AuditAjax.php:301
 msgid "No items selected."
 msgstr ""
 
-#: includes/AuditAjax.php:364
+#: includes/AuditAjax.php:368
 msgid "Report does not support CSV export."
 msgstr ""
 
-#: includes/AuditAjax.php:369
+#: includes/AuditAjax.php:373
 msgid "No cached results — run a scan first."
 msgstr ""
 
@@ -566,7 +566,7 @@ msgid "Insufficient permissions."
 msgstr ""
 
 #. translators: 1: required PHP version 2: detected PHP version
-#: includes/Plugin.php:156
+#: includes/Plugin.php:164
 #, php-format
 msgid "CF Media Manager requires PHP %1$s or newer. This site is running PHP %2$s. Ask your host to upgrade PHP, or contact support."
 msgstr ""
@@ -578,6 +578,24 @@ msgstr ""
 
 #: includes/Security.php:61
 msgid "Unauthorized — requires network-admin capability."
+msgstr ""
+
+#: includes/SplitNotice.php:162
+msgid "CF Media Manager 3.0.0 no longer converts images."
+msgstr ""
+
+#. translators: %s: the CF Media Optimizer plugin name, emphasized.
+#: includes/SplitNotice.php:168
+#, php-format
+msgid "WebP and AVIF conversion and %s delivery moved to a separate plugin, CF Media Optimizer. This site still has conversion settings from version 2.x, so those images are no longer being served in modern formats."
+msgstr ""
+
+#: includes/SplitNotice.php:174
+msgid "Nothing was deleted. Your converted files, ownership records, and settings are untouched, and installing CF Media Optimizer picks delivery back up exactly where it left off. If you no longer want image conversion, you can ignore this."
+msgstr ""
+
+#: includes/SplitNotice.php:177
+msgid "Dismiss this notice"
 msgstr ""
 
 #: assets/admin.js:157

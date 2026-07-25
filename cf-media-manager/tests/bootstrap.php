@@ -706,6 +706,18 @@ if ( ! function_exists( 'wp_send_json_error' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wp_verify_nonce' ) ) {
+	function wp_verify_nonce( $nonce, $action = -1 ) {
+		// Mirrors the check_ajax_referer shim below: valid by default, with
+		// the same pre-seeded flag to exercise the failure branch. Real WP
+		// returns 1|2|false; callers only test truthiness.
+		if ( ! empty( $GLOBALS['cf_media_manager_test_nonce_invalid'] ) ) {
+			return false;
+		}
+		return empty( $nonce ) ? false : 1;
+	}
+}
+
 if ( ! function_exists( 'check_ajax_referer' ) ) {
 	function check_ajax_referer( $action = -1, $query_arg = false, $die = true ) {
 		// Tests can pre-seed a "this nonce is bad" flag to exercise the

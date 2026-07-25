@@ -57,3 +57,8 @@ No. It reports and edits metadata (alt text, audit state). It never converts, re
 * No management data migration required; audit and alt-text state carry over unchanged.
 
 Earlier history (WebP/AVIF conversion, `<picture>` rewriting, the background queue) now lives with CF Media Optimizer.
+
+== Upgrade Notice ==
+
+= 3.0.0 =
+This version no longer converts or delivers images. If you used 2.x for WebP/AVIF conversion, install the new CF Media Optimizer plugin to keep it running. Nothing is deleted: your converted files, ownership records, and conversion settings are read back unchanged, so delivery resumes where it left off. If you only used the Library list view, audit, or bulk alt text, no action is needed.

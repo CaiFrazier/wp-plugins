@@ -53,3 +53,8 @@ Only if you want the Media Library list view, audit reports, or the bulk alt-tex
 * Split from CF Media Manager 2.3.0: this plugin is now the dedicated delivery half (WebP/AVIF conversion + `<picture>` rewriting). The management toolkit (Library list view, audit, bulk alt-text) ships as the separate CF Media Manager plugin.
 * Shared image-usage scanning moved into a common kernel so a co-installed CF Media Manager shares one scan.
 * Existing conversion settings and variant ownership are read unchanged — no re-conversion on upgrade.
+
+== Upgrade Notice ==
+
+= 3.0.0 =
+First release. This plugin carries the WebP/AVIF conversion and `<picture>` delivery that shipped inside CF Media Manager 2.x. If you are coming from 2.x, install this alongside CF Media Manager 3.0.0 to keep optimizing. Your existing converted files, ownership records, and settings are read unchanged, so no re-conversion is needed.

@@ -46,6 +46,7 @@ final class Plugin {
 	private Audit\AuditRunner $audit_runner;
 	private AuditPage $audit_page;
 	private AuditAjax $audit_ajax;
+	private SplitNotice $split_notice;
 
 	public static function instance(): self {
 		if ( self::$instance === null ) {
@@ -94,6 +95,10 @@ final class Plugin {
 
 		$this->admin_page = new AdminPage( $this->audit_page );
 
+		// Upgrade notice for 2.x sites that lost conversion to the split.
+		// Self-limiting: never fires on a fresh 3.0.0 install.
+		$this->split_notice = new SplitNotice();
+
 		// In-use scanner — invalidates its transient on post/attachment save.
 		// Registered outside the is_admin gate because attachment hooks can
 		// fire during front-end uploads (REST, gallery shortcodes).
@@ -118,6 +123,7 @@ final class Plugin {
 			$this->alt_text->register_hooks();
 			$this->library_page->register_hooks();
 			$this->audit_ajax->register_hooks();
+			$this->split_notice->register_hooks();
 		}
 	}
 
@@ -137,6 +143,8 @@ final class Plugin {
 		return $this->audit_page; }
 	public function audit_ajax(): AuditAjax {
 		return $this->audit_ajax; }
+	public function split_notice(): SplitNotice {
+		return $this->split_notice; }
 	public function audit_ignored(): Audit\IgnoredStore {
 		return $this->audit_ignored; }
 
