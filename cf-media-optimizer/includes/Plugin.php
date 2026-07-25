@@ -164,7 +164,7 @@ final class Plugin {
 	 * side effects — so the activation hook can wrap it in deactivate_plugins()
 	 * + wp_die() and tests can exercise every branch without the WP runtime.
 	 *
-	 * Checks: PHP >= 8.0 and at least one WebP encoder (Imagick-WEBP or
+	 * Checks: PHP >= 8.1 and at least one WebP encoder (Imagick-WEBP or
 	 * GD-imagewebp). AVIF is intentionally NOT required — it's an optional
 	 * second variant on top of WebP.
 	 */

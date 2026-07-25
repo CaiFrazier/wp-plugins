@@ -151,6 +151,54 @@ function readVersion() {
 // WP.org / npm consumers and MUST match the header at release time. Drift
 // between these three is the most common pre-flight bug — catch it here
 // instead of shipping a mismatched zip.
+/**
+ * Top-level entries that are never part of a release, in any plugin. Checked
+ * only AFTER the explicit manifest, so a plugin that legitimately ships one of
+ * these (composerRuntime plugins ship `vendor/` and `composer.json`) is matched
+ * by its own rootFiles/rootDirs first and never reaches this list.
+ */
+const NEVER_SHIPPED = [
+	/^\./,                                   // dotfiles and dotdirs
+	/^(tests?|node_modules|src|dist|bin|vendor|releases)$/,
+	/^scripts$/,                             // per-plugin build/tooling helpers
+	/^(composer\.(json|lock)|package(-lock)?\.json)$/,
+	/^(phpunit|phpcs)\.xml(\.dist)?$/,
+	/^webpack\.config\.js$/,
+	/^[A-Z_]+\.md$/,                         // README, CHANGELOG, PLAN, PRELAUNCH, TODO…
+];
+
+/**
+ * Fail when the plugin directory contains a top-level entry that is neither
+ * shipped nor explicitly recognised as dev-only.
+ *
+ * rootFiles/rootDirs are hand-maintained allowlists, which makes the zip
+ * precise but silently incomplete the moment someone adds a directory and
+ * forgets to register it: the build stays green and the plugin fatals on
+ * activation with a class-not-found. This turns that class of mistake into a
+ * loud build failure at the point the file is added, rather than a bug report
+ * from a user whose site went white.
+ *
+ * Deliberately a two-sided decision: the fix is either "add it to the
+ * manifest" or "it is dev-only" — never silence.
+ */
+function assertManifestCoverage() {
+	const shipped = new Set( [ ...config.rootFiles, ...config.rootDirs ] );
+	const unaccounted = fs
+		.readdirSync( pluginRoot )
+		.filter( ( entry ) => ! shipped.has( entry ) )
+		.filter( ( entry ) => ! NEVER_SHIPPED.some( ( pattern ) => pattern.test( entry ) ) );
+
+	if ( unaccounted.length > 0 ) {
+		throw new Error(
+			`Unregistered top-level entries in ${ config.zipSlug }:\n` +
+			unaccounted.map( ( e ) => `  ${ e }` ).join( '\n' ) +
+			`\n\nEvery entry must be a deliberate choice. Either add it to this ` +
+			`plugin's rootFiles/rootDirs in scripts/release.mjs so it ships, or ` +
+			`add its pattern to NEVER_SHIPPED if it is development-only.`
+		);
+	}
+}
+
 function assertVersionConsistency( pluginVersion ) {
 	const errors = [];
 
@@ -537,6 +585,9 @@ function assertNoDevArtifacts( zipPath ) {
 }
 
 assertRequiredTools();
+// Cheap and fails fast — run before tests so a forgotten directory is caught
+// in seconds rather than after a full suite.
+assertManifestCoverage();
 lintPhpFiles();
 runAvailableTests();
 

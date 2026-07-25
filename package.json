@@ -9,6 +9,7 @@
     "cf-chunked-upload",
     "cf-content-calendar",
     "cf-media-manager",
+    "cf-media-optimizer",
     "schema-override-manager"
   ],
   "scripts": {
@@ -16,6 +17,8 @@
     "build:chunked-upload": "pnpm --filter cf-chunked-upload build",
     "build:content-calendar": "pnpm --filter cf-content-calendar build",
     "build:media-manager": "pnpm --filter cf-media-manager build",
-    "build:schema-override-manager": "pnpm --filter schema-override-manager build"
+    "build:media-optimizer": "pnpm --filter cf-media-optimizer build",
+    "build:schema-override-manager": "pnpm --filter schema-override-manager build",
+    "release": "node scripts/release.mjs"
   }
 }
