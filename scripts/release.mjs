@@ -73,10 +73,11 @@ const plugins = {
 		rootDirs: [ 'includes', 'assets', 'languages', 'templates' ],
 		npmBuild: false,
 		composerRuntime: false,
-		standaloneTest: [
-			[ 'php', 'tests/test-suite.php' ],
-			[ 'php', 'tests/test-redirect.php' ],
-		],
+		// composer.json's "test" script runs both standalone harnesses AND the
+		// PHPUnit suite, so it is the single definition of "test" for this
+		// plugin — same as every other plugin in the line, and the same command
+		// CI runs. Listing the harnesses here as well would run them twice.
+		composerTest: true,
 		potDomain: 'cf-qr-redirect',
 	},
 	'schema-override-manager': {
