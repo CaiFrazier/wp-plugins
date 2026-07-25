@@ -201,8 +201,8 @@ final class IgnoredStore {
 	}
 
 	private function set_attachment_entry( int $post_id, string $report_id, array $meta ): void {
-		$bag                = $this->read_attachment_bag( $post_id );
-		$bag[ $report_id ]  = array_merge( $bag[ $report_id ] ?? array(), $meta );
+		$bag               = $this->read_attachment_bag( $post_id );
+		$bag[ $report_id ] = array_merge( $bag[ $report_id ] ?? array(), $meta );
 		update_post_meta( $post_id, self::POSTMETA_KEY, $bag );
 	}
 
@@ -236,10 +236,10 @@ final class IgnoredStore {
 	}
 
 	private function set_path_entry( string $normalized_key, string $report_id, array $meta ): void {
-		$blob                                   = $this->read_path_blob();
-		$bag                                    = $blob[ $normalized_key ] ?? array();
-		$bag[ $report_id ]                      = array_merge( $bag[ $report_id ] ?? array(), $meta );
-		$blob[ $normalized_key ]                = $bag;
+		$blob                    = $this->read_path_blob();
+		$bag                     = $blob[ $normalized_key ] ?? array();
+		$bag[ $report_id ]       = array_merge( $bag[ $report_id ] ?? array(), $meta );
+		$blob[ $normalized_key ] = $bag;
 		update_option( Options::AUDIT_IGNORED_PATHS, $blob, false );
 	}
 

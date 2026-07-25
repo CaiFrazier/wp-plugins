@@ -5,7 +5,7 @@
  * Description:       Splits large files client-side and reassembles them server-side, bypassing PHP upload_max_filesize / post_max_size limits. Two surfaces: Media Library and a standalone large-file importer. Integrity-verified with per-chunk and whole-file SHA-256.
  * Version:           1.2.0
  * Requires at least: 6.2
- * Requires PHP:      7.4
+ * Requires PHP:      8.1
  * Author:            Cai Frazier
  * Author URI:        https://caifrazier.com
  * License:           GPLv2 or later

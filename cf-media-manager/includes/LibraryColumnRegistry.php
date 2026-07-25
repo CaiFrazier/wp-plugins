@@ -170,42 +170,42 @@ class LibraryColumnRegistry {
 			'context'      => array(
 				'label'   => 'Attachment Context',
 				'columns' => array(
-					'parent_id'          => array(
+					'parent_id'           => array(
 						'label'    => 'Parent ID',
 						'desc'     => 'post_parent — the ID of the post or page this file is attached to. 0 means unattached.',
 						'default'  => false,
 						'width'    => '80px',
 						'sortable' => false,
 					),
-					'parent_title'       => array(
+					'parent_title'        => array(
 						'label'    => 'Parent Title',
 						'desc'     => 'Title of the parent post, if any. Performs a get_post() lookup per row.',
 						'default'  => false,
 						'width'    => '200px',
 						'sortable' => false,
 					),
-					'parent_type'        => array(
+					'parent_type'         => array(
 						'label'    => 'Parent Type',
 						'desc'     => 'Post type of the parent (e.g. post, page, product). Performs a get_post() lookup per row.',
 						'default'  => false,
 						'width'    => '110px',
 						'sortable' => false,
 					),
-					'is_unattached'      => array(
+					'is_unattached'       => array(
 						'label'    => 'Unattached',
 						'desc'     => 'true when post_parent = 0; false when attached to a post.',
 						'default'  => false,
 						'width'    => '90px',
 						'sortable' => false,
 					),
-					'author_id'          => array(
+					'author_id'           => array(
 						'label'    => 'Author ID',
 						'desc'     => 'post_author — the numeric ID of the WordPress user who uploaded this file.',
 						'default'  => false,
 						'width'    => '80px',
 						'sortable' => false,
 					),
-					'author_login'       => array(
+					'author_login'        => array(
 						'label'    => 'Author Login',
 						'desc'     => 'Username (user_login) of the uploading user.',
 						'default'  => false,
@@ -257,49 +257,49 @@ class LibraryColumnRegistry {
 			'exif'         => array(
 				'label'   => 'EXIF / Camera Data',
 				'columns' => array(
-					'exif_camera'        => array(
+					'exif_camera'       => array(
 						'label'    => 'Camera Model',
 						'desc'     => 'Camera make + model from EXIF (image_meta[camera]). Empty for non-photo files.',
 						'default'  => false,
 						'width'    => '170px',
 						'sortable' => false,
 					),
-					'exif_aperture'      => array(
+					'exif_aperture'     => array(
 						'label'    => 'Aperture',
 						'desc'     => 'f-stop value from EXIF image_meta[aperture] (e.g. f/2.8).',
 						'default'  => false,
 						'width'    => '85px',
 						'sortable' => false,
 					),
-					'exif_shutter'       => array(
+					'exif_shutter'      => array(
 						'label'    => 'Shutter Speed',
 						'desc'     => 'Shutter speed from EXIF image_meta[shutter_speed] (e.g. 0.004 → displayed as 1/250).',
 						'default'  => false,
 						'width'    => '110px',
 						'sortable' => false,
 					),
-					'exif_iso'           => array(
+					'exif_iso'          => array(
 						'label'    => 'ISO',
 						'desc'     => 'ISO sensitivity from EXIF image_meta[iso].',
 						'default'  => false,
 						'width'    => '70px',
 						'sortable' => false,
 					),
-					'exif_focal_length'  => array(
+					'exif_focal_length' => array(
 						'label'    => 'Focal Length',
 						'desc'     => 'Focal length in mm from EXIF image_meta[focal_length].',
 						'default'  => false,
 						'width'    => '105px',
 						'sortable' => false,
 					),
-					'exif_created_at'    => array(
+					'exif_created_at'   => array(
 						'label'    => 'EXIF Date',
 						'desc'     => 'image_meta[created_timestamp] — when the photo was taken (not uploaded). UTC.',
 						'default'  => false,
 						'width'    => '145px',
 						'sortable' => false,
 					),
-					'exif_orientation'   => array(
+					'exif_orientation'  => array(
 						'label'    => 'Orientation',
 						'desc'     => 'EXIF orientation integer (1–8). 1 = normal; values > 1 indicate rotation or flip.',
 						'default'  => false,
@@ -311,42 +311,42 @@ class LibraryColumnRegistry {
 			'wp_internals' => array(
 				'label'   => 'WordPress Internals',
 				'columns' => array(
-					'post_status'     => array(
+					'post_status'    => array(
 						'label'    => 'Post Status',
 						'desc'     => 'wp_posts.post_status — almost always "inherit" for attachments.',
 						'default'  => false,
 						'width'    => '100px',
 						'sortable' => false,
 					),
-					'menu_order'      => array(
+					'menu_order'     => array(
 						'label'    => 'Menu Order',
 						'desc'     => 'post_menu_order — used by some gallery and ordering plugins to control display sequence.',
 						'default'  => false,
 						'width'    => '95px',
 						'sortable' => true,
 					),
-					'comment_status'  => array(
+					'comment_status' => array(
 						'label'    => 'Comment Status',
 						'desc'     => '"open" or "closed" — controls whether comments are allowed on the attachment page.',
 						'default'  => false,
 						'width'    => '125px',
 						'sortable' => false,
 					),
-					'num_sizes'       => array(
+					'num_sizes'      => array(
 						'label'    => 'Registered Sizes',
 						'desc'     => 'Number of sub-sizes generated by WordPress for this image (from _wp_attachment_metadata[sizes]).',
 						'default'  => false,
 						'width'    => '115px',
 						'sortable' => false,
 					),
-					'sizes_list'      => array(
+					'sizes_list'     => array(
 						'label'    => 'Size Names',
 						'desc'     => 'Comma-separated list of registered sub-size keys available for this image (e.g. thumbnail, medium, large).',
 						'default'  => false,
 						'width'    => '220px',
 						'sortable' => false,
 					),
-					'attached_file'   => array(
+					'attached_file'  => array(
 						'label'    => '_wp_attached_file',
 						'desc'     => 'Raw value of the _wp_attached_file postmeta key — server-relative path from the uploads root (e.g. 2024/05/photo.jpg).',
 						'default'  => false,

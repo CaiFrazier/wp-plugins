@@ -132,15 +132,15 @@ final class Admin {
 		}
 
 		$boot = [
-			'restRoot'               => esc_url_raw( rest_url( RestApi::NS ) ),
-			'nonce'                  => wp_create_nonce( 'wp_rest' ),
-			'settings'               => $this->settings->get(),
-			'hostInfo'               => HostInfo::snapshot(),
-			'maxRetries'             => (int) $this->settings->get()['max_retries'],
-			'concurrency'            => (int) $this->settings->get()['concurrency'],
-			'chunkBytes'             => $this->settings->chunk_size_bytes(),
-			'thresholdBytes'         => $this->settings->threshold_bytes(),
-			'maxConcurrentImports'   => $this->settings->max_concurrent_uploads_per_user(),
+			'restRoot'             => esc_url_raw( rest_url( RestApi::NS ) ),
+			'nonce'                => wp_create_nonce( 'wp_rest' ),
+			'settings'             => $this->settings->get(),
+			'hostInfo'             => HostInfo::snapshot(),
+			'maxRetries'           => (int) $this->settings->get()['max_retries'],
+			'concurrency'          => (int) $this->settings->get()['concurrency'],
+			'chunkBytes'           => $this->settings->chunk_size_bytes(),
+			'thresholdBytes'       => $this->settings->threshold_bytes(),
+			'maxConcurrentImports' => $this->settings->max_concurrent_uploads_per_user(),
 		];
 		wp_add_inline_script(
 			$handle,

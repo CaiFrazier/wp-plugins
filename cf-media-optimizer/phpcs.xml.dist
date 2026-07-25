@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<ruleset name="CF Media Optimizer">
+	<description>Coding standards for CF Media Optimizer.</description>
+
+	<rule ref="../phpcs.shared.xml"/>
+
+	<file>cf-media-optimizer.php</file>
+	<file>uninstall.php</file>
+	<file>cli.php</file>
+	<file>includes</file>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="cf-media-optimizer"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!--
+		Naming-prefix allowlist. Every plugin-owned class, function, hook,
+		and global variable starts with one of these prefixes; teach the
+		PrefixAllGlobals sniff so genuine plugin code isn't flagged. Both the
+		plugin's own cf_media_optimizer / CFMediaOptimizer prefixes AND the
+		inherited cf_media_manager storage keys are allowlisted (the persisted
+		option/postmeta keys keep the pre-split prefix — see includes/Options.php).
+	-->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="cf_media_optimizer"/>
+				<element value="CFMediaOptimizer"/>
+				<element value="CF_MEDIA_OPTIMIZER"/>
+				<element value="cf_media_manager"/>
+				<element value="cf_media_in_use"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>

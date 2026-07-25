@@ -47,11 +47,11 @@ final class OversizedOriginals implements AuditReportInterface, AuditReportCsvEx
 
 	const BATCH_SIZE = 500;
 
-	const DEFAULT_MIN_BYTES         = 2 * 1024 * 1024;  // 2 MB
-	const DEFAULT_MIN_LONGEST_SIDE  = 2560;             // WP's auto-scale threshold
+	const DEFAULT_MIN_BYTES        = 2 * 1024 * 1024;  // 2 MB
+	const DEFAULT_MIN_LONGEST_SIDE = 2560;             // WP's auto-scale threshold
 
-	const CONFIG_MIN_BYTES         = 'min_bytes';
-	const CONFIG_MIN_LONGEST_SIDE  = 'min_pixels_longest_side';
+	const CONFIG_MIN_BYTES        = 'min_bytes';
+	const CONFIG_MIN_LONGEST_SIDE = 'min_pixels_longest_side';
 
 	private IgnoredStore $ignored;
 
@@ -78,10 +78,10 @@ final class OversizedOriginals implements AuditReportInterface, AuditReportCsvEx
 	public function scan_chunk( ScanContext $ctx, ?string $cursor, array $prior_totals = array() ): AuditChunk {
 		global $wpdb;
 
-		$batch_size  = max( 1, min( self::BATCH_SIZE, $ctx->chunk_size ) );
-		$after_id    = ( null === $cursor ) ? 0 : (int) $cursor;
-		$min_bytes   = max( 1, (int) $ctx->config( self::CONFIG_MIN_BYTES, self::DEFAULT_MIN_BYTES ) );
-		$min_pixels  = max( 1, (int) $ctx->config( self::CONFIG_MIN_LONGEST_SIDE, self::DEFAULT_MIN_LONGEST_SIDE ) );
+		$batch_size = max( 1, min( self::BATCH_SIZE, $ctx->chunk_size ) );
+		$after_id   = ( null === $cursor ) ? 0 : (int) $cursor;
+		$min_bytes  = max( 1, (int) $ctx->config( self::CONFIG_MIN_BYTES, self::DEFAULT_MIN_BYTES ) );
+		$min_pixels = max( 1, (int) $ctx->config( self::CONFIG_MIN_LONGEST_SIDE, self::DEFAULT_MIN_LONGEST_SIDE ) );
 
 		if ( ! isset( $wpdb ) ) {
 			return AuditChunk::complete( array(), $prior_totals );
@@ -130,7 +130,7 @@ final class OversizedOriginals implements AuditReportInterface, AuditReportCsvEx
 			}
 
 			$items[] = $this->build_receipt( $id, $row, $assessment, $min_bytes, $min_pixels );
-			$flagged++;
+			++$flagged;
 			$savings += max( 0, $assessment['size_bytes'] - $min_bytes );
 		}
 
@@ -174,12 +174,12 @@ final class OversizedOriginals implements AuditReportInterface, AuditReportCsvEx
 			$path = function_exists( 'get_attached_file' ) ? get_attached_file( $id ) : '';
 			if ( $path ) {
 				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-				$disk = @filesize( $path );
+				$disk       = @filesize( $path );
 				$size_bytes = is_int( $disk ) ? $disk : 0;
 			}
 		}
 
-		$width        = isset( $meta['width'] )  ? (int) $meta['width']  : 0;
+		$width        = isset( $meta['width'] ) ? (int) $meta['width'] : 0;
 		$height       = isset( $meta['height'] ) ? (int) $meta['height'] : 0;
 		$longest_side = max( $width, $height );
 
@@ -232,11 +232,11 @@ final class OversizedOriginals implements AuditReportInterface, AuditReportCsvEx
 			'dimensions'          => $dimensions,
 			'has_scaled_variant'  => $assessment['has_scaled_variant'],
 			'why'                 => array(
-				'reason'                  => 'oversized_original',
-				'threshold_bytes'         => $min_bytes,
-				'threshold_longest_side'  => $min_pixels,
-				'triggered_by'            => $assessment['triggered_by'],
-				'has_scaled_variant'      => $assessment['has_scaled_variant'],
+				'reason'                 => 'oversized_original',
+				'threshold_bytes'        => $min_bytes,
+				'threshold_longest_side' => $min_pixels,
+				'triggered_by'           => $assessment['triggered_by'],
+				'has_scaled_variant'     => $assessment['has_scaled_variant'],
 			),
 		);
 	}
@@ -276,7 +276,7 @@ final class OversizedOriginals implements AuditReportInterface, AuditReportCsvEx
 				$errors[ $id ] = __( 'Could not trash attachment.', 'cf-media-manager' );
 				continue;
 			}
-			$processed++;
+			++$processed;
 		}
 
 		if ( empty( $errors ) ) {
@@ -293,7 +293,7 @@ final class OversizedOriginals implements AuditReportInterface, AuditReportCsvEx
 				continue;
 			}
 			$this->ignored->ignore( self::ID, $id );
-			$processed++;
+			++$processed;
 		}
 		return ActionResult::ok( $processed );
 	}
@@ -306,7 +306,7 @@ final class OversizedOriginals implements AuditReportInterface, AuditReportCsvEx
 				continue;
 			}
 			$this->ignored->unignore( self::ID, $id );
-			$processed++;
+			++$processed;
 		}
 		return ActionResult::ok( $processed );
 	}
@@ -321,17 +321,50 @@ final class OversizedOriginals implements AuditReportInterface, AuditReportCsvEx
 
 	public function csv_columns(): array {
 		return array(
-			array( 'key' => 'id',                 'label' => __( 'Attachment ID', 'cf-media-manager' ) ),
-			array( 'key' => 'title',              'label' => __( 'Title', 'cf-media-manager' ) ),
-			array( 'key' => 'mime',               'label' => __( 'MIME', 'cf-media-manager' ) ),
-			array( 'key' => 'date_uploaded',      'label' => __( 'Date Uploaded', 'cf-media-manager' ) ),
-			array( 'key' => 'size_bytes',         'label' => __( 'Size (bytes)', 'cf-media-manager' ) ),
-			array( 'key' => 'size_human',         'label' => __( 'Size', 'cf-media-manager' ) ),
-			array( 'key' => 'width',              'label' => __( 'Width', 'cf-media-manager' ) ),
-			array( 'key' => 'height',             'label' => __( 'Height', 'cf-media-manager' ) ),
-			array( 'key' => 'longest_side',       'label' => __( 'Longest Side', 'cf-media-manager' ) ),
-			array( 'key' => 'has_scaled_variant', 'label' => __( 'Has Scaled Variant', 'cf-media-manager' ) ),
-			array( 'key' => 'triggered_by',       'label' => __( 'Triggered By', 'cf-media-manager' ) ),
+			array(
+				'key'   => 'id',
+				'label' => __( 'Attachment ID', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'title',
+				'label' => __( 'Title', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'mime',
+				'label' => __( 'MIME', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'date_uploaded',
+				'label' => __( 'Date Uploaded', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'size_bytes',
+				'label' => __( 'Size (bytes)', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'size_human',
+				'label' => __( 'Size', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'width',
+				'label' => __( 'Width', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'height',
+				'label' => __( 'Height', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'longest_side',
+				'label' => __( 'Longest Side', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'has_scaled_variant',
+				'label' => __( 'Has Scaled Variant', 'cf-media-manager' ),
+			),
+			array(
+				'key'   => 'triggered_by',
+				'label' => __( 'Triggered By', 'cf-media-manager' ),
+			),
 		);
 	}
 

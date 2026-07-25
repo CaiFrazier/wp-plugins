@@ -2,10 +2,10 @@
 /**
  * Plugin Name:       CF Media Manager
  * Plugin URI:        https://github.com/caifrazier/cf-media-manager
- * Description:       Media management toolkit: WebP/AVIF conversion with <picture> wrapping and native browser fallback, a bulk alt text auditor and editor, and a fully configurable Media Library list view with 40+ columns and CSV export. No nginx or .htaccess config required.
- * Version:           2.3.0
+ * Description:       Media Library management toolkit: a fully configurable list view with 40+ columns and CSV export, a five-report media audit engine, and a bulk alt text auditor and editor. Pairs with CF Media Optimizer for WebP/AVIF delivery.
+ * Version:           3.0.0
  * Requires at least: 6.2
- * Requires PHP:      8.0
+ * Requires PHP:      8.1
  * Author:            Cai Frazier
  * Author URI:        https://caifrazier.com
  * License:           GPLv2 or later
@@ -75,11 +75,6 @@ register_activation_hook(
 	static function () {
 		$error = \CFMediaManager\Plugin::check_requirements();
 		if ( null === $error ) {
-			// Run install-time setup once requirements pass. Currently:
-			// fresh-install detection for the BACKFILL_DONE flag so
-			// greenfield sites never hit the pre-1.2.2 legacy LIKE
-			// scan on the render path.
-			\CFMediaManager\Plugin::run_install();
 			return;
 		}
 		// Reverse the activation that just succeeded so WP doesn't list the

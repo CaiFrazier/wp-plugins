@@ -37,10 +37,25 @@ final class Settings {
 	 * double-extension bypass is caught, not just a trailing `.php`.
 	 */
 	const BLOCKED_EXTENSIONS = [
-		'php', 'php3', 'php4', 'php5', 'php7', 'php8',
-		'phtml', 'pht', 'phar', 'phps',
-		'asp', 'aspx', 'jsp', 'jspx', 'cfm', 'cgi', 'shtml',
-		'htaccess', 'htpasswd',
+		'php',
+		'php3',
+		'php4',
+		'php5',
+		'php7',
+		'php8',
+		'phtml',
+		'pht',
+		'phar',
+		'phps',
+		'asp',
+		'aspx',
+		'jsp',
+		'jspx',
+		'cfm',
+		'cgi',
+		'shtml',
+		'htaccess',
+		'htpasswd',
 	];
 
 	private Paths $paths;
@@ -51,29 +66,29 @@ final class Settings {
 
 	public static function defaults(): array {
 		return [
-			'chunk_size_mb'       => 8,
-			'concurrency'         => 3,
-			'threshold_mb'        => 10,
-			'max_retries'         => 3,
-			'imports_dir'         => '',
-			'allowed_extensions'  => [],
-			'collision_policy'    => 'timestamp',
-			'importer_capability' => 'manage_options',
-			'cleanup_age_hours'   => 2,
+			'chunk_size_mb'                   => 8,
+			'concurrency'                     => 3,
+			'threshold_mb'                    => 10,
+			'max_retries'                     => 3,
+			'imports_dir'                     => '',
+			'allowed_extensions'              => [],
+			'collision_policy'                => 'timestamp',
+			'importer_capability'             => 'manage_options',
+			'cleanup_age_hours'               => 2,
 			// SEC-1: 0 = disabled (trusted/single-user installs).
-			'chunks_per_minute'              => 60,
+			'chunks_per_minute'               => 60,
 			// SEC-2: 0 = unlimited. Stored as GB; converted to bytes at runtime.
-			'per_user_quota_gb'              => 50,
+			'per_user_quota_gb'               => 50,
 			// FEAT-8: 0 = unlimited concurrent uploads per user.
 			'max_concurrent_uploads_per_user' => 5,
 			// FEAT-5: 0 = never auto-delete imported files.
-			'imports_retention_days'         => 0,
+			'imports_retention_days'          => 0,
 			// SEC-9: per-session absolute byte ceiling, stored as GB. 0 = unlimited.
 			// Independent of the per-user quota; caps a single upload on its own.
-			'per_session_max_gb'             => 0,
+			'per_session_max_gb'              => 0,
 			// SEC-9: free disk (MB) to preserve during chunk receive. 0 = disabled.
 			// Guards against filling the volume before finalize's own disk check.
-			'min_free_disk_mb'               => 512,
+			'min_free_disk_mb'                => 512,
 		];
 	}
 
@@ -95,16 +110,16 @@ final class Settings {
 
 		$out = $current;
 
-		$out['concurrency']        = self::clamp_int( $input['concurrency'] ?? $current['concurrency'], 1, 6, 3 );
-		$out['threshold_mb']       = self::clamp_int( $input['threshold_mb'] ?? $current['threshold_mb'], 1, 1024, 10 );
-		$out['max_retries']        = self::clamp_int( $input['max_retries'] ?? $current['max_retries'], 1, 10, 3 );
-		$out['cleanup_age_hours']  = self::clamp_int( $input['cleanup_age_hours'] ?? $current['cleanup_age_hours'], 1, 168, 2 );
-		$out['chunks_per_minute']              = self::clamp_int( $input['chunks_per_minute'] ?? $current['chunks_per_minute'], 0, 300, 60 );
-		$out['per_user_quota_gb']              = self::clamp_int( $input['per_user_quota_gb'] ?? $current['per_user_quota_gb'], 0, 10000, 50 );
+		$out['concurrency']                     = self::clamp_int( $input['concurrency'] ?? $current['concurrency'], 1, 6, 3 );
+		$out['threshold_mb']                    = self::clamp_int( $input['threshold_mb'] ?? $current['threshold_mb'], 1, 1024, 10 );
+		$out['max_retries']                     = self::clamp_int( $input['max_retries'] ?? $current['max_retries'], 1, 10, 3 );
+		$out['cleanup_age_hours']               = self::clamp_int( $input['cleanup_age_hours'] ?? $current['cleanup_age_hours'], 1, 168, 2 );
+		$out['chunks_per_minute']               = self::clamp_int( $input['chunks_per_minute'] ?? $current['chunks_per_minute'], 0, 300, 60 );
+		$out['per_user_quota_gb']               = self::clamp_int( $input['per_user_quota_gb'] ?? $current['per_user_quota_gb'], 0, 10000, 50 );
 		$out['max_concurrent_uploads_per_user'] = self::clamp_int( $input['max_concurrent_uploads_per_user'] ?? $current['max_concurrent_uploads_per_user'], 0, 20, 5 );
-		$out['imports_retention_days']         = self::clamp_int( $input['imports_retention_days'] ?? $current['imports_retention_days'], 0, 365, 0 );
-		$out['per_session_max_gb']             = self::clamp_int( $input['per_session_max_gb'] ?? $current['per_session_max_gb'], 0, 10000, 0 );
-		$out['min_free_disk_mb']               = self::clamp_int( $input['min_free_disk_mb'] ?? $current['min_free_disk_mb'], 0, 1048576, 512 );
+		$out['imports_retention_days']          = self::clamp_int( $input['imports_retention_days'] ?? $current['imports_retention_days'], 0, 365, 0 );
+		$out['per_session_max_gb']              = self::clamp_int( $input['per_session_max_gb'] ?? $current['per_session_max_gb'], 0, 10000, 0 );
+		$out['min_free_disk_mb']                = self::clamp_int( $input['min_free_disk_mb'] ?? $current['min_free_disk_mb'], 0, 1048576, 512 );
 
 		$requested_mb = self::clamp_int( $input['chunk_size_mb'] ?? $current['chunk_size_mb'], 1, 1024, 8 );
 		$ceiling      = HostInfo::chunk_ceiling_bytes();

@@ -15,7 +15,7 @@ define( 'ABSPATH', __DIR__ . '/' );
 
 // WordPress time constants — used in class-const initializers (e.g.
 // InUseScanner::TRANSIENT_TTL). PHP evaluates those when the class is loaded,
-// so they have to exist before any `use CFMediaManager\InUseScanner` triggers
+// so they have to exist before any `use CFShared\Media\InUseScanner` triggers
 // autoload.
 // wpdb output-format flags — used by $wpdb->get_results( $sql, ARRAY_A ).
 // VariantManifest's filter_existing_pairs references ARRAY_A; the test
@@ -706,6 +706,18 @@ if ( ! function_exists( 'wp_send_json_error' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wp_verify_nonce' ) ) {
+	function wp_verify_nonce( $nonce, $action = -1 ) {
+		// Mirrors the check_ajax_referer shim below: valid by default, with
+		// the same pre-seeded flag to exercise the failure branch. Real WP
+		// returns 1|2|false; callers only test truthiness.
+		if ( ! empty( $GLOBALS['cf_media_manager_test_nonce_invalid'] ) ) {
+			return false;
+		}
+		return empty( $nonce ) ? false : 1;
+	}
+}
+
 if ( ! function_exists( 'check_ajax_referer' ) ) {
 	function check_ajax_referer( $action = -1, $query_arg = false, $die = true ) {
 		// Tests can pre-seed a "this nonce is bad" flag to exercise the
@@ -854,33 +866,29 @@ $autoload = __DIR__ . '/../vendor/autoload.php';
 if ( file_exists( $autoload ) ) {
 	require_once $autoload;
 } else {
-	$includes = __DIR__ . '/../includes';
-	require_once $includes . '/Options.php';
-	require_once $includes . '/Paths.php';
-	require_once $includes . '/PatternMatcher.php';
-	require_once $includes . '/Rewriter.php';
-	require_once $includes . '/VariantManifest.php';
-	// Library list-view classes — pulled in for the suite when Composer
-	// autoload isn't present.
-	require_once $includes . '/LibraryColumnRegistry.php';
-	require_once $includes . '/LibraryAttachmentData.php';
-	require_once $includes . '/LibraryCsvExporter.php';
-	require_once $includes . '/LibraryRestController.php';
-	// Audit subsystem.
-	require_once $includes . '/Audit/AuditChunk.php';
-	require_once $includes . '/Audit/ActionResult.php';
-	require_once $includes . '/Audit/ScanContext.php';
-	require_once $includes . '/Audit/AuditReportInterface.php';
-	require_once $includes . '/Audit/AuditReportCsvExportable.php';
-	require_once $includes . '/Audit/IgnoredStore.php';
-	require_once $includes . '/Audit/AuditRunner.php';
-	require_once $includes . '/Audit/Reports/GhostAttachments.php';
-	require_once $includes . '/Audit/Reports/OrphanFiles.php';
-	require_once $includes . '/Audit/Reports/UnusedAttachments.php';
-	require_once $includes . '/Audit/Reports/DuplicateOriginals.php';
-	require_once $includes . '/Audit/Reports/OversizedOriginals.php';
-	require_once $includes . '/AuditPage.php';
-	require_once $includes . '/AuditAjax.php';
+	// No vendor/ (suite run without `composer install`). Lazily load the
+	// plugin's own classes from includes/ and the bundled CFShared library
+	// from the sibling shared/ source tree. Lazy loading means dependency
+	// order is handled automatically (e.g. AltTextManager referencing
+	// CFShared\Media\AltMeta at class-definition time).
+	spl_autoload_register(
+		static function ( $class ) {
+			$map = array(
+				'CFMediaManager\\' => __DIR__ . '/../includes/',
+				'CFShared\\'       => __DIR__ . '/../../shared/src/',
+			);
+			foreach ( $map as $prefix => $base ) {
+				if ( 0 === strpos( $class, $prefix ) ) {
+					$rel  = substr( $class, strlen( $prefix ) );
+					$path = $base . str_replace( '\\', '/', $rel ) . '.php';
+					if ( is_file( $path ) ) {
+						require_once $path;
+					}
+					return;
+				}
+			}
+		}
+	);
 }
 
 // Audit-report shims (added with the GhostAttachments report). Tests

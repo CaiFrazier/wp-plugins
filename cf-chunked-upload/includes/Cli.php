@@ -28,7 +28,7 @@ final class Cli extends \WP_CLI_Command {
 	private Cleanup $cleanup;
 
 	public function __construct( Paths $paths, Settings $settings, FinalizeJob $finalize, Cleanup $cleanup ) {
-		$this->paths   = $paths;
+		$this->paths    = $paths;
 		$this->settings = $settings;
 		$this->finalize = $finalize;
 		$this->cleanup  = $cleanup;
@@ -78,8 +78,8 @@ final class Cli extends \WP_CLI_Command {
 				if ( null !== $filter_user && $owner !== $filter_user ) {
 					continue;
 				}
-				$age     = time() - (int) ( $meta['created_at'] ?? 0 );
-				$rows[]  = [
+				$age    = time() - (int) ( $meta['created_at'] ?? 0 );
+				$rows[] = [
 					'upload_id'   => $entry,
 					'owner_id'    => $owner,
 					'file_name'   => $meta['file_name'] ?? '—',
@@ -92,10 +92,20 @@ final class Cli extends \WP_CLI_Command {
 			}
 		}
 
-		\WP_CLI\Utils\format_items( $assoc['format'] ?? 'table', $rows, [
-			'upload_id', 'owner_id', 'file_name', 'destination',
-			'chunks', 'complete', 'assembling', 'age',
-		] );
+		\WP_CLI\Utils\format_items(
+			$assoc['format'] ?? 'table',
+			$rows,
+			[
+				'upload_id',
+				'owner_id',
+				'file_name',
+				'destination',
+				'chunks',
+				'complete',
+				'assembling',
+				'age',
+			]
+		);
 	}
 
 	/**
@@ -126,20 +136,60 @@ final class Cli extends \WP_CLI_Command {
 			\WP_CLI::error( "Session $upload_id not found." );
 		}
 		$meta = $session->meta();
-		\WP_CLI\Utils\format_items( 'table', [
-			[ 'key' => 'upload_id',     'value' => $upload_id ],
-			[ 'key' => 'owner_id',      'value' => $meta['owner_id'] ?? '0' ],
-			[ 'key' => 'file_name',     'value' => $meta['file_name'] ?? '—' ],
-			[ 'key' => 'mime_type',     'value' => $meta['mime_type'] ?? '—' ],
-			[ 'key' => 'destination',   'value' => $meta['destination'] ?? '—' ],
-			[ 'key' => 'total_chunks',  'value' => $session->total_chunks() ],
-			[ 'key' => 'received',      'value' => $session->received_count() ],
-			[ 'key' => 'complete',      'value' => $session->has_all_chunks() ? 'yes' : 'no' ],
-			[ 'key' => 'assembling',    'value' => $session->is_assembling() ? 'yes' : 'no' ],
-			[ 'key' => 'finalize_job',  'value' => $session->finalize_job_id() ?? '—' ],
-			[ 'key' => 'file_size',     'value' => $meta['file_size'] ?? '0' ],
-			[ 'key' => 'created_at',    'value' => isset( $meta['created_at'] ) ? gmdate( 'Y-m-d H:i:s', (int) $meta['created_at'] ) : '—' ],
-		], [ 'key', 'value' ] );
+		\WP_CLI\Utils\format_items(
+			'table',
+			[
+				[
+					'key'   => 'upload_id',
+					'value' => $upload_id,
+				],
+				[
+					'key'   => 'owner_id',
+					'value' => $meta['owner_id'] ?? '0',
+				],
+				[
+					'key'   => 'file_name',
+					'value' => $meta['file_name'] ?? '—',
+				],
+				[
+					'key'   => 'mime_type',
+					'value' => $meta['mime_type'] ?? '—',
+				],
+				[
+					'key'   => 'destination',
+					'value' => $meta['destination'] ?? '—',
+				],
+				[
+					'key'   => 'total_chunks',
+					'value' => $session->total_chunks(),
+				],
+				[
+					'key'   => 'received',
+					'value' => $session->received_count(),
+				],
+				[
+					'key'   => 'complete',
+					'value' => $session->has_all_chunks() ? 'yes' : 'no',
+				],
+				[
+					'key'   => 'assembling',
+					'value' => $session->is_assembling() ? 'yes' : 'no',
+				],
+				[
+					'key'   => 'finalize_job',
+					'value' => $session->finalize_job_id() ?? '—',
+				],
+				[
+					'key'   => 'file_size',
+					'value' => $meta['file_size'] ?? '0',
+				],
+				[
+					'key'   => 'created_at',
+					'value' => isset( $meta['created_at'] ) ? gmdate( 'Y-m-d H:i:s', (int) $meta['created_at'] ) : '—',
+				],
+			],
+			[ 'key', 'value' ]
+		);
 	}
 
 	/**
@@ -202,9 +252,9 @@ final class Cli extends \WP_CLI_Command {
 	public function cleanup( array $args, array $assoc ): void {
 		if ( ! empty( $assoc['dry-run'] ) ) {
 			// Dry run: just scan and report without deleting.
-			$root      = $this->paths->chunks_root();
-			$retention = max( 60, $this->settings->retention_seconds() );
-			$now       = time();
+			$root         = $this->paths->chunks_root();
+			$retention    = max( 60, $this->settings->retention_seconds() );
+			$now          = time();
 			$would_delete = 0;
 
 			if ( is_dir( $root ) ) {
@@ -217,7 +267,7 @@ final class Cli extends \WP_CLI_Command {
 					$has_hb   = is_file( $dir . '/' . UploadSession::HEARTBEAT_FILE );
 					if ( ! $has_meta && ! $has_hb ) {
 						\WP_CLI::log( "[dry-run] Would delete (no meta/heartbeat): $entry" );
-						$would_delete++;
+						++$would_delete;
 						continue;
 					}
 					$assembling_file = $dir . '/' . UploadSession::ASSEMBLING_FILE;
@@ -240,7 +290,7 @@ final class Cli extends \WP_CLI_Command {
 					}
 					if ( ( $now - $newest ) > $retention ) {
 						\WP_CLI::log( "[dry-run] Would delete (stale): $entry" );
-						$would_delete++;
+						++$would_delete;
 					}
 				}
 			}
@@ -335,19 +385,43 @@ final class Cli extends \WP_CLI_Command {
 			$n     = (float) $v;
 			while ( $n >= 1024 && $i < 4 ) {
 				$n /= 1024;
-				$i++;
+				++$i;
 			}
 			return round( $n, 1 ) . ' ' . $units[ $i ];
 		};
 		$rows = [
-			[ 'key' => 'upload_max_filesize', 'value' => $fmt( $info['upload_max_filesize'] ?? null, 'bytes' ) ],
-			[ 'key' => 'post_max_size',       'value' => $fmt( $info['post_max_size'] ?? null, 'bytes' ) ],
-			[ 'key' => 'memory_limit',        'value' => $fmt( $info['memory_limit'] ?? null, 'bytes' ) ],
-			[ 'key' => 'max_execution_time',  'value' => $fmt( $info['max_execution_time'] ?? null, 'seconds' ) ],
-			[ 'key' => 'free_disk_space',     'value' => $fmt( $info['free_disk_space'] ?? null, 'bytes' ) ],
-			[ 'key' => 'chunk_ceiling_bytes', 'value' => $fmt( $info['chunk_ceiling_bytes'] ?? null, 'bytes' ) ],
-			[ 'key' => 'is_nginx',            'value' => $fmt( $info['isNginx'] ?? false, 'bool' ) ],
-			[ 'key' => 'wp_cron_disabled',    'value' => $fmt( $info['wpCronDisabled'] ?? false, 'bool' ) ],
+			[
+				'key'   => 'upload_max_filesize',
+				'value' => $fmt( $info['upload_max_filesize'] ?? null, 'bytes' ),
+			],
+			[
+				'key'   => 'post_max_size',
+				'value' => $fmt( $info['post_max_size'] ?? null, 'bytes' ),
+			],
+			[
+				'key'   => 'memory_limit',
+				'value' => $fmt( $info['memory_limit'] ?? null, 'bytes' ),
+			],
+			[
+				'key'   => 'max_execution_time',
+				'value' => $fmt( $info['max_execution_time'] ?? null, 'seconds' ),
+			],
+			[
+				'key'   => 'free_disk_space',
+				'value' => $fmt( $info['free_disk_space'] ?? null, 'bytes' ),
+			],
+			[
+				'key'   => 'chunk_ceiling_bytes',
+				'value' => $fmt( $info['chunk_ceiling_bytes'] ?? null, 'bytes' ),
+			],
+			[
+				'key'   => 'is_nginx',
+				'value' => $fmt( $info['isNginx'] ?? false, 'bool' ),
+			],
+			[
+				'key'   => 'wp_cron_disabled',
+				'value' => $fmt( $info['wpCronDisabled'] ?? false, 'bool' ),
+			],
 		];
 		\WP_CLI\Utils\format_items( 'table', $rows, [ 'key', 'value' ] );
 	}

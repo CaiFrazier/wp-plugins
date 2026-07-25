@@ -1,0 +1,125 @@
+name: WP Plugins CI
+
+# Suite-wide continuous integration for every plugin in the repo.
+#
+# - php:      per-plugin × PHP-version matrix — composer validate, PHPUnit, PHPCS
+#             (where a ruleset exists), and php -l. Covers every plugin that has a
+#             composer.json, plus the shared CFShared library.
+# - lint-all: repo-wide php -l on one PHP version, so plugins without a Composer
+#             suite (e.g. cf-post-list-view) are still syntax-checked.
+# - js:       JavaScript unit tests for the one plugin that ships them
+#             (cf-chunked-upload), over the pnpm workspace.
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  php:
+    name: PHP ${{ matrix.php }} · ${{ matrix.plugin }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ["8.1", "8.2", "8.4", "8.5"]
+        plugin:
+          - cf-bulk-meta-editor
+          - cf-chunked-upload
+          - cf-content-calendar
+          - cf-media-manager
+          - cf-media-optimizer
+          - qr-redirect
+          - schema-override-manager
+          - shared
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.plugin }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Validate Composer metadata
+        # Not --strict: the CFShared consumers depend on the shared library via a
+        # local path repository with a "*" constraint (it is bundled into each zip
+        # at release, never version-resolved from a registry). --strict rejects
+        # that as an "unbound constraint"; plain validate still checks structure
+        # and lock/JSON consistency.
+        run: composer validate
+
+      - name: Run PHPUnit
+        run: composer test
+
+      - name: Coding standards
+        # Blocking as of 2026-07-24: the whole line is WPCS-3.4 clean under the
+        # shared ruleset (errors block, warnings inform via ignore_warnings_on_exit).
+        run: |
+          if [ -f phpcs.xml.dist ]; then
+            composer lint
+          else
+            echo "No phpcs.xml.dist in ${{ matrix.plugin }} — skipping PHPCS."
+          fi
+
+      - name: Check PHP syntax
+        run: find . -path './vendor/*' -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
+
+  lint-all:
+    name: Repo-wide php -l
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          coverage: none
+
+      - name: Syntax-check every PHP file (includes plugins without a Composer suite)
+        run: find . -path '*/vendor/*' -prune -o -path '*/node_modules/*' -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
+
+  js:
+    name: JS unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        # Version comes from the root package.json "packageManager" field;
+        # specifying it here too would conflict (ERR_PNPM_BAD_PM_VERSION).
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run JS unit tests (cf-chunked-upload)
+        working-directory: cf-chunked-upload
+        run: pnpm run test:js

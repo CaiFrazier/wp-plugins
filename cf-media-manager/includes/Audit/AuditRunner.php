@@ -72,10 +72,10 @@ final class AuditRunner {
 	// TTLs / time budgets (seconds)
 	// ---------------------------------------------------------------------
 
-	const STATE_TTL       = 24 * 3600;          // state survives a day across page closes
-	const RESULTS_TTL     = 7 * 24 * 3600;      // a week — invalidated by staleness, not expiry
-	const LOCK_TTL        = 60;                 // a stuck chunk can't block forever
-	const ITEMS_HARD_CAP  = 50000;              // refuse to load more than 50k items into one transient
+	const STATE_TTL      = 24 * 3600;          // state survives a day across page closes
+	const RESULTS_TTL    = 7 * 24 * 3600;      // a week — invalidated by staleness, not expiry
+	const LOCK_TTL       = 60;                 // a stuck chunk can't block forever
+	const ITEMS_HARD_CAP = 50000;              // refuse to load more than 50k items into one transient
 
 	// ---------------------------------------------------------------------
 	// Phases
@@ -148,7 +148,7 @@ final class AuditRunner {
 			}
 		}
 
-		$state = $this->fresh_state();
+		$state               = $this->fresh_state();
 		$state['phase']      = self::PHASE_SCANNING;
 		$state['started_at'] = time();
 		$state['config']     = $config;
@@ -403,11 +403,11 @@ final class AuditRunner {
 		// and non-autoload (transient body) rows in WP.
 		global $wpdb;
 		if ( isset( $wpdb ) ) {
-			$prefix_state   = '_transient_' . self::STATE_TRANSIENT_PREFIX;
-			$prefix_results = '_transient_' . self::RESULTS_TRANSIENT_PREFIX;
-			$prefix_state_t = '_transient_timeout_' . self::STATE_TRANSIENT_PREFIX;
+			$prefix_state     = '_transient_' . self::STATE_TRANSIENT_PREFIX;
+			$prefix_results   = '_transient_' . self::RESULTS_TRANSIENT_PREFIX;
+			$prefix_state_t   = '_transient_timeout_' . self::STATE_TRANSIENT_PREFIX;
 			$prefix_results_t = '_transient_timeout_' . self::RESULTS_TRANSIENT_PREFIX;
-			$prefix_lock    = self::LOCK_OPTION_PREFIX;
+			$prefix_lock      = self::LOCK_OPTION_PREFIX;
 
 			foreach ( array( $prefix_state, $prefix_results, $prefix_state_t, $prefix_results_t, $prefix_lock ) as $p ) {
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- uninstall sweep for orphan transient/option rows from previously-registered reports. delete_transient is keyed; we don't know every key from prior versions.
@@ -473,17 +473,20 @@ final class AuditRunner {
 		$state['chunks_done']    = (int) $state['chunks_done'] + 1;
 
 		if ( $chunk->is_complete ) {
-			$started_at = (int) ( $state['started_at'] ?? time() );
-			$now        = time();
+			$started_at            = (int) ( $state['started_at'] ?? time() );
+			$now                   = time();
 			$state['phase']        = self::PHASE_COMPLETE;
 			$state['completed_at'] = $now;
 
-			$this->write_results( $report_id, array(
-				'items'       => $items_accumulator,
-				'totals'      => $chunk->running_totals,
-				'scanned_at'  => $now,
-				'duration_ms' => ( $now - $started_at ) * 1000,
-			) );
+			$this->write_results(
+				$report_id,
+				array(
+					'items'       => $items_accumulator,
+					'totals'      => $chunk->running_totals,
+					'scanned_at'  => $now,
+					'duration_ms' => ( $now - $started_at ) * 1000,
+				)
+			);
 		}
 
 		return $state;
@@ -567,7 +570,10 @@ final class AuditRunner {
 		$key   = self::LOCK_OPTION_PREFIX . $report_id;
 		$token = bin2hex( random_bytes( 16 ) );
 		$now   = time();
-		$entry = array( 'token' => $token, 'expires' => $now + self::LOCK_TTL );
+		$entry = array(
+			'token'   => $token,
+			'expires' => $now + self::LOCK_TTL,
+		);
 
 		// add_option with autoload=no is atomic in MySQL via the UNIQUE key
 		// on option_name. WP wraps it accordingly.

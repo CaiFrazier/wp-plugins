@@ -15,18 +15,18 @@ defined( 'ABSPATH' ) || exit;
 final class ActionResult {
 
 	/**
-	 * @param bool                   $success   Whether the action ran end-to-end.
-	 *                                          A partial run with per-item
-	 *                                          errors still counts as success
-	 *                                          if the action's framing worked.
-	 * @param int                    $processed Count of items successfully acted on.
-	 * @param int                    $skipped   Count of items intentionally not touched
-	 *                                          (already-ignored, already-trashed, …).
+	 * @param bool                     $success   Whether the action ran end-to-end.
+	 *                                            A partial run with per-item
+	 *                                            errors still counts as success
+	 *                                            if the action's framing worked.
+	 * @param int                      $processed Count of items successfully acted on.
+	 * @param int                      $skipped   Count of items intentionally not touched
+	 *                                            (already-ignored, already-trashed, …).
 	 * @param array<int|string,string> $errors  Map of item key → human-readable
 	 *                                          error message for failed items.
-	 * @param string|null            $message   Optional summary message for the UI
-	 *                                          banner. When null, the UI synthesizes
-	 *                                          one from the counts above.
+	 * @param string|null              $message   Optional summary message for the UI
+	 *                                            banner. When null, the UI synthesizes
+	 *                                            one from the counts above.
 	 */
 	public function __construct(
 		public readonly bool $success,

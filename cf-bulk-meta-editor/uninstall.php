@@ -62,8 +62,8 @@ function cfbme_uninstall_cleanup() {
 }
 
 if ( is_multisite() ) {
-	foreach ( get_sites( [ 'fields' => 'ids' ] ) as $blog_id ) {
-		switch_to_blog( $blog_id );
+	foreach ( get_sites( [ 'fields' => 'ids' ] ) as $cfbme_blog_id ) {
+		switch_to_blog( $cfbme_blog_id );
 		cfbme_uninstall_cleanup();
 		restore_current_blog();
 	}

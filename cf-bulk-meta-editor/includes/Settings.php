@@ -70,7 +70,7 @@ class Settings {
 			'enabled_types'    => array_keys( $this->get_public_post_types() ),
 			'default_per_page' => 50,
 			// Off by default. Enable from Settings → Diagnostic Logging, or hard-on
-			// via define( 'BME_DEBUG', true ) in wp-config.php.
+			// via define( 'CFBME_DEBUG', true ) in wp-config.php.
 			'debug_mode'       => false,
 			'log_level'        => 'warn',
 		];

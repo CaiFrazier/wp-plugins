@@ -107,7 +107,7 @@ class DiagnosticsController {
 
 		return rest_ensure_response(
 			[
-				'plugin_version'      => BME_VERSION,
+				'plugin_version'      => CFBME_VERSION,
 				'wp_version'          => $wp_version,
 				'php_version'         => PHP_VERSION,
 				'is_multisite'        => is_multisite(),
@@ -120,7 +120,7 @@ class DiagnosticsController {
 				'site_url'            => site_url(),
 				'log_path'            => $this->logger->log_path(),
 				'log_writable'        => $this->logger->log_path() ? wp_is_writable( dirname( $this->logger->log_path() ) ) : false,
-				'bme_debug_const'     => defined( 'BME_DEBUG' ) ? (bool) BME_DEBUG : null,
+				'bme_debug_const'     => defined( 'CFBME_DEBUG' ) ? (bool) CFBME_DEBUG : null,
 				'seo_plugins'         => $seo_plugins,
 				'settings'            => $opts,
 				'allowed_keys'        => $this->settings->get_allowed_meta_keys(),

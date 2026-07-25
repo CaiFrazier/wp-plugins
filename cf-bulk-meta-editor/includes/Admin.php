@@ -130,7 +130,7 @@ class Admin {
 				sprintf(
 					/* translators: 1: plugin version string, 2: WordPress version string. */
 					__( 'CF Bulk Meta Editor %1$s &nbsp;·&nbsp; WordPress %2$s &nbsp;·&nbsp; <a href="mailto:bugs@caifrazier.com">Report a bug</a>', 'cf-bulk-meta-editor' ),
-					esc_html( BME_VERSION ),
+					esc_html( CFBME_VERSION ),
 					esc_html( get_bloginfo( 'version' ) )
 				),
 				[ 'a' => [ 'href' => [] ] ]
@@ -170,7 +170,7 @@ class Admin {
 
 	private function enqueue_app( string $entry ): void {
 		$handle     = "bme-{$entry}";
-		$asset_file = BME_DIR . "build/{$entry}.asset.php";
+		$asset_file = CFBME_DIR . "build/{$entry}.asset.php";
 
 		if ( ! file_exists( $asset_file ) ) {
 			// Build hasn't run — surface a clear notice instead of silently doing nothing.
@@ -196,9 +196,9 @@ class Admin {
 
 		wp_enqueue_script(
 			$handle,
-			BME_URL . "build/{$entry}.js",
+			CFBME_URL . "build/{$entry}.js",
 			$asset['dependencies'] ?? [],
-			$asset['version'] ?? BME_VERSION,
+			$asset['version'] ?? CFBME_VERSION,
 			true
 		);
 
@@ -209,17 +209,17 @@ class Admin {
 		// build/{$entry}.asset.php), so wp.i18n is guaranteed to be on the
 		// page; this call tells WP where to look for the .json language files
 		// it serves to the script handle.
-		wp_set_script_translations( $handle, 'cf-bulk-meta-editor', BME_DIR . 'languages' );
+		wp_set_script_translations( $handle, 'cf-bulk-meta-editor', CFBME_DIR . 'languages' );
 
 		// Component styles for Notice, Popover, Modal, etc.
 		wp_enqueue_style( 'wp-components' );
 
-		if ( file_exists( BME_DIR . "build/{$entry}.css" ) ) {
+		if ( file_exists( CFBME_DIR . "build/{$entry}.css" ) ) {
 			wp_enqueue_style(
 				$handle,
-				BME_URL . "build/{$entry}.css",
+				CFBME_URL . "build/{$entry}.css",
 				[ 'wp-components' ],
-				$asset['version'] ?? BME_VERSION
+				$asset['version'] ?? CFBME_VERSION
 			);
 		}
 	}

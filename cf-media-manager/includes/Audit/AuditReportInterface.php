@@ -77,13 +77,13 @@ interface AuditReportInterface {
 	 * raising — bulk actions in WP admin UIs are best-effort and the UI
 	 * needs the granular outcome to render a useful summary banner.
 	 *
-	 * @param string                    $action One of supports_bulk().
-	 * @param array<int,int|string>     $ids    Item identifiers. Type matches
-	 *                                          the IgnoredStore key shape:
-	 *                                          ints for attachment-backed
-	 *                                          reports, strings for path-
-	 *                                          backed reports.
-	 * @param array                     $args   Action-specific arguments.
+	 * @param string                $action One of supports_bulk().
+	 * @param array<int,int|string> $ids    Item identifiers. Type matches
+	 *                                      the IgnoredStore key shape:
+	 *                                      ints for attachment-backed
+	 *                                      reports, strings for path-
+	 *                                      backed reports.
+	 * @param array                 $args   Action-specific arguments.
 	 */
 	public function bulk_action( string $action, array $ids, array $args = array() ): ActionResult;
 

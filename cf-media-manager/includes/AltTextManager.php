@@ -4,6 +4,9 @@ namespace CFMediaManager;
 
 defined( 'ABSPATH' ) || exit;
 
+use CFShared\Media\InUseScanner;
+use CFShared\Media\AltMeta;
+
 /**
  * Alt text bulk audit and inline editor.
  *
@@ -26,10 +29,10 @@ defined( 'ABSPATH' ) || exit;
 final class AltTextManager {
 
 	/** WordPress core meta key for attachment alt text. */
-	const META_KEY_ALT = '_wp_attachment_image_alt';
+	const META_KEY_ALT = AltMeta::META_KEY_ALT;
 
 	/** Our flag for "intentionally empty alt — decorative image." */
-	const META_KEY_DECORATIVE = '_cf_media_manager_decorative';
+	const META_KEY_DECORATIVE = AltMeta::META_KEY_DECORATIVE;
 
 	/** Default rows per page in the audit UI. */
 	const PAGE_SIZE = 25;
@@ -71,7 +74,7 @@ final class AltTextManager {
 	 * existing AuditRunner::mark_all_stale() hook surface.
 	 */
 	public function missing_count(): int {
-		$query = new \WP_Query( array(
+		$args  = array(
 			'post_type'      => 'attachment',
 			'post_status'    => 'inherit',
 			'post_mime_type' => 'image',
@@ -106,7 +109,9 @@ final class AltTextManager {
 					),
 				),
 			),
-		) );
+		);
+
+		$query = new \WP_Query( $args );
 
 		return (int) $query->found_posts;
 	}
@@ -243,11 +248,13 @@ final class AltTextManager {
 			$saved++;
 		}
 
-		wp_send_json_success( array(
+		$payload = array(
 			'items'   => $items,
 			'saved'   => $saved,
 			'skipped' => $skipped,
-		) );
+		);
+
+		wp_send_json_success( $payload );
 	}
 	// Request::post_* helpers carry their own phpcs:ignore comments so
 	// per-endpoint nonce-verification pragmas are no longer needed.

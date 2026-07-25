@@ -111,7 +111,7 @@ final class FinalizeJob {
 			// Throttle progress writes: a 1,024-chunk assembly shouldn't do
 			// 1,024 transient writes. Update at most every ~2% (and always
 			// on the final chunk).
-			$last = -1;
+			$last     = -1;
 			$progress = static function ( int $done, int $total ) use ( $job_id, &$last ) {
 				$pct = $total > 0 ? (int) floor( ( $done / $total ) * 100 ) : 100;
 				if ( $pct !== $last && ( 0 === $pct % 2 || $done === $total ) ) {
@@ -119,7 +119,7 @@ final class FinalizeJob {
 					JobStatus::running( $job_id, $done / max( 1, $total ) );
 				}
 			};
-			$result = $this->process( $upload_id, $expected_sha, $progress );
+			$result   = $this->process( $upload_id, $expected_sha, $progress );
 			if ( $result['ok'] ) {
 				JobStatus::complete( $job_id, $result['result'] );
 			} else {

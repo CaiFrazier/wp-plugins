@@ -22,7 +22,7 @@ final class Logger {
 			self::$instance = SharedLogger::for_plugin(
 				[
 					'slug'               => 'cf-bulk-meta-editor',
-					'debug_constant'     => 'BME_DEBUG',
+					'debug_constant'     => 'CFBME_DEBUG',
 					'threshold_resolver' => static function () {
 						$opts  = get_option( Settings::OPTION_KEY, [] );
 						$debug = is_array( $opts ) && ! empty( $opts['debug_mode'] );
