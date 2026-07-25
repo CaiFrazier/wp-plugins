@@ -396,6 +396,71 @@ function regeneratePotFile() {
 	console.log( `Regenerated ${ path.relative( pluginsRoot, potPath ) }` );
 }
 
+/**
+ * True when a path *inside a bundled vendor/ tree* is a development artifact
+ * rather than runtime code. The path is relative to the vendor root, e.g.
+ * `caifrazier/wp-plugins-shared/tests/bootstrap.php`.
+ *
+ * Single source of truth, used by BOTH the pruner that removes these files
+ * from the staged tree and the guard that verifies they are gone. That is
+ * deliberate: the original leak (WP9) existed because the guard exempted
+ * vendor/ wholesale, so nothing enforced what shipped inside it. Two lists
+ * would drift back into the same blind spot.
+ *
+ * Conservative by design. Third-party packages own their layout, so this
+ * denies only paths that are unambiguously non-runtime everywhere. LICENSE
+ * and README.md are deliberately KEPT (license text can be legally required
+ * to accompany distribution), as are src/, composer.json, and the generated
+ * vendor/composer/ autoloader files.
+ */
+function isVendorDevArtifact( vendorRelPath ) {
+	const denied = [
+		// Test suites and their configs.
+		/(^|\/)tests?(\/|$)/i,
+		/(^|\/)spec(\/|$)/i,
+		/(^|\/)php(unit|cs)\.xml(\.dist)?$/,
+		// Lockfiles pin dev deps and are never read at runtime.
+		/(^|\/)composer\.lock$/,
+		// Internal planning docs. PRELAUNCH.md is a CF-internal living
+		// document; it must never reach a public download.
+		/(^|\/)PRELAUNCH\.md$/,
+		// CI config and any dotfile/dotdir — .github/, .gitignore,
+		// .gitattributes, .editorconfig, caches. None are runtime code.
+		/(^|\/)\.[^/]+(\/|$)/,
+	];
+	return denied.some( ( pattern ) => pattern.test( vendorRelPath ) );
+}
+
+/**
+ * Remove development artifacts from a STAGED vendor/ tree.
+ *
+ * Operates only on the throwaway staging copy — never the working tree — so
+ * the developer's installed dev dependencies are untouched. Returns the list
+ * of removed paths (relative to the vendor root) for the build log.
+ */
+function pruneVendorDevArtifacts( vendorRoot ) {
+	if ( ! fs.existsSync( vendorRoot ) ) {
+		return [];
+	}
+	const removed = [];
+	const walk = ( absDir, relDir ) => {
+		for ( const dirent of fs.readdirSync( absDir, { withFileTypes: true } ) ) {
+			const abs = path.join( absDir, dirent.name );
+			const rel = relDir ? `${ relDir }/${ dirent.name }` : dirent.name;
+			if ( isVendorDevArtifact( rel ) ) {
+				fs.rmSync( abs, { recursive: true, force: true } );
+				removed.push( rel );
+				continue;
+			}
+			if ( dirent.isDirectory() ) {
+				walk( abs, rel );
+			}
+		}
+	};
+	walk( vendorRoot, '' );
+	return removed;
+}
+
 function assertNoDevArtifacts( zipPath ) {
 	const listing = execFileSync( 'unzip', [ '-l', zipPath ], { encoding: 'utf8' } );
 	// Dev-artifact patterns. These target the PLUGIN'S OWN tree — they are
@@ -450,8 +515,21 @@ function assertNoDevArtifacts( zipPath ) {
 	// vendor/ is shipped only for plugins that bundle runtime Composer deps
 	// (installed --no-dev above). For every other plugin, any vendor/ entry
 	// means a dev tree leaked into the zip.
-	if ( ! config.composerRuntime && vendorEntries.length > 0 ) {
+	if ( ! config.composerRuntime ) {
 		badLines.push( ...vendorEntries );
+	} else {
+		// For composerRuntime plugins the bundled tree IS legitimate runtime
+		// code, but "legitimate" is not "unexamined" — this guard used to skip
+		// vendor/ entirely, which is how a dependency's tests/ and an internal
+		// PRELAUNCH.md shipped in four release zips (WP9). Check the vendored
+		// tree against the same predicate the pruner uses, so anything the
+		// pruner misses fails the build instead of reaching users.
+		badLines.push(
+			...vendorEntries.filter( ( entry ) => {
+				const match = entry.match( /(?:^|\/)vendor\/(.+)$/ );
+				return match ? isVendorDevArtifact( match[ 1 ] ) : false;
+			} )
+		);
 	}
 	if ( badLines.length > 0 ) {
 		throw new Error( `Release zip contains development artifacts:\n${ badLines.join( '\n' ) }` );
@@ -490,6 +568,20 @@ try {
 	}
 	for ( const dir of config.rootDirs ) {
 		copyRequiredDir( dir, stageDir );
+	}
+
+	// Strip dev artifacts out of the bundled dependency tree before zipping.
+	// composer install --no-dev drops dev PACKAGES but keeps each retained
+	// package's own tests/, phpunit config, and docs — those are files within
+	// a runtime package, so Composer has no reason to touch them.
+	if ( config.composerRuntime ) {
+		const pruned = pruneVendorDevArtifacts( path.join( stageDir, 'vendor' ) );
+		if ( pruned.length > 0 ) {
+			console.log( `Pruned ${ pruned.length } dev artifact(s) from bundled vendor/:` );
+			for ( const entry of pruned ) {
+				console.log( `  - vendor/${ entry }` );
+			}
+		}
 	}
 
 	const zipName = `${ config.zipSlug }-${ version }.zip`;
