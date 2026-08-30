@@ -185,7 +185,9 @@
 
 		renderLoading();
 
-		fetch( cfg.restUrl + '?' + params.toString(), {
+		// rest_url() may already carry a query string (plain permalinks use
+		// index.php?rest_route=...), so join with the right separator.
+		fetch( cfg.restUrl + ( cfg.restUrl.indexOf( '?' ) === -1 ? '?' : '&' ) + params.toString(), {
 			signal:  currentController.signal,
 			headers: { 'X-WP-Nonce': cfg.nonce },
 		} )
