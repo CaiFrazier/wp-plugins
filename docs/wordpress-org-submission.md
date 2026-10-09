@@ -53,3 +53,9 @@ Official references:
 ## Website support metadata update
 
 The website support readme update retains the same unpublished candidate versions. Only each packaged readme changes; all other ZIP entries remain byte-identical to the previously tested candidate. The final packages are installed again and run through official Plugin Check. The audit packet records new SHA256 hashes and installed-byte parity, while the original PHP, JavaScript and browser acceptance evidence remains applicable to the unchanged runtime.
+
+## Integration fixture registry
+
+The WordPress integration workflow pulls Docker’s official MariaDB image from its ECR Public mirror, pinned to the same multiarchitecture manifest previously pulled from Docker Hub: `sha256:7db29378d4fdab73f8123bbc2b48905c90d1a4b00cf848b028f1e81e623257f2` (MariaDB10.11.19). This avoids Docker Hub’s shared-runner unauthenticated pull quota without changing the database image, credentials, health checks, PHP matrix, or permission/Trash assertions. No registry account credentials are required. Digest updates should be deliberate fixture dependency updates.
+
+Docker documents its automatic Official Images mirror at https://www.docker.com/blog/news-from-aws-reinvent-docker-official-images-on-amazon-ecr-public/ and AWS documents anonymous public pulls at https://docs.aws.amazon.com/AmazonECR/latest/public/public-gallery.html.
