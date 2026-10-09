@@ -38,7 +38,7 @@ QR codes printed on physical media outlive the campaigns they're created for. Ho
 = Requirements =
 
 * WordPress 6.2+
-* PHP 8.0+
+* PHP 8.1+
 * Modern browsers in the admin (the QR preview and bulk-ZIP export use client-side Canvas + JS).
 * A persistent object cache (Redis or Memcached) is recommended, but not required, for high-volume routing. See "Will it hold up for high-volume campaigns?" in the FAQ for what it affects.
 

@@ -40,7 +40,7 @@ Unlike the native post list table, it lets you add columns covering SEO metadata
 **Requirements:**
 
 * WordPress 6.2+
-* PHP 7.4+
+* PHP 8.1+
 * The `edit_posts` capability is required to access the page
 
 = Source code and development =
