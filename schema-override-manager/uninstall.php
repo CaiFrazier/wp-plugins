@@ -6,7 +6,7 @@ defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 /**
  * Per-site cleanup. Runs once per blog on multisite, once total on single-site.
  */
-function som_uninstall_cleanup() {
+function cfsom_uninstall_cleanup() {
 	global $wpdb;
 
 	// Remove all plugin options.
@@ -53,7 +53,7 @@ function som_uninstall_cleanup() {
 	// CFShared logger cleanup: the randomized-filename option plus the log
 	// directory under uploads (log files, rotations, and access-guard files).
 	delete_option( 'schema-override-manager_log_filename' );
-	som_uninstall_remove_log_dir();
+	cfsom_uninstall_remove_log_dir();
 }
 
 /**
@@ -61,7 +61,7 @@ function som_uninstall_cleanup() {
  * ever writes flat files there (log-*.jsonl + rotations, .htaccess, index.php,
  * web.config), so no recursion is needed.
  */
-function som_uninstall_remove_log_dir() {
+function cfsom_uninstall_remove_log_dir() {
 	$uploads = wp_upload_dir();
 	if ( ! empty( $uploads['error'] ) ) {
 		return;
@@ -99,17 +99,17 @@ function som_uninstall_remove_log_dir() {
 if ( is_multisite() ) {
 	// number => 0 removes the default 100-site page cap so every site on a
 	// large network is cleaned.
-	$som_blog_ids = get_sites(
+	$cfsom_blog_ids = get_sites(
 		[
 			'fields' => 'ids',
 			'number' => 0,
 		]
 	);
-	foreach ( $som_blog_ids as $som_blog_id ) {
-		switch_to_blog( $som_blog_id );
-		som_uninstall_cleanup();
+	foreach ( $cfsom_blog_ids as $cfsom_blog_id ) {
+		switch_to_blog( $cfsom_blog_id );
+		cfsom_uninstall_cleanup();
 		restore_current_blog();
 	}
 } else {
-	som_uninstall_cleanup();
+	cfsom_uninstall_cleanup();
 }

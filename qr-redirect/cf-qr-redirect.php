@@ -1,14 +1,14 @@
 <?php
 /**
  * Plugin Name:       CF QR Redirect
- * Plugin URI:        https://github.com/CaiFrazier/wp-plugins/tree/main/qr-redirect
+ * Plugin URI:        https://caifrazier.com/plugins/qr-redirect/
  * Description:       Self-hosted QR code generator and redirect manager with native GA4 analytics integration. Generates branded QR codes pointing to /r/{slug} short URLs on your own domain, plus a standard source→destination redirect manager.
- * Version:           1.3.1
+ * Version:           1.3.2
  * Requires at least: 6.2
  * Requires PHP:      8.1
  * Author:            Cai Frazier
  * Author URI:        https://github.com/caifrazier
- * License:           GPLv2 or later
+ * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       cf-qr-redirect
  * Domain Path:       /languages
@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CFQR_VERSION', '1.3.1' );
+define( 'CFQR_VERSION', '1.3.2' );
 define( 'CFQR_PLUGIN_FILE', __FILE__ );
 define( 'CFQR_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CFQR_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -145,7 +145,7 @@ function cfqr_remove_retired_caps() {
 }
 
 /**
- * Repair regex sources that the pre-1.3.1 path sanitizer prefixed with "/".
+ * Repair regex sources that the pre-1.3.2 path sanitizer prefixed with "/".
  *
  * The repair helper intentionally recognizes only anchors and leading inline
  * option groups. A normal pattern beginning with a slash may be intentional

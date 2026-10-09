@@ -69,17 +69,17 @@ class MetaBox {
 	}
 
 	private function enqueue_meta_box_script( \WP_Post $post ): void {
-		$asset_file = SOM_DIR . 'build/meta-box/index.asset.php';
+		$asset_file = CFSOM_DIR . 'build/meta-box/index.asset.php';
 		$asset      = file_exists( $asset_file )
 			? require $asset_file
 			: [
 				'dependencies' => [],
-				'version'      => SOM_VERSION,
+				'version'      => CFSOM_VERSION,
 			];
 
 		wp_enqueue_script(
 			'som-meta-box',
-			SOM_URL . 'build/meta-box/index.js',
+			CFSOM_URL . 'build/meta-box/index.js',
 			$asset['dependencies'],
 			$asset['version'],
 			true
@@ -87,14 +87,14 @@ class MetaBox {
 
 		wp_enqueue_style(
 			'som-meta-box',
-			SOM_URL . 'build/meta-box/index.css',
+			CFSOM_URL . 'build/meta-box/index.css',
 			[ 'wp-components' ],
 			$asset['version']
 		);
 
 		// wp-scripts lists wp-i18n in the built asset's dependencies, so point WP
 		// at the .json language files it serves for this handle.
-		wp_set_script_translations( 'som-meta-box', 'schema-override-manager', SOM_DIR . 'languages' );
+		wp_set_script_translations( 'som-meta-box', 'schema-override-manager', CFSOM_DIR . 'languages' );
 
 		$settings = $this->settings->get_settings();
 		$detector = new SchemaDetector();

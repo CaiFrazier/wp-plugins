@@ -31,6 +31,16 @@ foreach(['contributor'=>$contributor,'author'=>$author,'editor'=>$editor] as $ro
  if($role==='contributor'){$req->set_param('post_type','fixture_secret');$resp=$controller->get_posts($req);$items=$resp instanceof WP_REST_Response?($resp->get_data()['items'] ?? []):[];check_result('restricted CPT denied',!in_array($secret,array_column($items,'id')));}
 }
 wp_set_current_user($admin);
+$own_child=wp_insert_post(['post_type'=>'post','post_status'=>'draft','post_author'=>$contributor,'post_parent'=>$own,'post_title'=>$prefix . ' own child']);
+$private_child=wp_insert_post(['post_type'=>'post','post_status'=>'private','post_author'=>$other,'post_parent'=>$own,'post_title'=>$prefix . ' private child']);
+$trash_child=wp_insert_post(['post_type'=>'post','post_status'=>'trash','post_author'=>$contributor,'post_parent'=>$own,'post_title'=>$prefix . ' trashed child']);
+foreach(['contributor'=>$contributor,'editor'=>$editor] as $role=>$uid){
+ wp_set_current_user($uid);
+ $values=CFPostListView\PostData::for_post(get_post($own),['child_count']);
+ check_result($role.' child count respects row permissions',(int)$values['child_count']===($role==='editor'?2:1),$values);
+}
+foreach([$own_child,$private_child,$trash_child] as $id)wp_delete_post($id,true);
+wp_set_current_user($admin);
 $attachment=wp_insert_attachment(['post_title'=>'Disposable trash fixture','post_status'=>'inherit','post_mime_type'=>'image/png']);
 $report=new CFMediaManager\Audit\Reports\UnusedAttachments(new CFMediaManager\Audit\IgnoredStore(),fn()=>[]);
 $result=$report->bulk_action('trash',[$attachment]);

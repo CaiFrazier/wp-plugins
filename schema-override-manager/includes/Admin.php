@@ -35,17 +35,17 @@ class Admin {
 			return;
 		}
 
-		$asset_file = SOM_DIR . 'build/settings/index.asset.php';
+		$asset_file = CFSOM_DIR . 'build/settings/index.asset.php';
 		$asset      = file_exists( $asset_file )
 			? require $asset_file
 			: [
 				'dependencies' => [],
-				'version'      => SOM_VERSION,
+				'version'      => CFSOM_VERSION,
 			];
 
 		wp_enqueue_script(
 			'som-settings',
-			SOM_URL . 'build/settings/index.js',
+			CFSOM_URL . 'build/settings/index.js',
 			$asset['dependencies'],
 			$asset['version'],
 			true
@@ -53,7 +53,7 @@ class Admin {
 
 		wp_enqueue_style(
 			'som-settings',
-			SOM_URL . 'build/settings/index.css',
+			CFSOM_URL . 'build/settings/index.css',
 			[ 'wp-components' ],
 			$asset['version']
 		);
@@ -61,7 +61,7 @@ class Admin {
 		// wp-scripts lists wp-i18n in the built asset's dependencies (the source
 		// uses @wordpress/i18n), so wp.i18n is on the page. Point WP at the .json
 		// language files it serves for this handle.
-		wp_set_script_translations( 'som-settings', 'schema-override-manager', SOM_DIR . 'languages' );
+		wp_set_script_translations( 'som-settings', 'schema-override-manager', CFSOM_DIR . 'languages' );
 
 		wp_localize_script(
 			'som-settings',

@@ -103,6 +103,7 @@ class SchemaDetector {
 			'Organization',
 		];
 
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- legacy published hook retained for existing site integrations.
 		return $this->normalize_type_list( apply_filters( 'som_yoast_emitted_types', $types ) );
 	}
 
@@ -129,6 +130,7 @@ class SchemaDetector {
 			'FAQPage',
 		];
 
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- legacy published hook retained for existing site integrations.
 		return $this->normalize_type_list( apply_filters( 'som_rankmath_emitted_types', $types ) );
 	}
 

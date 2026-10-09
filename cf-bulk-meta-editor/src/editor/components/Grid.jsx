@@ -1,7 +1,10 @@
-import { useMemo, useCallback, useRef } from '@wordpress/element';
+import { useMemo, useCallback } from '@wordpress/element';
 import { Button, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { AgGridReact } from 'ag-grid-react';
+import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
+
+ModuleRegistry.registerModules( [ AllCommunityModule ] );
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { useStore } from '../store';
@@ -160,7 +163,7 @@ export default function Grid() {
 					columnDefs={ columnDefs }
 					getRowStyle={ getRowStyle }
 					onCellValueChanged={ onCellValueChanged }
-					suppressRowClickSelection
+					theme="legacy"
 					rowHeight={ 44 }
 					headerHeight={ 36 }
 					enableCellTextSelection

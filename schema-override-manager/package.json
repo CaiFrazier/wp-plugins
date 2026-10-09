@@ -1,6 +1,6 @@
 {
     "name": "schema-override-manager",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "Schema Override Manager WordPress plugin",
     "private": true,
     "scripts": {
@@ -21,7 +21,7 @@
         "@wordpress/i18n": "^5.0.0",
         "@wordpress/plugins": "^7.0.0",
         "prismjs": "^1.29.0",
-        "zustand": "^4.5.0"
+        "zustand": "^5.0.15"
     },
     "devDependencies": {
         "@wordpress/scripts": "^28.0.0"

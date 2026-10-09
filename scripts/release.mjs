@@ -59,6 +59,7 @@ const plugins = {
 		potDomain: 'cf-content-calendar',
 	},
 	'cf-post-list-view': {
+		potDomain: 'cf-post-list-view',
 		entry: 'cf-post-list-view.php',
 		zipSlug: 'cf-post-list-view',
 		rootFiles: [ 'cf-post-list-view.php', 'uninstall.php', 'readme.txt' ],
@@ -122,6 +123,11 @@ const plugins = {
 		potDomain: 'cf-media-optimizer',
 	},
 };
+
+// Every distributable retains the plugin license and dependency notices.
+for ( const config of Object.values( plugins ) ) {
+	config.rootFiles = [ ...new Set( [ ...config.rootFiles, 'LICENSE', 'THIRD-PARTY-NOTICES.txt' ] ) ];
+}
 
 function usage() {
 	const names = Object.keys( plugins ).sort().join( ', ' );

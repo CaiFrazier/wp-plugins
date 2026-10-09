@@ -244,18 +244,21 @@ class PostData {
 				return (string) count( $get_ancestors() );
 
 			case 'child_count':
-				global $wpdb;
-				$count = (int) $wpdb->get_var(
-					$wpdb->prepare(
-						"SELECT COUNT(*) FROM {$wpdb->posts}
-						 WHERE post_parent = %d
-						   AND post_status NOT IN ('auto-draft','trash')
-						   AND post_type = %s",
-						$post->ID,
-						$post->post_type
+				// WP_Query provides normal query caching and the same permission
+				// scope as the list, including author and private-post restrictions.
+				$children = new \WP_Query(
+					PostAccess::scope(
+						[
+							'post_parent'    => $post->ID,
+							'post_type'      => $post->post_type,
+							'post_status'    => 'any',
+							'posts_per_page' => 1,
+							'fields'         => 'ids',
+							'no_found_rows'  => false,
+						]
 					)
 				);
-				return (string) $count;
+				return (string) $children->found_posts;
 
 			// ----------------------------------------------------------------
 			// Status & timestamps

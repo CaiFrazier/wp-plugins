@@ -2,10 +2,10 @@
 Contributors: caifrazier
 Tags: media library, alt text, accessibility, audit, csv export
 Requires at least: 6.2
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 3.0.1
-License: GPLv2 or later
+Stable tag: 3.0.2
+License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 A Media Library management toolkit: a configurable list view with CSV export, a five-report media audit, and a bulk alt-text editor.
@@ -26,11 +26,25 @@ A developer-grade list view of every attachment: 40+ columns across identity, fi
 Each report supports per-item "ignore" and flags stale results after library changes.
 
 **Bulk alt text**
-Audit and edit the attachment-level alt text field in bulk — filter to missing or in-use images, mark images decorative (WCAG-correct empty alt), and save many at once.
+Audit and edit the attachment-level alt text field in bulk — filter to missing or in-use images, mark images decorative (empty alt for decorative images), and save many at once.
 
 = Works with CF Media Optimizer =
 
 CF Media Manager and **CF Media Optimizer** (WebP/AVIF conversion + `<picture>` delivery) are independent — each installs and runs on its own. When both are active they cooperate: they share one "in-use" image scan instead of scanning twice, they share the decorative-image alt flag, and each links across to the other's screens for convenience. Neither requires the other.
+
+= Source code and development =
+
+Source: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/cf-media-manager
+
+To rebuild, clone the repository, install the plugin's development dependencies with Composer and pnpm where a package.json is present, and run `node scripts/release.mjs cf-media-manager` from the repository root. The builder lints PHP, runs installed tests, builds JavaScript, installs production PHP dependencies, and creates the distributable ZIP. JavaScript source lives in `src/` for built plugins; plain scripts are in `assets/`. Bundled dependencies and their license terms are listed in THIRD-PARTY-NOTICES.txt.
+
+= Data and external services =
+
+Media audits, ignore records, settings, and alt-text changes stay in your WordPress database. CSV exports are downloaded to the requesting administrator. Diagnostic logs, when explicitly enabled, are stored under uploads. No telemetry, remote analytics, or external service is required.
+
+= Support =
+
+Report reproducible bugs at https://github.com/CaiFrazier/wp-plugins/issues. Include the plugin version, WordPress/PHP versions, and steps to reproduce. Remove credentials and private content from reports.
 
 == Installation ==
 
@@ -50,6 +64,9 @@ Audit scans inspect references and metadata. Explicit cleanup actions can delete
 
 == Changelog ==
 
+= 3.0.2 =
+* Prepare WordPress.org metadata, source/build documentation, license notices, and privacy disclosures.
+
 = 3.0.1 =
 * Make attachment Trash actions reversible and hide them when Media Trash is disabled.
 
@@ -63,5 +80,5 @@ Earlier history (WebP/AVIF conversion, `<picture>` rewriting, the background que
 
 == Upgrade Notice ==
 
-= 3.0.0 =
-This version no longer converts or delivers images. If you used 2.x for WebP/AVIF conversion, install the new CF Media Optimizer plugin to keep it running. Nothing is deleted: your converted files, ownership records, and conversion settings are read back unchanged, so delivery resumes where it left off. If you only used the Library list view, audit, or bulk alt text, no action is needed.
+= 3.0.2 =
+WordPress.org submission preparation. Existing settings and original media files are preserved.

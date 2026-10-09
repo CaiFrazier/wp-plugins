@@ -2,10 +2,10 @@
 Contributors: caifrazier
 Tags: uploads, media, large files, chunked upload
 Requires at least: 6.2
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.2.1
-License: GPLv2 or later
+Stable tag: 1.2.2
+License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Upload large files in WordPress by splitting each file into smaller browser-side chunks and reassembling them on the server.
@@ -24,6 +24,20 @@ It provides two upload surfaces:
 
 * **Media Library integration** for large media files.
 * **Tools → Import Large File** for direct filesystem imports.
+
+= Source code and development =
+
+Source: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/cf-chunked-upload
+
+To rebuild, clone the repository, install the plugin's development dependencies with Composer and pnpm where a package.json is present, and run `node scripts/release.mjs cf-chunked-upload` from the repository root. The builder lints PHP, runs installed tests, builds JavaScript, installs production PHP dependencies, and creates the distributable ZIP. JavaScript source lives in `src/` for built plugins; plain scripts are in `assets/`. Bundled dependencies and their license terms are listed in THIRD-PARTY-NOTICES.txt.
+
+= Data and external services =
+
+Files and temporary upload chunks are stored on your server. Session ownership and upload settings stay in WordPress. Background assembly and cleanup use WordPress cron or Action Scheduler when available. No external service or telemetry is used.
+
+= Support =
+
+Report reproducible bugs at https://github.com/CaiFrazier/wp-plugins/issues. Include the plugin version, WordPress/PHP versions, and steps to reproduce. Remove credentials and private content from reports.
 
 == Installation ==
 
@@ -61,12 +75,11 @@ Imported files are saved to `wp-content/cf-imports/` (or your configured directo
 
 Not yet. Plugin/theme ZIP installation support is deferred.
 
-== Screenshots ==
-
-1. Settings screen with host-limit diagnostics.
-2. Import Large File screen with active and completed uploads.
 
 == Changelog ==
+
+= 1.2.2 =
+* Prepare WordPress.org metadata, source/build documentation, license notices, and privacy disclosures.
 
 = 1.2.1 =
 * Reject chunk writes to upload sessions owned by another user. Require PHP 8.1, matching the supported runtime.

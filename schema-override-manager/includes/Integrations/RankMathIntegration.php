@@ -24,7 +24,7 @@ class RankMathIntegration {
 			return [];
 		}
 
-		// phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- Rank Math's own hook name.
+		// phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- invokes Rank Math's existing hook.
 		$data = apply_filters( 'rank_math/json_ld', [] );
 		return is_array( $data ) ? $data : [];
 	}

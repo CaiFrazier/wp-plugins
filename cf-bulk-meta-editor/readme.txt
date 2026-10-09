@@ -2,10 +2,10 @@
 Contributors: caifrazier
 Tags: seo, bulk edit, meta, csv, spreadsheet
 Requires at least: 6.2
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.0.5
-License: GPLv2 or later
+Stable tag: 1.0.6
+License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 A spreadsheet-style editor for SEO meta titles, descriptions, and custom postmeta across all post types.
@@ -25,6 +25,20 @@ CF Bulk Meta Editor replaces the tedious one-by-one workflow for managing SEO me
 * CSV export of all loaded rows or a custom selection
 * Supports all public post types; disable unwanted types in settings
 * Zero external HTTP requests at runtime; no tracking
+
+= Source code and development =
+
+Source: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/cf-bulk-meta-editor
+
+To rebuild, clone the repository, install the plugin's development dependencies with Composer and pnpm where a package.json is present, and run `node scripts/release.mjs cf-bulk-meta-editor` from the repository root. The builder lints PHP, runs installed tests, builds JavaScript, installs production PHP dependencies, and creates the distributable ZIP. JavaScript source lives in `src/` for built plugins; plain scripts are in `assets/`. Bundled dependencies and their license terms are listed in THIRD-PARTY-NOTICES.txt.
+
+= Data and external services =
+
+Post metadata and editor preferences stay in your WordPress database. CSV files download to the requesting user. The spreadsheet libraries are bundled locally. No external service or telemetry is used.
+
+= Support =
+
+Report reproducible bugs at https://github.com/CaiFrazier/wp-plugins/issues. Include the plugin version, WordPress/PHP versions, and steps to reproduce. Remove credentials and private content from reports.
 
 == Installation ==
 
@@ -51,14 +65,12 @@ The picker paginates the post list, but you can select across pages before loadi
 
 Not at this time. Use the per-row revert button to undo changes before saving.
 
-== Screenshots ==
-
-1. Main grid with inline editing and character count indicators
-2. Post picker panel with search and status filter
-3. Column selector dropdown
-4. Settings page with meta key mapping and custom columns
 
 == Changelog ==
+
+= 1.0.6 =
+* Update bundled libraries to current stable versions.
+* Prepare WordPress.org metadata, source/build documentation, license notices, and privacy disclosures.
 
 = 1.0.5 =
 * Remove development files from the bundled shared library. Require PHP 8.1, matching the supported runtime.

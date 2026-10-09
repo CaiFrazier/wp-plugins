@@ -2,10 +2,10 @@
 Contributors: caifrazier
 Tags: qr code, redirect, shortlink, analytics, ga4
 Requires at least: 6.2
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.3.1
-License: GPLv2 or later
+Stable tag: 1.3.2
+License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Self-hosted QR code generator and redirect manager. Branded short URLs on your own domain, with native GA4 attribution.
@@ -65,7 +65,11 @@ You can also use the standard `user_has_cap` filter. There is no plugin-specific
 
 The plugin itself does not phone home. It does not collect telemetry, ping update servers other than WordPress.org, or transmit any data to the plugin author.
 
-When **Intermediate-page mode** is enabled on a code (this is opt-in per code, and disabled by default unless you set a GA4 Measurement ID), each scan loads Google's `gtag.js` script from `https://www.googletagmanager.com/` on the redirect's intermediate page and fires a single `qr_redirect` event into the GA4 property identified by the Measurement ID you configured. This is the standard GA4 integration; data is sent to Google, not to the plugin author. Disclose this in your site's privacy policy if you use Intermediate-page mode.
+When **Intermediate-page mode** is enabled on a code (this is opt-in per code or through an explicitly chosen default mode, and requires a GA4 Measurement ID), each scan loads Google's `gtag.js` script from `https://www.googletagmanager.com/` on the redirect's intermediate page and fires a single `qr_redirect` event into the GA4 property identified by the Measurement ID you configured. This is the standard GA4 integration; data is sent to Google, not to the plugin author. Disclose this in your site's privacy policy if you use Intermediate-page mode.
+
+Google receives the event properties listed above and ordinary request information such as the visitor IP address and browser headers; Google may use analytics cookies. The standalone intermediate page does not inherit a theme's consent manager. Enable this mode only when your site can handle visitor consent before scans. Use UTM mode if that consent cannot be established. [Google Analytics terms](https://marketingplatform.google.com/about/analytics/terms/us/) and [Google privacy policy](https://policies.google.com/privacy).
+
+Local data includes hit counts, scan timestamps, destination-change audit entries (user ID and IP), campaign metadata, and captured 404 paths/referrers. Captured 404 records are pruned after 90 days unless ignored; destination-change logs keep the last 20 entries per code or redirect. No data is sent to the plugin author.
 
 UTM-injection mode (the default) does not load any external scripts. It appends UTM parameters to the destination URL and issues a 302 redirect; analytics happen on the destination side.
 
@@ -81,6 +85,16 @@ The plugin bundles two MIT/GPL-compatible JavaScript libraries:
 * **JSZip** by Stuart Knightley — dual MIT / GPLv3 licensed. Source: https://github.com/Stuk/jszip
 
 Bundled minified copies live in `assets/js/`. The unminified source for both is available at the GitHub URLs above.
+
+= Source code and development =
+
+Source: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/qr-redirect
+
+To rebuild, clone the repository, install the plugin's development dependencies with Composer and pnpm where a package.json is present, and run `node scripts/release.mjs qr-redirect` from the repository root. The builder lints PHP, runs installed tests, builds JavaScript, installs production PHP dependencies, and creates the distributable ZIP. JavaScript source lives in `src/` for built plugins; plain scripts are in `assets/`. Bundled dependencies and their license terms are listed in THIRD-PARTY-NOTICES.txt.
+
+= Support =
+
+Report reproducible bugs at https://github.com/CaiFrazier/wp-plugins/issues. Include the plugin version, WordPress/PHP versions, and steps to reproduce. Remove credentials and private content from reports.
 
 == Installation ==
 
@@ -139,14 +153,12 @@ For most campaigns, yes — the hit counter uses an atomic `UPDATE meta_value = 
 
 The standard redirect manager depends on the object cache the same way. Its routing decision reads two small lookup tables (an exact-match map and a pattern list), each built from a single postmeta pivot query. With a persistent object cache those tables are primed once and reused across requests. Without one they are rebuilt on every uncached front-end page load, adding two queries per request while any published redirect exists. Sites that define no redirects pay nothing either way: the router checks a lightweight flag and skips both queries entirely, so a QR-only install carries no routing overhead. If you run the redirect manager at scale, install an object cache for the same reason you would for the scan counters.
 
-== Screenshots ==
-
-1. Edit screen — short URL, live QR preview, destination URL, analytics-mode picker, and per-code stats.
-2. List view with campaign filter, sortable hits column, and the "Download QR PNGs (ZIP)" bulk action.
-3. Settings page — GA4 Integration, defaults, and routing behavior in three sections.
-4. Bulk export progress — generating PNGs in the browser and bundling to a single ZIP.
 
 == Changelog ==
+
+= 1.3.2 =
+* Update bundled libraries to current stable versions.
+* Prepare WordPress.org metadata, source/build documentation, license notices, and privacy disclosures.
 
 = 1.3.1 =
 

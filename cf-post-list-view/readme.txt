@@ -2,10 +2,10 @@
 Contributors:      caifrazier
 Tags:              posts, pages, list view, developer tools, seo
 Requires at least: 6.2
-Tested up to:      6.7
+Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.0.1
-License:           GPL-2.0-or-later
+Stable tag: 1.0.2
+License: GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
 A developer-focused list view for any registered post type: adjustable columns, SEO meta fields, hierarchy data, taxonomy terms, and CSV export.
@@ -43,6 +43,20 @@ Unlike the native post list table, it lets you add columns covering SEO metadata
 * PHP 7.4+
 * The `edit_posts` capability is required to access the page
 
+= Source code and development =
+
+Source: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/cf-post-list-view
+
+To rebuild, clone the repository, install the plugin's development dependencies with Composer and pnpm where a package.json is present, and run `node scripts/release.mjs cf-post-list-view` from the repository root. The builder lints PHP, runs installed tests, builds JavaScript, installs production PHP dependencies, and creates the distributable ZIP. JavaScript source lives in `src/` for built plugins; plain scripts are in `assets/`. Bundled dependencies and their license terms are listed in THIRD-PARTY-NOTICES.txt.
+
+= Data and external services =
+
+The list reads posts and metadata from your WordPress database. CSV files download to the requesting user. Access follows the selected post type and the current user permissions. No external service or telemetry is used.
+
+= Support =
+
+Report reproducible bugs at https://github.com/CaiFrazier/wp-plugins/issues. Include the plugin version, WordPress/PHP versions, and steps to reproduce. Remove credentials and private content from reports.
+
 == Installation ==
 
 1. Upload the `cf-post-list-view` directory to `/wp-content/plugins/`.
@@ -71,12 +85,11 @@ No. Word count and depth are computed at render time and are not stored in a sor
 
 No. The plugin adds a separate submenu page. The native list table is untouched.
 
-== Screenshots ==
-
-1. The list view with default columns and post type selector showing Pages.
-2. Column selector modal with SEO meta and hierarchy groups expanded.
 
 == Changelog ==
+
+= 1.0.2 =
+* Prepare WordPress.org metadata, source/build documentation, license notices, and privacy disclosures. Count only readable child posts through WordPress queries and rely on automatic translation loading.
 
 = 1.0.1 =
 * Respect author, private-post and custom post type permissions in REST lists and CSV exports.

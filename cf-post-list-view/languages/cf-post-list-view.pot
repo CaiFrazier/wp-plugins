@@ -1,0 +1,462 @@
+# Copyright (C) 2026 Cai Frazier
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: CF Post List View 1.0.2\n"
+"Report-Msgid-Bugs-To: bugs@caifrazier.com\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-10-09T20:23:18+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: cf-post-list-view\n"
+
+#. Plugin Name of the plugin
+#: cf-post-list-view.php
+msgid "CF Post List View"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: cf-post-list-view.php
+msgid "https://caifrazier.com/plugins/post-list-view/"
+msgstr ""
+
+#. Description of the plugin
+#: cf-post-list-view.php
+msgid "A developer-focused list view for any registered post type: adjustable columns, sortable headers, live search, SEO meta fields, hierarchy data, taxonomy terms, and CSV export."
+msgstr ""
+
+#. Author of the plugin
+#: cf-post-list-view.php
+msgid "Cai Frazier"
+msgstr ""
+
+#. Author URI of the plugin
+#: cf-post-list-view.php
+msgid "https://caifrazier.com"
+msgstr ""
+
+#: includes/Admin.php:24
+#: includes/Admin.php:71
+msgid "Post List View"
+msgstr ""
+
+#: includes/Admin.php:25
+msgid "List View"
+msgstr ""
+
+#: includes/Admin.php:83
+msgid "Search title or slug…"
+msgstr ""
+
+#: includes/Admin.php:86
+#: includes/Admin.php:125
+msgid "Loading…"
+msgstr ""
+
+#: includes/Admin.php:89
+msgid "All statuses"
+msgstr ""
+
+#: includes/Admin.php:90
+#: includes/ColumnRegistry.php:225
+msgid "Published"
+msgstr ""
+
+#: includes/Admin.php:91
+msgid "Draft"
+msgstr ""
+
+#: includes/Admin.php:92
+msgid "Pending Review"
+msgstr ""
+
+#: includes/Admin.php:93
+msgid "Scheduled"
+msgstr ""
+
+#: includes/Admin.php:94
+msgid "Private"
+msgstr ""
+
+#: includes/Admin.php:95
+msgid "Trash"
+msgstr ""
+
+#: includes/Admin.php:100
+#: includes/Admin.php:101
+#: includes/Admin.php:102
+#: includes/Admin.php:103
+msgid "page"
+msgstr ""
+
+#: includes/Admin.php:106
+msgid "Columns"
+msgstr ""
+
+#: includes/Admin.php:109
+msgid "Export CSV"
+msgstr ""
+
+#: includes/Admin.php:141
+msgid "Select columns"
+msgstr ""
+
+#: includes/Admin.php:147
+msgid "Select Columns"
+msgstr ""
+
+#: includes/Admin.php:151
+msgid "Close"
+msgstr ""
+
+#: includes/Admin.php:157
+msgid "Reset to Defaults"
+msgstr ""
+
+#: includes/Admin.php:161
+msgid "Cancel"
+msgstr ""
+
+#: includes/Admin.php:164
+msgid "Apply"
+msgstr ""
+
+#: includes/Admin.php:188
+msgid "Insufficient permissions."
+msgstr ""
+
+#: includes/ColumnRegistry.php:27
+msgid "Identity"
+msgstr ""
+
+#: includes/ColumnRegistry.php:30
+msgid "ID"
+msgstr ""
+
+#: includes/ColumnRegistry.php:31
+msgid "WordPress post ID."
+msgstr ""
+
+#: includes/ColumnRegistry.php:37
+msgid "Title"
+msgstr ""
+
+#: includes/ColumnRegistry.php:38
+msgid "Post title (post_title)."
+msgstr ""
+
+#: includes/ColumnRegistry.php:44
+msgid "Slug"
+msgstr ""
+
+#: includes/ColumnRegistry.php:45
+msgid "URL slug (post_name)."
+msgstr ""
+
+#: includes/ColumnRegistry.php:51
+msgid "Full URL"
+msgstr ""
+
+#: includes/ColumnRegistry.php:52
+msgid "Full permalink as returned by get_permalink()."
+msgstr ""
+
+#: includes/ColumnRegistry.php:58
+msgid "Relative Path"
+msgstr ""
+
+#: includes/ColumnRegistry.php:59
+msgid "Path portion of the permalink (no scheme or host)."
+msgstr ""
+
+#: includes/ColumnRegistry.php:65
+msgid "GUID"
+msgstr ""
+
+#: includes/ColumnRegistry.php:66
+msgid "WordPress GUID (guid field in wp_posts)."
+msgstr ""
+
+#: includes/ColumnRegistry.php:74
+msgid "Content"
+msgstr ""
+
+#: includes/ColumnRegistry.php:77
+msgid "Word Count"
+msgstr ""
+
+#: includes/ColumnRegistry.php:78
+msgid "Number of words in post_content (HTML stripped)."
+msgstr ""
+
+#: includes/ColumnRegistry.php:84
+msgid "Character Count"
+msgstr ""
+
+#: includes/ColumnRegistry.php:85
+msgid "Number of characters in post_content (HTML stripped)."
+msgstr ""
+
+#: includes/ColumnRegistry.php:91
+msgid "Excerpt"
+msgstr ""
+
+#: includes/ColumnRegistry.php:92
+msgid "Manual excerpt (post_excerpt)."
+msgstr ""
+
+#: includes/ColumnRegistry.php:98
+msgid "Has Featured Image"
+msgstr ""
+
+#: includes/ColumnRegistry.php:99
+msgid "Whether a featured image (post thumbnail) is set."
+msgstr ""
+
+#: includes/ColumnRegistry.php:105
+msgid "Featured Image URL"
+msgstr ""
+
+#: includes/ColumnRegistry.php:106
+msgid "Full URL of the featured image (full size)."
+msgstr ""
+
+#: includes/ColumnRegistry.php:112
+msgid "Page Template"
+msgstr ""
+
+#: includes/ColumnRegistry.php:113
+msgid "Template file slug assigned via the Page Attributes panel (pages only)."
+msgstr ""
+
+#: includes/ColumnRegistry.php:121
+msgid "SEO Meta"
+msgstr ""
+
+#: includes/ColumnRegistry.php:124
+msgid "Yoast Title"
+msgstr ""
+
+#: includes/ColumnRegistry.php:125
+msgid "Yoast SEO meta title (_yoast_wpseo_title). Empty if Yoast not active or not set."
+msgstr ""
+
+#: includes/ColumnRegistry.php:131
+msgid "Yoast Description"
+msgstr ""
+
+#: includes/ColumnRegistry.php:132
+msgid "Yoast SEO meta description (_yoast_wpseo_metadesc). Empty if not set."
+msgstr ""
+
+#: includes/ColumnRegistry.php:138
+msgid "Yoast Robots"
+msgstr ""
+
+#: includes/ColumnRegistry.php:139
+msgid "Yoast robots directive (_yoast_wpseo_meta-robots-noindex). \"1\" = noindex."
+msgstr ""
+
+#: includes/ColumnRegistry.php:145
+msgid "Rank Math Title"
+msgstr ""
+
+#: includes/ColumnRegistry.php:146
+msgid "Rank Math meta title (rank_math_title). Empty if not set."
+msgstr ""
+
+#: includes/ColumnRegistry.php:152
+msgid "Rank Math Description"
+msgstr ""
+
+#: includes/ColumnRegistry.php:153
+msgid "Rank Math meta description (rank_math_description). Empty if not set."
+msgstr ""
+
+#: includes/ColumnRegistry.php:159
+msgid "Rank Math Robots"
+msgstr ""
+
+#: includes/ColumnRegistry.php:160
+msgid "Rank Math robots array (rank_math_robots). E.g. \"noindex,nofollow\"."
+msgstr ""
+
+#: includes/ColumnRegistry.php:166
+msgid "Canonical URL"
+msgstr ""
+
+#: includes/ColumnRegistry.php:167
+msgid "Canonical URL from Yoast (_yoast_wpseo_canonical) or Rank Math (rank_math_canonical_url). Empty if not set."
+msgstr ""
+
+#: includes/ColumnRegistry.php:175
+msgid "Hierarchy & Structure"
+msgstr ""
+
+#: includes/ColumnRegistry.php:178
+msgid "Parent ID"
+msgstr ""
+
+#: includes/ColumnRegistry.php:179
+msgid "ID of the parent post (0 = no parent)."
+msgstr ""
+
+#: includes/ColumnRegistry.php:185
+msgid "Parent Title"
+msgstr ""
+
+#: includes/ColumnRegistry.php:186
+msgid "Title of the parent post. Empty for top-level posts."
+msgstr ""
+
+#: includes/ColumnRegistry.php:192
+msgid "Menu Order"
+msgstr ""
+
+#: includes/ColumnRegistry.php:193
+msgid "menu_order value from wp_posts. Used for ordering pages and some CPTs."
+msgstr ""
+
+#: includes/ColumnRegistry.php:199
+msgid "Depth"
+msgstr ""
+
+#: includes/ColumnRegistry.php:200
+msgid "Number of ancestor posts (0 = top-level, 1 = child, 2 = grandchild, etc.)."
+msgstr ""
+
+#: includes/ColumnRegistry.php:206
+msgid "Child Count"
+msgstr ""
+
+#: includes/ColumnRegistry.php:207
+msgid "Number of immediate children (direct post_parent matches)."
+msgstr ""
+
+#: includes/ColumnRegistry.php:215
+msgid "Status & Timestamps"
+msgstr ""
+
+#: includes/ColumnRegistry.php:218
+msgid "Status"
+msgstr ""
+
+#: includes/ColumnRegistry.php:219
+msgid "Post status (publish, draft, pending, future, private, etc.)."
+msgstr ""
+
+#: includes/ColumnRegistry.php:226
+msgid "Date the post was published (post_date in local time)."
+msgstr ""
+
+#: includes/ColumnRegistry.php:232
+msgid "Modified"
+msgstr ""
+
+#: includes/ColumnRegistry.php:233
+msgid "Date the post was last modified (post_modified in local time)."
+msgstr ""
+
+#: includes/ColumnRegistry.php:239
+msgid "Scheduled Date"
+msgstr ""
+
+#: includes/ColumnRegistry.php:240
+msgid "Scheduled publish date. Only populated for future-status posts."
+msgstr ""
+
+#: includes/ColumnRegistry.php:246
+msgid "Comments"
+msgstr ""
+
+#: includes/ColumnRegistry.php:247
+msgid "Total comment count (comment_count field)."
+msgstr ""
+
+#: includes/ColumnRegistry.php:253
+msgid "Comment Status"
+msgstr ""
+
+#: includes/ColumnRegistry.php:254
+msgid "Whether comments are open or closed."
+msgstr ""
+
+#: includes/ColumnRegistry.php:260
+msgid "Ping Status"
+msgstr ""
+
+#: includes/ColumnRegistry.php:261
+msgid "Whether pings/trackbacks are open or closed."
+msgstr ""
+
+#: includes/ColumnRegistry.php:267
+msgid "Sticky"
+msgstr ""
+
+#: includes/ColumnRegistry.php:268
+msgid "Whether the post is sticky (appears first in the loop)."
+msgstr ""
+
+#: includes/ColumnRegistry.php:274
+msgid "Password Protected"
+msgstr ""
+
+#: includes/ColumnRegistry.php:275
+msgid "Whether the post requires a password to view."
+msgstr ""
+
+#: includes/ColumnRegistry.php:283
+msgid "Author & Taxonomy"
+msgstr ""
+
+#: includes/ColumnRegistry.php:286
+msgid "Author ID"
+msgstr ""
+
+#: includes/ColumnRegistry.php:287
+msgid "WordPress user ID of the post author."
+msgstr ""
+
+#: includes/ColumnRegistry.php:293
+msgid "Author Login"
+msgstr ""
+
+#: includes/ColumnRegistry.php:294
+msgid "Username (user_login) of the post author."
+msgstr ""
+
+#: includes/ColumnRegistry.php:300
+msgid "Author"
+msgstr ""
+
+#: includes/ColumnRegistry.php:301
+msgid "Display name of the post author."
+msgstr ""
+
+#: includes/ColumnRegistry.php:311
+msgid "WordPress Internals"
+msgstr ""
+
+#: includes/ColumnRegistry.php:314
+msgid "Post Type"
+msgstr ""
+
+#: includes/ColumnRegistry.php:315
+msgid "Registered post type slug."
+msgstr ""
+
+#: includes/ColumnRegistry.php:321
+msgid "Custom Field Keys"
+msgstr ""
+
+#: includes/ColumnRegistry.php:322
+msgid "Comma-separated list of all postmeta keys present on this post. Useful for debugging CPT data."
+msgstr ""
+
+#: includes/RestController.php:97
+msgid "You cannot access this post type."
+msgstr ""

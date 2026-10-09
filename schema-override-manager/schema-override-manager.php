@@ -1,9 +1,9 @@
 <?php
 /**
  * Plugin Name:       Schema Override Manager
- * Plugin URI:        https://github.com/caifrazier/schema-override-manager
+ * Plugin URI:        https://caifrazier.com/plugins/schema-override-manager/
  * Description:       View, suppress, extend, and inject JSON-LD structured data at the global, post-type template, and per-page level. Works alongside Yoast, Rank Math, and theme-injected schema.
- * Version:           1.0.1
+ * Version:           1.0.2
  * Requires at least: 6.2
  * Requires PHP:      8.1
  * Author:            Cai Frazier
@@ -15,10 +15,10 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'SOM_VERSION', '1.0.1' );
-define( 'SOM_FILE', __FILE__ );
-define( 'SOM_DIR', plugin_dir_path( __FILE__ ) );
-define( 'SOM_URL', plugin_dir_url( __FILE__ ) );
+define( 'CFSOM_VERSION', '1.0.2' );
+define( 'CFSOM_FILE', __FILE__ );
+define( 'CFSOM_DIR', plugin_dir_path( __FILE__ ) );
+define( 'CFSOM_URL', plugin_dir_url( __FILE__ ) );
 
 /**
  * Seed default settings on activation. Kept self-contained (no autoloaded
@@ -26,7 +26,7 @@ define( 'SOM_URL', plugin_dir_url( __FILE__ ) );
  * seeds defaults even if `vendor/` is somehow missing — otherwise the plugin
  * could run permanently unconfigured (no enabled post types → appears dead).
  */
-function som_activate(): void {
+function cfsom_activate(): void {
 	if ( ! get_option( 'som_settings' ) ) {
 		update_option(
 			'som_settings',
@@ -39,11 +39,11 @@ function som_activate(): void {
 	}
 }
 
-register_activation_hook( __FILE__, 'som_activate' );
+register_activation_hook( __FILE__, 'cfsom_activate' );
 // Deactivation intentionally preserves data; nothing to do.
 
-if ( file_exists( SOM_DIR . 'vendor/autoload.php' ) ) {
-	require_once SOM_DIR . 'vendor/autoload.php';
+if ( file_exists( CFSOM_DIR . 'vendor/autoload.php' ) ) {
+	require_once CFSOM_DIR . 'vendor/autoload.php';
 } else {
 	// vendor/ is required because SOM depends on the shared CFShared package.
 	// In dev: run `composer install`. In distribution zips: vendor/ is committed.
