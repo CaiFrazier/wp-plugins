@@ -9,7 +9,7 @@ import {
 } from '../utils/dates';
 
 const cfCalData = window.cfCalData || {};
-const API_BASE = cfCalData.restUrl || '';
+const API_PATH = '/cf-cal/v1';
 
 if ( cfCalData.nonce ) {
 	apiFetch.use( apiFetch.createNonceMiddleware( cfCalData.nonce ) );
@@ -50,6 +50,7 @@ const useCalendarStore = create( ( set, get ) => ( {
 
 	view: 'month', // 'month' | 'week' | 'list'
 	posts: [],
+	truncated: false,
 	loading: false,
 	error: null,
 
@@ -98,7 +99,7 @@ const useCalendarStore = create( ( set, get ) => ( {
 		// param makes the REST endpoint fall back to all types/statuses, the
 		// opposite of intent. Short-circuit to an empty grid without a request.
 		if ( filters.postTypes.length === 0 || filters.statuses.length === 0 ) {
-			set( { posts: [], loading: false, error: null } );
+			set( { posts: [], truncated: false, loading: false, error: null } );
 			return;
 		}
 
@@ -130,14 +131,17 @@ const useCalendarStore = create( ( set, get ) => ( {
 		}
 
 		try {
-			const posts = await apiFetch( {
-				url: `${ API_BASE }/posts?${ params }`,
+			const response = await apiFetch( {
+				path: `${ API_PATH }/posts?${ params }`,
 				method: 'GET',
+				parse: false,
 			} );
-			set( { posts, loading: false } );
+			const posts = await response.json();
+			set( { posts, truncated: response.headers.get( 'X-CF-Calendar-Truncated' ) === '1', loading: false } );
 		} catch ( err ) {
 			set( {
 				loading: false,
+				truncated: false,
 				error:
 					err.message ||
 					__(
@@ -217,7 +221,7 @@ const useCalendarStore = create( ( set, get ) => ( {
 
 		try {
 			const updated = await apiFetch( {
-				url: `${ API_BASE }/posts/${ id }/reschedule`,
+				path: `${ API_PATH }/posts/${ id }/reschedule`,
 				method: 'PATCH',
 				data: { post_date: newDate },
 			} );
@@ -240,7 +244,7 @@ const useCalendarStore = create( ( set, get ) => ( {
 	async createPost( data ) {
 		try {
 			const created = await apiFetch( {
-				url: `${ API_BASE }/posts`,
+				path: `${ API_PATH }/posts`,
 				method: 'POST',
 				data,
 			} );

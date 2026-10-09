@@ -153,10 +153,9 @@ class RestController {
 		$query_args = [
 			'post_type'      => $post_types,
 			'post_status'    => $post_status,
-			// A bounded date range, not user-facing pagination. The cap is a
-			// safety ceiling for an unusually busy month; CCAL-P2-005 tracks
-			// surfacing a "results truncated" notice when it is hit.
-			'posts_per_page' => 500, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
+			// Fetch one sentinel record so a full 500-result page is not
+			// mistaken for a complete result set. Preserve the array response.
+			'posts_per_page' => 501, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
 
 			'date_query'     => [
 				[
@@ -193,11 +192,13 @@ class RestController {
 		$query = new \WP_Query( $query_args );
 
 		$posts = [];
-		foreach ( $query->posts as $post ) {
+		foreach ( array_slice( $query->posts, 0, 500 ) as $post ) {
 			$posts[] = $this->format_post( $post );
 		}
 
-		return new \WP_REST_Response( $posts, 200 );
+		$response = new \WP_REST_Response( $posts, 200 );
+		$response->header( 'X-CF-Calendar-Truncated', count( $query->posts ) > 500 ? '1' : '0' );
+		return $response;
 	}
 
 	public function create_post( \WP_REST_Request $request ): \WP_REST_Response {

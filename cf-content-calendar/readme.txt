@@ -4,7 +4,7 @@ Tags: calendar, editorial calendar, content, scheduling, posts
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 0.1.1
+Stable tag: 0.1.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,6 +39,10 @@ Toggle visibility by post type, status (published, scheduled, draft), and author
 For development: run `composer install` and `npm install && npm run build` inside the plugin directory before activating.
 
 == Changelog ==
+
+= 0.1.2 =
+* Show a visible warning when a calendar range exceeds 500 posts.
+* Use WordPress REST path middleware so loading, creating and rescheduling also work with plain permalinks.
 
 = 0.1.1 =
 * Fix: Dragging a scheduled post to a past date (downgrading it to draft) no longer leaves a stale GMT publish date behind. Found during a live smoke test — the old date could have misled sitemap/SEO plugins into treating an unscheduled draft as published.

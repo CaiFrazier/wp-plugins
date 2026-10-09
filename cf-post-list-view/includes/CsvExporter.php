@@ -61,7 +61,7 @@ class CsvExporter {
 			$args['s'] = $search;
 		}
 
-		return $args;
+		return PostAccess::scope( $args );
 	}
 
 	/**
@@ -105,7 +105,7 @@ class CsvExporter {
 	 */
 	public static function rows( array $posts, array $columns ): iterable {
 		foreach ( $posts as $post ) {
-			if ( ! ( $post instanceof \WP_Post ) ) {
+			if ( ! ( $post instanceof \WP_Post ) || ! current_user_can( 'read_post', $post->ID ) ) {
 				continue;
 			}
 			$data = PostData::for_post( $post, $columns );

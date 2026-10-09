@@ -4,7 +4,7 @@ Tags: uploads, media, large files, chunked upload
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -67,6 +67,9 @@ Not yet. Plugin/theme ZIP installation support is deferred.
 2. Import Large File screen with active and completed uploads.
 
 == Changelog ==
+
+= 1.2.1 =
+* Reject chunk writes to upload sessions owned by another user. Require PHP 8.1, matching the supported runtime.
 
 = 1.2.0 =
 * Security: The per-user storage quota is now enforced against the actual bytes received by the server, not the file size the browser reports. A client that understated or zeroed out the declared size could previously write real chunk data to disk without it counting toward the quota. The quota is now re-checked on every chunk, so an over-limit upload is stopped as it happens rather than only at session start.

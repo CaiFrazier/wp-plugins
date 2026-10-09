@@ -232,4 +232,21 @@ final class ChunkReceiverTest extends TestCase {
 		$res = $rx->receive( $this->input( 'hello---' ), $this->tmp_with( 'hello---' ) );
 		self::assertTrue( $res['ok'] );
 	}
+
+	public function test_other_user_cannot_replace_an_existing_session_chunk(): void {
+		$first = $this->rx->receive( $this->input( 'owner', [ 'owner_id' => 101 ] ), $this->tmp_with( 'owner' ) );
+		self::assertTrue( $first['ok'] );
+		$other = $this->rx->receive( $this->input( 'other', [ 'owner_id' => 202 ] ), $this->tmp_with( 'other' ) );
+		self::assertSame( 403, $other['status'] );
+		$session = new UploadSession( new Paths( $this->sandbox ), self::ID );
+		self::assertSame( 'owner', file_get_contents( $session->chunk_path( 0 ) ) );
+		self::assertSame( 101, $session->owner_id() );
+	}
+
+	public function test_administrator_can_manage_another_users_session(): void {
+		$this->rx->receive( $this->input( 'owner', [ 'owner_id' => 101 ] ), $this->tmp_with( 'owner' ) );
+		$GLOBALS['cf_chunked_upload_test_caps'] = [ 'manage_options' ];
+		$res = $this->rx->receive( $this->input( 'admin', [ 'owner_id' => 202 ] ), $this->tmp_with( 'admin' ) );
+		self::assertTrue( $res['ok'] );
+	}
 }

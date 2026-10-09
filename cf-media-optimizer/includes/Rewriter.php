@@ -330,10 +330,10 @@ final class Rewriter {
 		// because a descriptor was missing) — never a partial ladder.
 		if ( ! $ladders['had_srcset'] ) {
 			if ( $has_webp ) {
-				$srcset_webp = $webp_url;
+				$srcset_webp = $this->version_variant_url( $webp_url );
 			}
 			if ( $has_avif ) {
-				$srcset_avif = $avif_url;
+				$srcset_avif = $this->version_variant_url( $avif_url );
 			}
 		}
 
@@ -544,11 +544,11 @@ final class Rewriter {
 			$avif_url = Paths::swap_extension( $url, 'avif' );
 
 			if ( $webp_url !== null && $this->variant_exists( $webp_url ) ) {
-				$webp_parts[] = trim( $webp_url . ( $descriptor !== '' ? ' ' . $descriptor : '' ) );
+				$webp_parts[] = trim( $this->version_variant_url( $webp_url ) . ( $descriptor !== '' ? ' ' . $descriptor : '' ) );
 				++$webp_hits;
 			}
 			if ( $avif_url !== null && $this->variant_exists( $avif_url ) ) {
-				$avif_parts[] = trim( $avif_url . ( $descriptor !== '' ? ' ' . $descriptor : '' ) );
+				$avif_parts[] = trim( $this->version_variant_url( $avif_url ) . ( $descriptor !== '' ? ' ' . $descriptor : '' ) );
 				++$avif_hits;
 			}
 		}
@@ -616,7 +616,7 @@ final class Rewriter {
 					return $original;
 				}
 				if ( $this->variant_exists( $webp_url ) ) {
-					return $webp_url;
+					return $this->version_variant_url( $webp_url );
 				}
 				return $original;
 			},
@@ -646,9 +646,30 @@ final class Rewriter {
 			return $url;
 		}
 		if ( $this->variant_exists( $webp_url ) ) {
-			return $webp_url;
+			return $this->version_variant_url( $webp_url );
 		}
 		return $url;
+	}
+
+	/**
+	 * Regenerated files must not reuse long-lived browser/CDN cache entries.
+	 * File stats are cheap (PHP caches them); originals and author queries stay intact.
+	 */
+	private function version_variant_url( string $url ): string {
+		$path = $this->paths->url_to_path( $url );
+		if ( null === $path || ! is_file( $path ) ) {
+			return $url;
+		}
+		$modified = filemtime( $path );
+		$bytes    = filesize( $path );
+		if ( false === $modified || false === $bytes ) {
+			return $url;
+		}
+		$parts    = explode( '#', $url, 2 );
+		$fragment = isset( $parts[1] ) ? '#' . $parts[1] : '';
+		$base     = $parts[0];
+		return $base . ( strpos( $base, '?' ) === false ? '?' : '&' )
+			. 'cfmo=' . $modified . '-' . $bytes . $fragment;
 	}
 
 	/**

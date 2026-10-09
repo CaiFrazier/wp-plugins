@@ -3,7 +3,7 @@
  * Plugin Name:       CF Media Optimizer
  * Plugin URI:        https://github.com/caifrazier/cf-media-optimizer
  * Description:       Converts JPEG/PNG uploads to WebP and AVIF and serves them through &lt;picture&gt; with native browser fallback. Originals are never modified. No nginx or .htaccess config required.
- * Version:           3.0.0
+ * Version:           3.0.3
  * Requires at least: 6.2
  * Requires PHP:      8.1
  * Author:            Cai Frazier

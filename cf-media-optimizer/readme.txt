@@ -4,7 +4,7 @@ Tags: webp, avif, image optimization, picture, performance
 Requires at least: 6.2
 Tested up to: 6.6
 Requires PHP: 8.1
-Stable tag: 3.0.0
+Stable tag: 3.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -48,6 +48,18 @@ Yes. CF Media Optimizer reads the same conversion settings and per-image ownersh
 Only if you want the Media Library list view, audit reports, or the bulk alt-text editor. Optimization is fully self-contained in this plugin.
 
 == Changelog ==
+
+= 3.0.3 =
+* Transparent PNGs no longer get a flattened AVIF. Hosts whose ImageMagick AVIF writer drops alpha (6.9.11 with libheif, as on WP Engine) encoded transparent pixels as black, so icons and logos showed as solid squares. The encoder is now probed for alpha support and every AVIF written from a transparent source is checked; when alpha is missing, the image is served as WebP only and a previously flattened AVIF is removed.
+* Existing flattened AVIFs are removed on forced regeneration of the affected PNGs; opaque PNGs and JPEGs keep their AVIF.
+
+= 3.0.2 =
+* Version generated image URLs using file modification time and size so rebuilt variants bypass old browser/CDN cache entries. Applies to picture sources, responsive sizes, CSS, and SEO URLs; originals remain unchanged.
+
+= 3.0.1 =
+* Convert embedded ICC profiles to sRGB before metadata stripping, preserving colors in WebP and AVIF.
+* Safely skip profiled inputs when only GD is available or color-managed conversion fails.
+* Existing affected derivatives require forced regeneration; originals are preserved.
 
 = 3.0.0 =
 * Split from CF Media Manager 2.3.0: this plugin is now the dedicated delivery half (WebP/AVIF conversion + `<picture>` rewriting). The management toolkit (Library list view, audit, bulk alt-text) ships as the separate CF Media Manager plugin.

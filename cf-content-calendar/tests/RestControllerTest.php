@@ -690,4 +690,25 @@ class RestControllerTest extends TestCase {
 		// A scheduled post gets a real GMT date.
 		$this->assertArrayHasKey( 'post_date_gmt', $GLOBALS['cfcal_test_last_update'] );
 	}
+
+	public function test_busy_range_reports_truncation_without_changing_array_response(): void {
+		$post = new WP_Post();
+		$post->ID = 1;
+		$post->post_title = 'Fixture';
+		$post->post_status = 'publish';
+		$post->post_type = 'post';
+		$post->post_date = '2026-05-10 09:00:00';
+		$post->post_date_gmt = $post->post_date;
+		$post->post_author = 1;
+		$GLOBALS['cfcal_test_query_posts'] = array_fill( 0, 501, $post );
+		$request = new WP_REST_Request();
+		$request->set_param( 'start', '2026-05-01' );
+		$request->set_param( 'end', '2026-05-31' );
+		$response = ( new RestController() )->get_posts( $request );
+		$this->assertCount( 500, $response->data );
+		$this->assertSame( '1', $response->headers['X-CF-Calendar-Truncated'] );
+		$GLOBALS['cfcal_test_query_posts'] = array_fill( 0, 500, $post );
+		$response = ( new RestController() )->get_posts( $request );
+		$this->assertSame( '0', $response->headers['X-CF-Calendar-Truncated'] );
+	}
 }

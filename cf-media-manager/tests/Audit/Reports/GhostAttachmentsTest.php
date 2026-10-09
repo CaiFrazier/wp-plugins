@@ -27,6 +27,11 @@ final class GhostAttachmentsTest extends TestCase {
 
 	protected function setUp(): void {
 		cf_media_manager_test_reset_state();
+		$GLOBALS['cf_media_manager_test_trash_calls'] = [];
+		foreach ( range( 1, 100 ) as $id ) {
+			$GLOBALS['cf_media_manager_test_post_objects'][ $id ] = new \WP_Post( [ 'ID' => $id, 'post_type' => 'attachment', 'post_status' => 'inherit' ] );
+		}
+
 		// Ad-hoc test globals used by the inline $wpdb double below.
 		// These aren't part of Manager's general reset surface because
 		// they're scoped to this file. Clear them per test so fixtures
@@ -356,5 +361,14 @@ final class GhostAttachmentsTest extends TestCase {
 
 		self::assertFalse( $result->success );
 		self::assertNotEmpty( $result->message );
+	}
+
+	public function test_already_trashed_attachment_is_not_deleted_again(): void {
+		$GLOBALS['cf_media_manager_test_post_objects'][11]->post_status = 'trash';
+		$report = new GhostAttachments( $this->ignored );
+		$result = $report->bulk_action( 'trash', [ 11 ] );
+		self::assertSame( 0, $result->processed );
+		self::assertArrayHasKey( 11, $result->errors );
+		self::assertSame( [], $GLOBALS['cf_media_manager_test_trash_calls'] );
 	}
 }

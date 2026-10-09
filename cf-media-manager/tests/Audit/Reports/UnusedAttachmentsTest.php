@@ -20,6 +20,11 @@ final class UnusedAttachmentsTest extends TestCase {
 
 	protected function setUp(): void {
 		cf_media_manager_test_reset_state();
+		$GLOBALS['cf_media_manager_test_trash_calls'] = [];
+		foreach ( range( 1, 100 ) as $id ) {
+			$GLOBALS['cf_media_manager_test_post_objects'][ $id ] = new \WP_Post( [ 'ID' => $id, 'post_type' => 'attachment', 'post_status' => 'inherit' ] );
+		}
+
 		$this->ignored                       = new IgnoredStore();
 		$GLOBALS['fake_wpdb_attachments']    = array();
 		$GLOBALS['fake_in_use_call_count']   = 0;
@@ -318,7 +323,7 @@ final class UnusedAttachmentsTest extends TestCase {
 	// Bulk actions
 	// =====================================================================
 
-	public function test_bulk_trash_uses_force_false_recoverable_path(): void {
+	public function test_bulk_trash_uses_explicit_trash_operation(): void {
 		$report = $this->make_report( array() );
 		$result = $report->bulk_action( 'trash', array( 11, 22 ) );
 
@@ -362,5 +367,14 @@ final class UnusedAttachmentsTest extends TestCase {
 
 		self::assertSame( 0, $result->processed );
 		self::assertCount( 3, $result->errors );
+	}
+
+	public function test_already_trashed_attachment_is_not_deleted_again(): void {
+		$GLOBALS['cf_media_manager_test_post_objects'][11]->post_status = 'trash';
+		$report = $this->make_report( array() );
+		$result = $report->bulk_action( 'trash', [ 11 ] );
+		self::assertSame( 0, $result->processed );
+		self::assertArrayHasKey( 11, $result->errors );
+		self::assertSame( [], $GLOBALS['cf_media_manager_test_trash_calls'] );
 	}
 }

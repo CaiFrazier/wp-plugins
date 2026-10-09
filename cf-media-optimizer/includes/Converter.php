@@ -123,6 +123,72 @@ final class Converter {
 	}
 
 	/**
+	 * True if the AVIF encoder writes an alpha plane.
+	 *
+	 * Some ImageMagick builds (6.9.11 with its libheif writer, as shipped on
+	 * WP Engine) advertise AVIF but drop alpha, so transparent pixels encode
+	 * as black. Probe once per request with a tiny half-transparent image and
+	 * look for the alpha auxiliary item in the encoded bytes.
+	 */
+	public static function avif_alpha_supported(): bool {
+		static $supported = null;
+		if ( null !== $supported ) {
+			return $supported;
+		}
+		$supported = false;
+		if ( ! self::avif_supported() ) {
+			return false;
+		}
+		$probe = null;
+		try {
+			$probe = new Imagick();
+			$probe->newImage( 2, 2, new \ImagickPixel( 'rgba(0,0,0,0)' ) );
+			$draw = new \ImagickDraw();
+			$draw->setFillColor( new \ImagickPixel( '#ff0000' ) );
+			$draw->point( 0, 0 );
+			$probe->drawImage( $draw );
+			$probe->setImageFormat( 'avif' );
+			$supported = self::avif_bytes_have_alpha( $probe->getImageBlob() );
+		} catch ( Throwable $e ) {
+			$supported = false;
+		} finally {
+			if ( $probe instanceof Imagick ) {
+				$probe->clear();
+			}
+		}
+		return $supported;
+	}
+
+	/**
+	 * True if encoded AVIF/HEIF bytes declare an alpha auxiliary image
+	 * (AV1 URN, or the HEVC auxid some libheif builds write). The marker
+	 * lives in the leading meta box, so the first few KB are enough.
+	 */
+	public static function avif_bytes_have_alpha( string $bytes ): bool {
+		return str_contains( $bytes, 'urn:mpeg:mpegB:cicp:systems:auxiliary:alpha' )
+			|| str_contains( $bytes, 'urn:mpeg:hevc:2015:auxid:1' );
+	}
+
+	/**
+	 * True if the image has at least one pixel that is not fully opaque. An
+	 * alpha channel alone is not enough: many PNGs carry an all-opaque one.
+	 */
+	public static function has_transparency( Imagick $im ): bool {
+		if ( ! $im->getImageAlphaChannel() ) {
+			return false;
+		}
+		$alpha = clone $im;
+		try {
+			// Extract renders alpha as grayscale, white = opaque, on IM6 and IM7.
+			$alpha->setImageAlphaChannel( Imagick::ALPHACHANNEL_EXTRACT );
+			$range = $alpha->getImageChannelRange( Imagick::CHANNEL_DEFAULT );
+			return $range['minima'] < Imagick::getQuantumRange()['quantumRangeLong'];
+		} finally {
+			$alpha->clear();
+		}
+	}
+
+	/**
 	 * Convert a single source file. Returns true if at least the WebP variant
 	 * exists on disk after the call (including when it was already up-to-date).
 	 *
@@ -291,7 +357,17 @@ final class Converter {
 				$im = new Imagick();
 				self::apply_imagick_resource_limits( $im );
 				$im->readImage( $src );
-				$im->stripImage();
+				ColorManagement::prepare( $im );
+
+				// A transparent source must never get a flattened AVIF: browsers
+				// pick AVIF first and paint the transparent area black. When the
+				// encoder cannot write alpha, serve WebP only and remove any AVIF
+				// an earlier run flattened so the rewriter stops offering it.
+				$transparent = null !== $avif_dest && 'png' === $ext && self::has_transparency( $im );
+				if ( $transparent && ! self::avif_alpha_supported() ) {
+					$this->discard_variant( $attachment_id, $avif_dest );
+					$avif_dest = null;
+				}
 
 				if ( ! $force && $webp_fresh ) {
 					$webp_ok = true;
@@ -310,7 +386,13 @@ final class Converter {
 					}
 					try {
 						if ( $this->write_imagick_variant( $im, $avif_dest, 'avif', $quality, $ext ) ) {
-							$this->last_avif_written = true;
+							// Verify the output, not just the probe.
+							$head = $transparent ? (string) file_get_contents( $avif_dest, false, null, 0, 65536 ) : ''; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local binary header read.
+							if ( $transparent && ! self::avif_bytes_have_alpha( $head ) ) {
+								$this->discard_variant( $attachment_id, $avif_dest );
+							} else {
+								$this->last_avif_written = true;
+							}
 						}
 					} catch ( Throwable $e ) {
 						// AVIF writes are best-effort; never fail the whole call.
@@ -355,6 +437,11 @@ final class Converter {
 			$this->last_skip_reason = $imagick_failed
 				? __( 'Imagick failed and GD has no imagewebp() — no WebP encoder available on this host.', 'cf-media-optimizer' )
 				: __( 'No WebP encoder available (Imagick missing the WEBP coder and GD has no imagewebp()).', 'cf-media-optimizer' );
+			return false;
+		}
+
+		if ( ColorManagement::requires_color_management( $src ) ) {
+			$this->last_skip_reason = __( 'Source has an embedded color profile or unreadable color metadata. GD cannot safely convert it; use Imagick or an sRGB export without an embedded profile.', 'cf-media-optimizer' );
 			return false;
 		}
 
@@ -440,6 +527,26 @@ final class Converter {
 		}
 		if ( null !== $avif_path ) {
 			$this->manifest->record( $attachment_id, $avif_path );
+		}
+	}
+
+	/**
+	 * Delete a generated variant we own and drop its manifest row. Unowned
+	 * files never reach here: the ownership gate nulls their destination.
+	 */
+	private function discard_variant( ?int $attachment_id, string $variant_path ): void {
+		if ( ! file_exists( $variant_path ) ) {
+			return;
+		}
+		if ( function_exists( 'wp_delete_file' ) ) {
+			wp_delete_file( $variant_path );
+		} else {
+			@unlink( $variant_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.unlink_unlink -- test harness without WP.
+		}
+		if ( null !== $attachment_id && $attachment_id > 0 ) {
+			$this->manifest->forget( $attachment_id, $variant_path );
+		} else {
+			$this->manifest->forget_anywhere( $variant_path );
 		}
 	}
 

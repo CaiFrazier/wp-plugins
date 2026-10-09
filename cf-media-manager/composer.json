@@ -1,17 +1,19 @@
 {
     "name": "caifrazier/cf-media-manager",
-    "description": "CF Media Manager — converts JPEG/PNG to WebP and AVIF, serves them via <picture> wrapping with native fallback.",
+    "description": "CF Media Manager \u2014 converts JPEG/PNG to WebP and AVIF, serves them via <picture> wrapping with native fallback.",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
     "repositories": [
         {
             "type": "path",
             "url": "../shared",
-            "options": { "symlink": false }
+            "options": {
+                "symlink": false
+            }
         }
     ],
     "require": {
-        "php": ">=8.0",
+        "php": ">=8.1",
         "caifrazier/wp-plugins-shared": "*"
     },
     "require-dev": {
@@ -35,7 +37,7 @@
             "dealerdirect/phpcodesniffer-composer-installer": true
         },
         "platform": {
-            "php": "8.0"
+            "php": "8.1"
         }
     },
     "scripts": {

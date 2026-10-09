@@ -12,6 +12,8 @@
  */
 
 define( 'ABSPATH', __DIR__ . '/' );
+define( 'MEDIA_TRASH', true );
+define( 'EMPTY_TRASH_DAYS', 30 );
 
 // WordPress time constants — used in class-const initializers (e.g.
 // InUseScanner::TRANSIENT_TTL). PHP evaluates those when the class is loaded,
@@ -1049,4 +1051,10 @@ if ( ! class_exists( 'WP_Post' ) ) {
 			}
 		}
 	}
+}
+
+// Model the explicit trash operation separately from deletion.
+function wp_trash_post( $id ) {
+	$GLOBALS['cf_media_manager_test_trash_calls'][] = (int) $id;
+	return wp_delete_attachment( $id, false );
 }

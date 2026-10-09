@@ -167,6 +167,13 @@ final class ChunkReceiver {
 			return $this->err( 500, 'session_init_failed', 'Could not initialize the upload session on disk.' );
 		}
 
+		// Check the winning metadata, including when another request created it
+		// after this request started. The caller supplies the server-trusted user.
+		$owner = (int) ( $meta['owner_id'] ?? 0 );
+		if ( $owner > 0 && $owner !== (int) ( $input['owner_id'] ?? 0 ) && ! current_user_can( 'manage_options' ) ) {
+			return $this->err( 403, 'not_owner', 'This upload belongs to another user.' );
+		}
+
 		// The persisted record is authoritative. A chunk that disagrees with
 		// it is either a buggy client splitting inconsistently or a second
 		// client colliding on the same uploadId — reject either way.

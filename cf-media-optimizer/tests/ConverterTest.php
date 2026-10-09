@@ -80,6 +80,106 @@ final class ConverterTest extends TestCase {
 		self::assertGreaterThan( 0, filesize( $dest ) );
 	}
 
+	/** @dataProvider profiled_sources */
+	public function test_profiled_images_keep_colors_or_are_safely_skipped( string $extension ): void {
+		$src = $this->uploads . '/profiled.' . $extension;
+		copy( __DIR__ . '/fixtures/prophoto.' . $extension, $src );
+		update_option( Options::ENABLE_AVIF, true );
+		$ok = $this->converter->convert( $src, 95, true );
+		if ( ! extension_loaded( 'imagick' ) ) {
+			self::assertFalse( $ok, 'GD must not silently discard an embedded ICC profile.' );
+			self::assertFileDoesNotExist( $this->uploads . '/profiled.webp' );
+			self::assertStringContainsString( 'color profile', $this->converter->last_skip_reason() );
+			return;
+		}
+		self::assertTrue( $ok, (string) $this->converter->last_skip_reason() );
+		$reference = new \Imagick( __DIR__ . '/fixtures/srgb-reference.png' );
+		$formats = Converter::avif_supported() ? array( 'webp', 'avif' ) : array( 'webp' );
+		foreach ( $formats as $format ) {
+			$file = $this->uploads . '/profiled.' . $format;
+			self::assertFileExists( $file );
+			$output = new \Imagick( $file );
+			// ImageMagick 6 decodes AVIF into YCbCr; compare in RGB, not raw YCbCr channels.
+			$output->transformImageColorspace( \Imagick::COLORSPACE_SRGB );
+			$a = $reference->exportImagePixels( 0, 0, 96, 64, 'RGB', \Imagick::PIXEL_CHAR );
+			$b = $output->exportImagePixels( 0, 0, 96, 64, 'RGB', \Imagick::PIXEL_CHAR );
+			$error = 0;
+			foreach ( $a as $i => $value ) { $error += abs( $value - $b[$i] ); }
+			self::assertLessThan( 6, $error / count( $a ), $format . ' changed the source colors.' );
+			$output->clear();
+		}
+		$reference->clear();
+	}
+
+	public function profiled_sources(): array {
+		return array( array( 'jpg' ), array( 'png' ) );
+	}
+
+	// -------------------------------------------------------------------------
+	// Transparency and AVIF
+	// -------------------------------------------------------------------------
+
+	private function write_transparent_png( string $path ): void {
+		$im = imagecreatetruecolor( 32, 32 );
+		imagealphablending( $im, false );
+		imagesavealpha( $im, true );
+		imagefill( $im, 0, 0, imagecolorallocatealpha( $im, 0, 0, 0, 127 ) );
+		imagefilledrectangle( $im, 8, 8, 23, 23, imagecolorallocatealpha( $im, 0, 0, 0, 0 ) );
+		imagepng( $im, $path );
+		unset( $im );
+	}
+
+	public function test_avif_alpha_marker_detection(): void {
+		self::assertTrue( Converter::avif_bytes_have_alpha( "\0\0auxCurn:mpeg:mpegB:cicp:systems:auxiliary:alpha\0" ) );
+		self::assertTrue( Converter::avif_bytes_have_alpha( "\0\0auxCurn:mpeg:hevc:2015:auxid:1\0" ) );
+		self::assertFalse( Converter::avif_bytes_have_alpha( "\0\0\0\x1cftypavif\0\0\0\0avifmif1miaf" ) );
+	}
+
+	public function test_transparent_png_never_gets_a_flattened_avif(): void {
+		if ( ! extension_loaded( 'imagick' ) || ! Converter::avif_supported() ) {
+			self::markTestSkipped( 'Imagick with the AVIF coder is required.' );
+		}
+		update_option( Options::ENABLE_AVIF, true );
+		$src  = $this->uploads . '/icon.png';
+		$avif = $this->uploads . '/icon.avif';
+		$this->write_transparent_png( $src );
+		// A flattened AVIF an earlier run wrote and the attachment owns.
+		file_put_contents( $avif, 'stale flattened avif' );
+		$this->converter->manifest()->record( 77, $avif );
+
+		self::assertTrue( $this->converter->convert( $src, null, true, 77 ), (string) $this->converter->last_skip_reason() );
+
+		$webp = new \Imagick( $this->uploads . '/icon.webp' );
+		self::assertTrue( Converter::has_transparency( $webp ), 'WebP must keep alpha.' );
+		$webp->clear();
+		if ( Converter::avif_alpha_supported() ) {
+			self::assertTrue( Converter::avif_bytes_have_alpha( (string) file_get_contents( $avif ) ) );
+			self::assertTrue( $this->converter->did_last_write_avif() );
+		} else {
+			self::assertFileDoesNotExist( $avif, 'A flattened AVIF must be removed.' );
+			self::assertFalse( $this->converter->manifest()->is_owned_by( 77, $avif ) );
+			self::assertFalse( $this->converter->did_last_write_avif() );
+		}
+	}
+
+	public function test_opaque_png_with_alpha_channel_still_gets_avif(): void {
+		if ( ! extension_loaded( 'imagick' ) || ! Converter::avif_supported() ) {
+			self::markTestSkipped( 'Imagick with the AVIF coder is required.' );
+		}
+		update_option( Options::ENABLE_AVIF, true );
+		$src = $this->uploads . '/opaque.png';
+		$im  = new \Imagick();
+		$im->newImage( 16, 16, new \ImagickPixel( '#3366cc' ) );
+		$im->setImageAlphaChannel( \Imagick::ALPHACHANNEL_OPAQUE );
+		$im->setImageFormat( 'png32' );
+		$im->writeImage( $src );
+		self::assertFalse( Converter::has_transparency( $im ) );
+		$im->clear();
+
+		self::assertTrue( $this->converter->convert( $src, null, true ) );
+		self::assertFileExists( $this->uploads . '/opaque.avif' );
+	}
+
 	// -------------------------------------------------------------------------
 	// Rejections
 	// -------------------------------------------------------------------------

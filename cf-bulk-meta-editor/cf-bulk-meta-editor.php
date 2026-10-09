@@ -3,7 +3,7 @@
  * Plugin Name:       CF Bulk Meta Editor
  * Plugin URI:        https://github.com/caifrazier/cf-bulk-meta-editor
  * Description:       Spreadsheet-style editor for SEO meta titles, descriptions, and arbitrary postmeta fields across all post types.
- * Version:           1.0.4
+ * Version:           1.0.5
  * Requires at least: 6.2
  * Requires PHP:      8.1
  * Author:            Cai Frazier
@@ -15,7 +15,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CFBME_VERSION', '1.0.4' );
+define( 'CFBME_VERSION', '1.0.5' );
 define( 'CFBME_FILE', __FILE__ );
 define( 'CFBME_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CFBME_URL', plugin_dir_url( __FILE__ ) );

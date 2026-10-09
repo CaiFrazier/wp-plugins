@@ -3,7 +3,7 @@
  * Plugin Name:       CF Post List View
  * Plugin URI:        https://github.com/caifrazier/cf-post-list-view
  * Description:       A developer-focused list view for any registered post type: adjustable columns, sortable headers, live search, SEO meta fields, hierarchy data, taxonomy terms, and CSV export.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires at least: 6.2
  * Requires PHP:      8.1
  * Author:            Cai Frazier
@@ -16,7 +16,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CF_PLV_VERSION', '1.0.0' );
+define( 'CF_PLV_VERSION', '1.0.1' );
 define( 'CF_PLV_FILE', __FILE__ );
 define( 'CF_PLV_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CF_PLV_URL', plugin_dir_url( __FILE__ ) );
@@ -25,6 +25,7 @@ define( 'CF_PLV_URL', plugin_dir_url( __FILE__ ) );
 // Autoload
 // ---------------------------------------------------------------------------
 
+require_once CF_PLV_DIR . 'includes/PostAccess.php';
 require_once CF_PLV_DIR . 'includes/ColumnRegistry.php';
 require_once CF_PLV_DIR . 'includes/PostData.php';
 require_once CF_PLV_DIR . 'includes/CsvExporter.php';

@@ -86,6 +86,34 @@ final class RewriterTest extends TestCase {
 		}
 	}
 
+	public function test_regeneration_changes_browser_cache_keys(): void {
+		$html = '<img src="' . $this->base_url . '/2026/05/photo.jpg">';
+		$before = $this->rewriter->rewrite_html( $html );
+		foreach ( [ 'webp', 'avif' ] as $format ) {
+			$file = $this->root . '/2026/05/photo.' . $format;
+			touch( $file, filemtime( $file ) + 60 );
+			clearstatcache( true, $file );
+		}
+		$this->rewriter->reset_exists_cache();
+		$after = $this->rewriter->rewrite_html( $html );
+		self::assertNotSame( $before, $after, 'Regenerated variants must not reuse a year-cached URL.' );
+		self::assertStringContainsString( $html, $after );
+		self::assertMatchesRegularExpression( '/photo\.avif\?cfmo=[0-9]+-[0-9]+/', $after );
+		self::assertMatchesRegularExpression( '/photo\.webp\?cfmo=[0-9]+-[0-9]+/', $after );
+	}
+
+	public function test_versioned_urls_preserve_queries_and_stay_stable(): void {
+		$url = $this->base_url . '/2026/05/photo.jpg?width=400&quality=90';
+		$swapped = $this->rewriter->maybe_swap_url( $url );
+		self::assertStringContainsString( '.webp?width=400&quality=90&cfmo=', $swapped );
+		self::assertSame( $swapped, $this->rewriter->maybe_swap_url( $url ) );
+		$html = '<img src="' . $url . '"><div style="background:url(' . $url . ')"></div>';
+		$out = $this->rewriter->rewrite_html( $html );
+		self::assertStringContainsString( 'quality=90&amp;cfmo=', $out );
+		self::assertStringContainsString( 'background:url(' . $swapped . ')', $out );
+		self::assertStringContainsString( '<img src="' . $url . '">', $out );
+	}
+
 	public function test_short_circuits_when_no_img_or_uploads_url(): void {
 		$html = '<p>hello world</p>';
 		self::assertSame( $html, $this->rewriter->rewrite_html( $html ) );
@@ -96,8 +124,8 @@ final class RewriterTest extends TestCase {
 		$out  = $this->rewriter->rewrite_html( $html );
 
 		self::assertStringStartsWith( '<picture>', $out );
-		self::assertStringContainsString( '<source type="image/avif" srcset="' . $this->base_url . '/2026/05/photo.avif"', $out );
-		self::assertStringContainsString( '<source type="image/webp" srcset="' . $this->base_url . '/2026/05/photo.webp"', $out );
+		self::assertStringContainsString( '<source type="image/avif" srcset="' . $this->base_url . '/2026/05/photo.avif?cfmo=' . filemtime( $this->root . '/2026/05/photo.avif' ) . '-4"', $out );
+		self::assertStringContainsString( '<source type="image/webp" srcset="' . $this->base_url . '/2026/05/photo.webp?cfmo=' . filemtime( $this->root . '/2026/05/photo.webp' ) . '-4"', $out );
 		self::assertStringContainsString( '<img src="' . $this->base_url . '/2026/05/photo.jpg" alt="x">', $out );
 		self::assertStringEndsWith( '</picture>', $out );
 	}
@@ -136,7 +164,7 @@ final class RewriterTest extends TestCase {
 
 		// The webp <source> should carry both descriptors (both have .webp on disk).
 		self::assertMatchesRegularExpression(
-			'#<source type="image/webp" srcset="[^"]*photo-300\.webp 300w, [^"]*photo\.webp 1024w"[^>]*sizes="[^"]+"#',
+			'#<source type="image/webp" srcset="[^"]*photo-300\.webp\?cfmo=[0-9]+-8 300w, [^"]*photo\.webp\?cfmo=[0-9]+-4 1024w"[^>]*sizes="[^"]+"#',
 			$out
 		);
 
@@ -159,7 +187,7 @@ final class RewriterTest extends TestCase {
 
 		// Complete webp ladder is emitted.
 		self::assertMatchesRegularExpression(
-			'#<source type="image/webp" srcset="[^"]*photo-300\.webp 300w, [^"]*photo\.webp 1024w"#',
+			'#<source type="image/webp" srcset="[^"]*photo-300\.webp\?cfmo=[0-9]+-8 300w, [^"]*photo\.webp\?cfmo=[0-9]+-4 1024w"#',
 			$out
 		);
 
@@ -285,7 +313,7 @@ final class RewriterTest extends TestCase {
 
 	public function test_maybe_swap_url_returns_webp_when_present(): void {
 		$swapped = $this->rewriter->maybe_swap_url( $this->base_url . '/2026/05/photo.jpg' );
-		self::assertSame( $this->base_url . '/2026/05/photo.webp', $swapped );
+		self::assertSame( $this->base_url . '/2026/05/photo.webp?cfmo=' . filemtime( $this->root . '/2026/05/photo.webp' ) . '-4', $swapped );
 	}
 
 	public function test_maybe_swap_url_returns_input_when_webp_missing(): void {

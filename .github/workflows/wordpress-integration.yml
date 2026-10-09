@@ -1,0 +1,44 @@
+name: WordPress permissions and Trash regressions
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  wordpress:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['8.1', '8.5']
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: fixture-only
+          MARIADB_DATABASE: wordpress
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: wp-cli, composer:v2
+          coverage: none
+      - run: composer install --no-interaction --no-progress
+        working-directory: cf-media-manager
+      - name: Install disposable WordPress
+        run: |
+          wp core download --path=/tmp/cf-wordpress
+          wp config create --path=/tmp/cf-wordpress --dbname=wordpress --dbuser=root --dbpass=fixture-only --dbhost=127.0.0.1:3306
+          wp config set WP_ENVIRONMENT_TYPE local --path=/tmp/cf-wordpress
+          wp core install --path=/tmp/cf-wordpress --url=http://fixture.invalid --title=Fixture --admin_user=review-admin --admin_password=fixture-only --admin_email=fixture@example.invalid --skip-email
+      - name: Verify real role permissions and core Trash behavior
+        env:
+          CF_WORDPRESS_ROOT: /tmp/cf-wordpress
+          CF_MANAGER_ROOT: ${{ github.workspace }}/cf-media-manager
+          CF_PLV_ROOT: ${{ github.workspace }}/cf-post-list-view
+        run: |
+          php tests/integration/release-safety.php
+          CF_TRASH_MODE=enabled php tests/integration/release-safety.php
+          CF_TRASH_MODE=zero-days php tests/integration/release-safety.php

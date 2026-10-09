@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: CF Content Calendar 0.1.1\n"
+"Project-Id-Version: CF Content Calendar 0.1.2\n"
 "Report-Msgid-Bugs-To: bugs@caifrazier.com\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-25T19:51:52+00:00\n"
+"POT-Creation-Date: 2026-10-09T19:22:47+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: cf-content-calendar\n"
@@ -43,27 +43,31 @@ msgstr ""
 msgid "Calendar"
 msgstr ""
 
-#: includes/RestController.php:221
+#: includes/RestController.php:222
 msgid "Invalid post type."
 msgstr ""
 
-#: includes/RestController.php:238
+#: includes/RestController.php:239
 msgid "You do not have permission to create this post type."
 msgstr ""
 
-#: includes/RestController.php:248
+#: includes/RestController.php:249
 msgid "You do not have permission to schedule posts."
 msgstr ""
 
-#: includes/RestController.php:264
+#: includes/RestController.php:265
 msgid "A scheduled post needs a date and time in the future."
 msgstr ""
 
-#: includes/RestController.php:305
+#: includes/RestController.php:306
 msgid "Post not found."
 msgstr ""
 
-#: src/calendar/components/CalendarApp.jsx:35
+#: src/calendar/components/CalendarApp.jsx:29
+msgid "Only the first 500 posts are shown. Narrow the filters or use week view to see a smaller date range."
+msgstr ""
+
+#: src/calendar/components/CalendarApp.jsx:41
 msgid "Dismiss error"
 msgstr ""
 
@@ -275,14 +279,14 @@ msgstr ""
 msgid "Click to add"
 msgstr ""
 
-#: src/calendar/store/index.js:143
+#: src/calendar/store/index.js:147
 msgid "Failed to load posts. The REST API may be blocked — check that no security plugin is disabling it."
 msgstr ""
 
-#: src/calendar/store/index.js:235
+#: src/calendar/store/index.js:239
 msgid "Reschedule failed."
 msgstr ""
 
-#: src/calendar/store/index.js:253
+#: src/calendar/store/index.js:257
 msgid "Failed to create post."
 msgstr ""

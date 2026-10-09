@@ -3,8 +3,8 @@ Contributors:      caifrazier
 Tags:              posts, pages, list view, developer tools, seo
 Requires at least: 6.2
 Tested up to:      6.7
-Requires PHP:      8.1
-Stable tag:        1.0.0
+Requires PHP: 8.1
+Stable tag: 1.0.1
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -77,6 +77,9 @@ No. The plugin adds a separate submenu page. The native list table is untouched.
 2. Column selector modal with SEO meta and hierarchy groups expanded.
 
 == Changelog ==
+
+= 1.0.1 =
+* Respect author, private-post and custom post type permissions in REST lists and CSV exports.
 
 = 1.0.0 =
 * Initial release.

@@ -325,10 +325,9 @@ final class UnusedAttachments implements AuditReportInterface, AuditReportCsvExp
 				$errors[ $raw_id ] = __( 'Invalid attachment id.', 'cf-media-manager' );
 				continue;
 			}
-			// Safety rail: force=false → goes to trash, recoverable.
-			$result = wp_delete_attachment( $id, false );
-			if ( false === $result || null === $result ) {
-				$errors[ $id ] = __( 'Could not trash attachment.', 'cf-media-manager' );
+			$error = \CFMediaManager\AttachmentTrash::move( $id );
+			if ( null !== $error ) {
+				$errors[ $id ] = $error;
 				continue;
 			}
 			++$processed;
@@ -367,7 +366,9 @@ final class UnusedAttachments implements AuditReportInterface, AuditReportCsvExp
 	}
 
 	public function supports_bulk(): array {
-		return array( 'trash', 'ignore', 'unignore' );
+		return \CFMediaManager\AttachmentTrash::available()
+			? array( 'trash', 'ignore', 'unignore' )
+			: array( 'ignore', 'unignore' );
 	}
 
 	// =====================================================================

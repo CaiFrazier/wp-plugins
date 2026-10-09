@@ -464,6 +464,9 @@ function regeneratePotFile() {
  */
 function isVendorDevArtifact( vendorRelPath ) {
 	const denied = [
+		// CFShared has no runtime Composer dependencies. Path repositories copy
+		// its installed development vendor tree too, so remove that entire tree.
+		/^caifrazier\/wp-plugins-shared\/vendor(\/|$)/,
 		// Test suites and their configs.
 		/(^|\/)tests?(\/|$)/i,
 		/(^|\/)spec(\/|$)/i,

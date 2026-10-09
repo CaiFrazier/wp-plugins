@@ -4,7 +4,7 @@ Tags: media library, alt text, accessibility, audit, csv export
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 3.0.0
+Stable tag: 3.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,9 +46,12 @@ In 3.0.0, conversion and `<picture>` delivery moved to the separate **CF Media O
 
 = Does this plugin modify or delete my images? =
 
-No. It reports and edits metadata (alt text, audit state). It never converts, rewrites, or deletes image files.
+Audit scans inspect references and metadata. Explicit cleanup actions can delete attachment records or files. Move to Trash is available only when WordPress Media Trash is enabled with a positive retention period; permanent deletion is a separate action. The plugin does not convert images or rewrite media URLs.
 
 == Changelog ==
+
+= 3.0.1 =
+* Make attachment Trash actions reversible and hide them when Media Trash is disabled.
 
 = 3.0.0 =
 * **Split into two plugins.** CF Media Manager is now the management half — Library list view, five-report media audit, and bulk alt-text. WebP/AVIF conversion and `<picture>` delivery moved to the new **CF Media Optimizer** plugin.

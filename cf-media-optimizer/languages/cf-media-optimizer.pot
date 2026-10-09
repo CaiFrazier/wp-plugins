@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: CF Media Optimizer 3.0.0\n"
+"Project-Id-Version: CF Media Optimizer 3.0.3\n"
 "Report-Msgid-Bugs-To: bugs@caifrazier.com\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-25T19:52:20+00:00\n"
+"POT-Creation-Date: 2026-10-09T19:16:33+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: cf-media-optimizer\n"
@@ -696,99 +696,103 @@ msgstr ""
 msgid "WebP exists, source resolves correctly, but the manifest row is missing. Click \"Claim this WebP\" to fix."
 msgstr ""
 
-#: includes/Converter.php:146
+#: includes/Converter.php:212
 msgid "Source is not a supported JPG or PNG."
 msgstr ""
 
-#: includes/Converter.php:152
-#: includes/Converter.php:521
+#: includes/Converter.php:218
+#: includes/Converter.php:628
 msgid "Source path is outside the uploads directory."
 msgstr ""
 
-#: includes/Converter.php:156
+#: includes/Converter.php:222
 msgid "Source file is missing or unreadable."
 msgstr ""
 
 #. translators: 1: actual source size in MB, 2: configured max in MB.
-#: includes/Converter.php:169
+#: includes/Converter.php:235
 #, php-format
 msgid "Source is %1$.1f MB, larger than the %2$d MB cap (Settings → Max source filesize)."
 msgstr ""
 
-#: includes/Converter.php:178
-#: includes/Converter.php:544
+#: includes/Converter.php:244
+#: includes/Converter.php:651
 msgid "Derived WebP path resolved outside the uploads directory."
 msgstr ""
 
-#: includes/Converter.php:225
+#: includes/Converter.php:291
 msgid "An unowned WebP exists in the destination slot. Open the plugin's \"Diagnose Attachment\" tool (Media → Media Optimizer → Convert tab) and enter this image's ID for the exact cause and a one-click fix."
 msgstr ""
 
-#: includes/Converter.php:258
+#: includes/Converter.php:324
 msgid "getimagesize() failed — source file is corrupt or not a real image."
 msgstr ""
 
-#: includes/Converter.php:262
+#: includes/Converter.php:328
 msgid "Source is not a JPEG or PNG (extension matches but file header does not)."
 msgstr ""
 
 #. translators: 1: width, 2: height, 3: pixel cap in megapixels (e.g., 25).
-#: includes/Converter.php:268
+#: includes/Converter.php:334
 #, php-format
 msgid "Source is %1$d×%2$d, exceeding the %3$d-megapixel cap (decompression-bomb defense)."
 msgstr ""
 
-#: includes/Converter.php:332
+#: includes/Converter.php:414
 msgid "Imagick writeImage returned false for the WebP target — encoder rejected the output."
 msgstr ""
 
 #. translators: %s: PHP exception message from Imagick.
-#: includes/Converter.php:337
+#: includes/Converter.php:419
 #, php-format
 msgid "Imagick threw: %s"
 msgstr ""
 
-#: includes/Converter.php:356
+#: includes/Converter.php:438
 msgid "Imagick failed and GD has no imagewebp() — no WebP encoder available on this host."
 msgstr ""
 
-#: includes/Converter.php:357
+#: includes/Converter.php:439
 msgid "No WebP encoder available (Imagick missing the WEBP coder and GD has no imagewebp())."
 msgstr ""
 
-#: includes/Converter.php:365
+#: includes/Converter.php:444
+msgid "Source has an embedded color profile or unreadable color metadata. GD cannot safely convert it; use Imagick or an sRGB export without an embedded profile."
+msgstr ""
+
+#: includes/Converter.php:452
 msgid "GD imagecreatefrompng() failed — source PNG is corrupt or unsupported."
 msgstr ""
 
-#: includes/Converter.php:375
+#: includes/Converter.php:462
 msgid "GD imagecreatefromjpeg() failed — source JPEG is corrupt or unsupported."
 msgstr ""
 
-#: includes/Converter.php:390
+#: includes/Converter.php:477
 msgid "GD imagewebp() returned false — encoder rejected the output (check disk space and write permissions)."
 msgstr ""
 
 #. translators: %s: PHP exception message from the GD encoder.
-#: includes/Converter.php:395
+#: includes/Converter.php:482
 #, php-format
 msgid "GD encoder threw: %s"
 msgstr ""
 
 #. translators: %s: filename of the missing or unreadable source image.
-#: includes/Converter.php:529
+#: includes/Converter.php:636
 #, php-format
 msgid "%s is missing or unreadable on disk."
 msgstr ""
 
-#: includes/Converter.php:632
+#: includes/Converter.php:739
 msgid "Conversion already in progress for this attachment (another worker holds the lock)."
 msgstr ""
 
-#: includes/Converter.php:651
+#: includes/Converter.php:758
 msgid "Attachment has no source file recorded (get_attached_file returned empty)."
 msgstr ""
 
-#: includes/Converter.php:655
+#: includes/Converter.php:762
 msgid "Attachment has no metadata (wp_get_attachment_metadata returned empty)."
 msgstr ""
 

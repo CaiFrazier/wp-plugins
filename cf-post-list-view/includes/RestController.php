@@ -93,6 +93,10 @@ class RestController {
 			$post_type = 'post';
 		}
 
+		if ( ! PostAccess::allowed_type( $post_type ) ) {
+			return new \WP_REST_Response( [ 'code' => 'forbidden_post_type', 'message' => __( 'You cannot access this post type.', 'cf-post-list-view' ) ], 403 );
+		}
+
 		// Orderby.
 		$orderby = isset( self::ORDERBY_MAP[ $orderby_key ] )
 			? self::ORDERBY_MAP[ $orderby_key ]
@@ -119,11 +123,11 @@ class RestController {
 			$args['s'] = $search;
 		}
 
-		$query = new \WP_Query( $args );
+		$query = new \WP_Query( PostAccess::scope( $args ) );
 		$items = [];
 
 		foreach ( $query->posts as $post ) {
-			if ( ! ( $post instanceof \WP_Post ) ) {
+			if ( ! ( $post instanceof \WP_Post ) || ! current_user_can( 'read_post', $post->ID ) ) {
 				continue;
 			}
 			$items[] = PostData::for_post( $post, $columns );

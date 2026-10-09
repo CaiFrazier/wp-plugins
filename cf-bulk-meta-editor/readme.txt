@@ -4,7 +4,7 @@ Tags: seo, bulk edit, meta, csv, spreadsheet
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -59,6 +59,9 @@ Not at this time. Use the per-row revert button to undo changes before saving.
 4. Settings page with meta key mapping and custom columns
 
 == Changelog ==
+
+= 1.0.5 =
+* Remove development files from the bundled shared library. Require PHP 8.1, matching the supported runtime.
 
 = 1.0.4 =
 * Fix: Uninstall now removes the correct log directory (`uploads/cf-bulk-meta-editor/`) — the path previously referenced the old plugin slug and cleanup silently did nothing on sites that had ever had logs written.

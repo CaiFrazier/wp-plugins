@@ -8,7 +8,7 @@ import ListView from './ListView';
 import RescheduleConfirmDialog from './RescheduleConfirmDialog';
 
 export default function CalendarApp() {
-	const { view, year, month, day, filters, fetchPosts, error, clearError } =
+	const { view, year, month, day, filters, fetchPosts, error, clearError, truncated } =
 		useCalendarStore();
 
 	// Re-fetch whenever the visible window OR the active filters change.
@@ -24,6 +24,12 @@ export default function CalendarApp() {
 			</h1>
 
 			<Toolbar />
+			{ truncated && (
+				<div className="notice notice-warning cf-cal-notice" role="status">
+					<p>{ __( 'Only the first 500 posts are shown. Narrow the filters or use week view to see a smaller date range.', 'cf-content-calendar' ) }</p>
+				</div>
+			) }
+
 
 			{ error && (
 				<div className="notice notice-error cf-cal-notice is-dismissible">

@@ -225,11 +225,9 @@ final class GhostAttachments implements AuditReportInterface, AuditReportCsvExpo
 				continue;
 			}
 
-			// false = trash (recoverable), not permanent delete. This is
-			// the safety rail the strategy doc called non-negotiable.
-			$result = wp_delete_attachment( $id, false );
-			if ( false === $result || null === $result ) {
-				$errors[ $id ] = __( 'Could not trash attachment.', 'cf-media-manager' );
+			$error = \CFMediaManager\AttachmentTrash::move( $id );
+			if ( null !== $error ) {
+				$errors[ $id ] = $error;
 				continue;
 			}
 			++$processed;
@@ -268,7 +266,9 @@ final class GhostAttachments implements AuditReportInterface, AuditReportCsvExpo
 	}
 
 	public function supports_bulk(): array {
-		return array( 'trash', 'ignore', 'unignore' );
+		return \CFMediaManager\AttachmentTrash::available()
+			? array( 'trash', 'ignore', 'unignore' )
+			: array( 'ignore', 'unignore' );
 	}
 
 	// =====================================================================

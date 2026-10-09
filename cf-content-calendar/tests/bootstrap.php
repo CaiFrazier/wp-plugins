@@ -118,6 +118,8 @@ if ( ! class_exists( 'WP_REST_Response' ) ) {
 	class WP_REST_Response { // phpcs:ignore Generic.Files.OneObjectStructurePerFile
 		public $data;
 		public int $status;
+		public array $headers = [];
+		public function header( $name, $value ) { $this->headers[ $name ] = $value; }
 
 		public function __construct( $data = null, int $status = 200 ) {
 			$this->data   = $data;
