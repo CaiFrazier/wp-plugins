@@ -37,7 +37,7 @@ Files and temporary upload chunks are stored on your server. Session ownership a
 
 = Support =
 
-Report reproducible bugs at https://github.com/CaiFrazier/wp-plugins/issues. Include the plugin version, WordPress/PHP versions, and steps to reproduce. Remove credentials and private content from reports.
+Report bugs through https://caifrazier.com/plugins/support/?plugin=cf-chunked-upload. No account is required. Include the plugin name/version, WordPress and PHP versions, relevant theme/plugins, and steps to reproduce with the expected and actual behavior. A reply email is optional. Reports are private intake and support is best-effort. Remove credentials and private site content before sending. GitHub hosts the public source and build instructions above.
 
 == Installation ==
 

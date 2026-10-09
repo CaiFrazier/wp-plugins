@@ -23,7 +23,7 @@ All candidates declare PHP 8.1+, WordPress 6.2+, and Tested up to 7.1. The curre
 4. Run `wp plugin check /absolute/path/to/wordpress/wp-content/plugins/<slug> --slug=<slug> --require=/absolute/path/to/wordpress/wp-content/plugins/plugin-check/cli.php --format=json`. The absolute package path matters: a bare slug can resolve to a development source directory when run from this repository.
 5. Run the existing `tests/integration/release-safety.php` fixture with its CF_WORDPRESS_ROOT, CF_MANAGER_ROOT, CF_PLV_ROOT, and CF_TRASH_MODE environment variables against that local installation. The fixture refuses non-local WordPress environments.
 
-The builder verifies version consistency, PHP syntax, compiled assets, regenerated translation templates, and development-file exclusion. It retains full license notices and production Composer dependencies. Readmes include source/build links, support instructions, data storage, and external-service disclosures. Screenshot captions without corresponding directory assets have been removed. Screenshots, banners, and icons are optional directory presentation assets and can be added in SVN after approval.
+The builder verifies version consistency, PHP syntax, compiled assets, regenerated translation templates, and development-file exclusion. It retains full license notices and production Composer dependencies. Readmes include public GitHub source/build links, the primary website bug-report form, data storage, and external-service disclosures. The form requires no account and accepts an optional reply email; reports enter private best-effort intake. Plugin-specific support URLs use `?plugin=<directory-slug>`. Screenshot captions without corresponding directory assets have been removed. Screenshots, banners, and icons are optional directory presentation assets and can be added in SVN after approval.
 
 ## Changes beyond metadata
 
@@ -49,3 +49,7 @@ Official references:
 - https://developer.wordpress.org/plugins/wordpress-org/how-your-readme-txt-works/
 - https://wordpress.org/plugins/plugin-check/
 - https://developer.wordpress.org/plugins/wordpress-org/planning-submitting-and-maintaining-plugins/
+
+## Website support metadata update
+
+The website support readme update retains the same unpublished candidate versions. Only each packaged readme changes; all other ZIP entries remain byte-identical to the previously tested candidate. The final packages are installed again and run through official Plugin Check. The audit packet records new SHA256 hashes and installed-byte parity, while the original PHP, JavaScript and browser acceptance evidence remains applicable to the unchanged runtime.
