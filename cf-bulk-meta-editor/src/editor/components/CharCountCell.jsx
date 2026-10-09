@@ -1,4 +1,4 @@
-import { forwardRef, useState, useEffect, useImperativeHandle, useRef } from '@wordpress/element';
+import { useEffect, useRef } from '@wordpress/element';
 
 function getCountClass( len, limit ) {
 	if ( ! limit ) return '';
@@ -29,14 +29,14 @@ export function CharCountCellRenderer( params ) {
 }
 
 /**
- * AG Grid React custom editor — must use forwardRef + useImperativeHandle to
- * expose getValue() so AG Grid can read the new value when editing stops.
+ * AG Grid reactive editor: controlled values are reported through
+ * onValueChange so the grid commits the edited value when editing stops.
  *
  * Reference: https://www.ag-grid.com/react-data-grid/component-cell-editor/
  */
-export const CharCountCellEditor = forwardRef( ( params, ref ) => {
+export function CharCountCellEditor( params ) {
 	const limit = params.colDef.cellEditorParams?.charLimit;
-	const [ val, setVal ] = useState( params.value ?? '' );
+	const val = params.value ?? '';
 	const textRef = useRef( null );
 
 	useEffect( () => {
@@ -48,12 +48,6 @@ export const CharCountCellEditor = forwardRef( ( params, ref ) => {
 		}
 	}, [] );
 
-	useImperativeHandle( ref, () => ( {
-		getValue: () => val,
-		isCancelBeforeStart: () => false,
-		isCancelAfterEnd: () => false,
-	} ) );
-
 	const len = val.length;
 
 	return (
@@ -62,7 +56,7 @@ export const CharCountCellEditor = forwardRef( ( params, ref ) => {
 				ref={ textRef }
 				value={ val }
 				rows={ 3 }
-				onChange={ ( e ) => setVal( e.target.value ) }
+				onChange={ ( e ) => params.onValueChange( e.target.value ) }
 			/>
 			{ limit && (
 				<span className={ `bme-char-count ${ getCountClass( len, limit ) }` }>
@@ -71,4 +65,4 @@ export const CharCountCellEditor = forwardRef( ( params, ref ) => {
 			) }
 		</div>
 	);
-} );
+}

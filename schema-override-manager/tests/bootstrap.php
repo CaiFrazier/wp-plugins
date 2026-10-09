@@ -9,7 +9,7 @@
  */
 
 define( 'ABSPATH', __DIR__ . '/' );
-define( 'SOM_VERSION', 'test' );
+define( 'CFSOM_VERSION', 'test' );
 
 // Silence error_log() so the shared Logger's mirror line doesn't pollute
 // stderr (PHPUnit's failOnRisky would otherwise flag it).

@@ -1,14 +1,14 @@
 <?php
 /**
  * Plugin Name:       CF Media Manager
- * Plugin URI:        https://github.com/caifrazier/cf-media-manager
+ * Plugin URI:        https://caifrazier.com/plugins/media-manager/
  * Description:       Media Library management toolkit: a fully configurable list view with 40+ columns and CSV export, a five-report media audit engine, and a bulk alt text auditor and editor. Pairs with CF Media Optimizer for WebP/AVIF delivery.
- * Version:           3.0.1
+ * Version:           3.0.2
  * Requires at least: 6.2
  * Requires PHP:      8.1
  * Author:            Cai Frazier
  * Author URI:        https://caifrazier.com
- * License:           GPLv2 or later
+ * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       cf-media-manager
  * Domain Path:       /languages

@@ -249,6 +249,7 @@ final class Sanitizer {
 	private static function url_keys(): array {
 		$keys = self::URL_KEYS;
 		if ( function_exists( 'apply_filters' ) ) {
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- legacy published hook retained for existing site integrations.
 			$keys = apply_filters( 'som_sanitizer_url_keys', $keys );
 			$keys = is_array( $keys ) ? array_values( array_filter( $keys, 'is_string' ) ) : self::URL_KEYS;
 		}

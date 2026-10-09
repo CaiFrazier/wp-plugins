@@ -1,6 +1,6 @@
 {
     "name": "bulk-meta-editor",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "description": "Bulk Meta Editor WordPress plugin",
     "private": true,
     "scripts": {
@@ -15,9 +15,9 @@
         "@wordpress/components": "^28.0.0",
         "@wordpress/element": "^6.0.0",
         "@wordpress/i18n": "^5.0.0",
-        "ag-grid-community": "^31.3.4",
-        "ag-grid-react": "^31.3.4",
-        "zustand": "^4.5.4"
+        "ag-grid-community": "36.2.0",
+        "ag-grid-react": "36.2.0",
+        "zustand": "^5.0.15"
     },
     "devDependencies": {
         "@wordpress/scripts": "^28.0.0"

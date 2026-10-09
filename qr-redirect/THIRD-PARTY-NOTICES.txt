@@ -1,0 +1,16 @@
+THIRD-PARTY NOTICES
+
+Cai Frazier plugin code and the bundled CFShared library are GPL-2.0-or-later.
+The complete GPL version 2 text is in LICENSE. Source and build instructions:
+https://github.com/CaiFrazier/wp-plugins
+
+Composer's generated autoloader is MIT licensed. Its copyright and license text
+are retained in vendor/composer/LICENSE when a vendor directory is included.
+WordPress JavaScript packages are loaded from registered WordPress scripts,
+not downloaded from an external CDN.
+
+qrcode.js: MIT, copyright davidshimjs and contributors.
+https://github.com/davidshimjs/qrcodejs
+JSZip: MIT or GPL-3.0, copyright Stuart Knightley and contributors.
+https://github.com/Stuk/jszip
+Full library licenses are retained in assets/js/qrcode.LICENSE and assets/js/jszip.LICENSE.

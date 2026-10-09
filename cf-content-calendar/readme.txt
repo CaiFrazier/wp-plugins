@@ -2,10 +2,10 @@
 Contributors: caifrazier
 Tags: calendar, editorial calendar, content, scheduling, posts
 Requires at least: 6.2
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.1.2
-License: GPLv2 or later
+Stable tag: 0.1.3
+License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 A modern editorial calendar. Drag to reschedule, create drafts from empty day slots, and see your full content picture across post types.
@@ -30,6 +30,20 @@ Toggle visibility by post type, status (published, scheduled, draft), and author
 
 **No custom database tables.** All data comes from WordPress's standard posts table.
 
+= Source code and development =
+
+Source: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/cf-content-calendar
+
+To rebuild, clone the repository, install the plugin's development dependencies with Composer and pnpm where a package.json is present, and run `node scripts/release.mjs cf-content-calendar` from the repository root. The builder lints PHP, runs installed tests, builds JavaScript, installs production PHP dependencies, and creates the distributable ZIP. JavaScript source lives in `src/` for built plugins; plain scripts are in `assets/`. Bundled dependencies and their license terms are listed in THIRD-PARTY-NOTICES.txt.
+
+= Data and external services =
+
+The calendar reads and edits posts in the existing WordPress database. Requests use the local WordPress REST API. No external service or telemetry is used.
+
+= Support =
+
+Report bugs through https://caifrazier.com/plugins/support/?plugin=cf-content-calendar. No account is required. Include the plugin name/version, WordPress and PHP versions, relevant theme/plugins, and steps to reproduce with the expected and actual behavior. A reply email is optional. Reports are private intake and support is best-effort. Remove credentials and private site content before sending. GitHub hosts the public source and build instructions above.
+
 == Installation ==
 
 1. Upload the plugin files to `/wp-content/plugins/cf-content-calendar/`.
@@ -39,6 +53,10 @@ Toggle visibility by post type, status (published, scheduled, draft), and author
 For development: run `composer install` and `npm install && npm run build` inside the plugin directory before activating.
 
 == Changelog ==
+
+= 0.1.3 =
+* Update bundled libraries to current stable versions.
+* Prepare WordPress.org metadata, source/build documentation, license notices, and privacy disclosures.
 
 = 0.1.2 =
 * Show a visible warning when a calendar range exceeds 500 posts.

@@ -46,14 +46,14 @@
 
 namespace CFMediaManager\Audit\Reports;
 
+defined( 'ABSPATH' ) || exit;
+
 use CFMediaManager\Audit\ActionResult;
 use CFMediaManager\Audit\AuditChunk;
 use CFMediaManager\Audit\AuditReportCsvExportable;
 use CFMediaManager\Audit\AuditReportInterface;
 use CFMediaManager\Audit\IgnoredStore;
 use CFMediaManager\Audit\ScanContext;
-
-defined( 'ABSPATH' ) || exit;
 
 
 final class DuplicateOriginals implements AuditReportInterface, AuditReportCsvExportable {

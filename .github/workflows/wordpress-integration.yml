@@ -10,7 +10,9 @@ jobs:
         php: ['8.1', '8.5']
     services:
       mariadb:
-        image: mariadb:10.11
+        # Docker publishes Official Images to ECR Public as well as Docker Hub.
+        # Pin the same manifest tested here, avoiding shared-runner Hub pull limits.
+        image: public.ecr.aws/docker/library/mariadb:10.11@sha256:7db29378d4fdab73f8123bbc2b48905c90d1a4b00cf848b028f1e81e623257f2
         env:
           MARIADB_ROOT_PASSWORD: fixture-only
           MARIADB_DATABASE: wordpress

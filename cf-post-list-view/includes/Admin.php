@@ -211,6 +211,7 @@ class Admin {
 			fputcsv( $out, $row );
 		}
 
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- closes php://output, not a filesystem handle.
 		fclose( $out );
 		exit;
 	}

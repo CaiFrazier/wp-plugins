@@ -24,6 +24,7 @@ class YoastIntegration {
 			return [];
 		}
 
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- invokes Yoast SEO's existing hook.
 		$nodes = apply_filters( 'wpseo_schema_graph', [] );
 		return is_array( $nodes ) ? $nodes : [];
 	}

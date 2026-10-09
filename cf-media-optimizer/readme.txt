@@ -2,10 +2,10 @@
 Contributors: caifrazier
 Tags: webp, avif, image optimization, picture, performance
 Requires at least: 6.2
-Tested up to: 6.6
+Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 3.0.3
-License: GPLv2 or later
+Stable tag: 3.0.4
+License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Converts JPEG/PNG uploads to WebP and AVIF and serves them through <picture> with native browser fallback. Originals are never modified.
@@ -26,6 +26,20 @@ CF Media Optimizer is the delivery half of the former CF Media Manager. It does 
 = Works with CF Media Manager =
 
 CF Media Optimizer and its sibling **CF Media Manager** (Media Library list view, media audit reports, and bulk alt-text) are independent — each installs and runs on its own. When both are active they cooperate: they share one "in-use" image scan instead of scanning twice, and each links across to the other's screens for convenience. Neither requires the other.
+
+= Source code and development =
+
+Source: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/cf-media-optimizer
+
+To rebuild, clone the repository, install the plugin's development dependencies with Composer and pnpm where a package.json is present, and run `node scripts/release.mjs cf-media-optimizer` from the repository root. The builder lints PHP, runs installed tests, builds JavaScript, installs production PHP dependencies, and creates the distributable ZIP. JavaScript source lives in `src/` for built plugins; plain scripts are in `assets/`. Bundled dependencies and their license terms are listed in THIRD-PARTY-NOTICES.txt.
+
+= Data and external services =
+
+Image conversion runs on your server. Settings, generated-variant ownership, and queues stay in WordPress. The live-page verifier fetches only the public URL explicitly requested by an authorized administrator; that request sends the verifier user agent to the requested host. There is no telemetry or author-operated service. WebP encoding requires GD or Imagick; AVIF is optional and depends on your encoder.
+
+= Support =
+
+Report bugs through https://caifrazier.com/plugins/support/?plugin=cf-media-optimizer. No account is required. Include the plugin name/version, WordPress and PHP versions, relevant theme/plugins, and steps to reproduce with the expected and actual behavior. A reply email is optional. Reports are private intake and support is best-effort. Remove credentials and private site content before sending. GitHub hosts the public source and build instructions above.
 
 == Installation ==
 
@@ -49,6 +63,9 @@ Only if you want the Media Library list view, audit reports, or the bulk alt-tex
 
 == Changelog ==
 
+= 3.0.4 =
+* Prepare WordPress.org metadata, source/build documentation, license notices, and privacy disclosures.
+
 = 3.0.3 =
 * Transparent PNGs no longer get a flattened AVIF. Hosts whose ImageMagick AVIF writer drops alpha (6.9.11 with libheif, as on WP Engine) encoded transparent pixels as black, so icons and logos showed as solid squares. The encoder is now probed for alpha support and every AVIF written from a transparent source is checked; when alpha is missing, the image is served as WebP only and a previously flattened AVIF is removed.
 * Existing flattened AVIFs are removed on forced regeneration of the affected PNGs; opaque PNGs and JPEGs keep their AVIF.
@@ -68,5 +85,5 @@ Only if you want the Media Library list view, audit reports, or the bulk alt-tex
 
 == Upgrade Notice ==
 
-= 3.0.0 =
-First release. This plugin carries the WebP/AVIF conversion and `<picture>` delivery that shipped inside CF Media Manager 2.x. If you are coming from 2.x, install this alongside CF Media Manager 3.0.0 to keep optimizing. Your existing converted files, ownership records, and settings are read unchanged, so no re-conversion is needed.
+= 3.0.4 =
+WordPress.org submission preparation. Existing settings and original media files are preserved.

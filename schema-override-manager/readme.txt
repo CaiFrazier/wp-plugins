@@ -2,9 +2,9 @@
 Contributors: caifrazier
 Tags: schema, structured data, json-ld, seo, schema.org
 Requires at least: 6.2
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,6 +28,20 @@ Schema Override Manager gives editors full control over the structured data on t
 WebSite, Organization, LocalBusiness, WebPage, Article, FAQPage, BreadcrumbList, Person, Product, Service
 
 **Output buffering note:** The "Suppress theme/other JSON-LD" option uses output buffering scoped to `wp_head` to strip `<script type="application/ld+json">` blocks from theme and plugin output. This option is **disabled by default** and must be explicitly enabled. It is applied only on pages where a suppression rule for "theme" is active, minimizing performance impact.
+
+= Source code and development =
+
+Source: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/schema-override-manager
+
+To rebuild, clone the repository, install the plugin's development dependencies with Composer and pnpm where a package.json is present, and run `node scripts/release.mjs schema-override-manager` from the repository root. The builder lints PHP, runs installed tests, builds JavaScript, installs production PHP dependencies, and creates the distributable ZIP. JavaScript source lives in `src/` for built plugins; plain scripts are in `assets/`. Bundled dependencies and their license terms are listed in THIRD-PARTY-NOTICES.txt.
+
+= Data and external services =
+
+Schema settings and overrides stay in your WordPress database. JSON-LD you configure is published on your website and is visible to visitors and search engines. The live-schema inspector fetches your own post permalink when explicitly requested by an authorized user. Diagnostic logs, when enabled, stay under uploads. The schema.org vocabulary URLs are identifiers, not remote API calls. No external service or telemetry is required.
+
+= Support =
+
+Report bugs through https://caifrazier.com/plugins/support/?plugin=schema-override-manager. No account is required. Include the plugin name/version, WordPress and PHP versions, relevant theme/plugins, and steps to reproduce with the expected and actual behavior. A reply email is optional. Reports are private intake and support is best-effort. Remove credentials and private site content before sending. GitHub hosts the public source and build instructions above.
 
 == Installation ==
 
@@ -91,16 +105,11 @@ The plugin stores per-block flags in the `_som_schema` postmeta and the global/t
 
 An empty or unrecognized value is treated as the default (`extend` / `all`).
 
-== Screenshots ==
-
-1. Settings → Site Identity tab
-2. Settings → Post Type Templates tab
-3. Settings → Global Suppression tab
-4. Per-page meta box — Existing Schema viewer
-5. Per-page meta box — Schema Builder
-6. Per-page meta box — Preview panel
 
 == Changelog ==
+
+= 1.0.2 =
+* Prepare WordPress.org metadata, source/build documentation, license notices, and privacy disclosures. Use distinctive prefixes for PHP globals while retaining stored data and legacy filter compatibility.
 
 = 1.0.1 =
 * Fixed: the output-identification marker was emitted inside the JSON-LD payload as a comment, which made every emitted block invalid JSON for strict parsers (Google's structured-data parser, crawlers). The marker now lives on the script tag as a data attribute; the payload is pure JSON. Detection still honors the legacy 1.0.0 payload marker so pages cached before the upgrade keep working.

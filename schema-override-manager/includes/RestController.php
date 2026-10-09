@@ -39,6 +39,7 @@ class RestController {
 	 * @return \WP_REST_Response|null 413 response when over cap, null otherwise.
 	 */
 	private function payload_too_large( \WP_REST_Request $request ): ?\WP_REST_Response {
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- legacy published hook retained for existing site integrations.
 		$max = (int) apply_filters( 'som_max_payload_bytes', self::MAX_PAYLOAD_BYTES );
 		$raw = (string) $request->get_body();
 		if ( strlen( $raw ) > $max ) {
@@ -450,6 +451,7 @@ class RestController {
 		// language subdomains, a CDN/headless permalink filter) would otherwise
 		// reject on the SSRF guard every time with no throttle, letting the
 		// sidebar hammer this endpoint. Every non-cached call now costs a cooldown.
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- legacy published hook retained for existing site integrations.
 		$cooldown_ttl = max( 1, (int) apply_filters( 'som_livefetch_cooldown_seconds', self::LIVE_FETCH_COOLDOWN_SECONDS ) );
 		set_transient( "som_livefetch_cooldown_{$user_id}", time() + $cooldown_ttl, $cooldown_ttl );
 
@@ -481,6 +483,7 @@ class RestController {
 
 		// Cap the response body so a hostile or accidentally huge page can't
 		// OOM the request or bloat the stored transient. Filterable.
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- legacy published hook retained for existing site integrations.
 		$max_bytes = max( 1, (int) apply_filters( 'som_livefetch_max_response_bytes', self::LIVE_FETCH_MAX_RESPONSE_BYTES ) );
 
 		$response = wp_remote_get(
@@ -491,8 +494,9 @@ class RestController {
 				// an error rather than silently following anywhere on the network.
 				'redirection'         => 0,
 				'limit_response_size' => $max_bytes,
+				// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- legacy published hook retained for existing site integrations.
 				'sslverify'           => apply_filters( 'som_live_fetch_sslverify', true ),
-				'user-agent'          => 'SchemaOverrideManager/' . SOM_VERSION . '; ' . home_url(),
+				'user-agent'          => 'SchemaOverrideManager/' . CFSOM_VERSION . '; ' . home_url(),
 				'headers'             => [
 					'X-SOM-Live-Fetch' => '1',
 				],
@@ -548,6 +552,7 @@ class RestController {
 		$result        = Integrations\ThemeIntegration::classify_json_ld_blocks( $body, SchemaOutput::OUTPUT_MARKER );
 		$result['url'] = $url;
 
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- legacy published hook retained for existing site integrations.
 		$cache_ttl = max( 1, (int) apply_filters( 'som_livefetch_cache_ttl', self::LIVE_FETCH_CACHE_TTL ) );
 		set_transient( $this->result_cache_key( $post_id ), $result, $cache_ttl );
 
