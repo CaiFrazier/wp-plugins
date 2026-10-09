@@ -1,117 +1,125 @@
 CF Media Manager 3.0.2
 Additional details
 
-I maintain this plugin under Cai Frazier using the WordPress.org username caifrazier. This submission is version 3.0.2, requires WordPress 6.2+ and PHP 8.1+, and is GPL-2.0-or-later.
+An admin tool for reviewing the Media Library, exporting attachment data, and editing alt text in bulk. It can flag missing files, duplicate uploads, and files that may be unused. CF Media Optimizer handles image conversion and can be installed separately.
 
-CF Media Manager adds an attachment list with configurable columns and CSV export, media audit reports, and a bulk alt-text editor. It installs independently of CF Media Optimizer; image conversion is handled by that separate plugin.
+Audit results, settings, and alt-text edits stay in WordPress. CSV exports download to the person running them. Diagnostic logs are optional and stored under uploads. The plugin does not send data to me or use a hosted service. Uninstalling it leaves original media files in place.
 
-Media settings, audit results, ignore records, and alt-text edits stay in the site's WordPress database. CSV exports are delivered to the requesting administrator. Optional diagnostic logs are stored locally under uploads. There is no required external service, remote analytics, or telemetry sent to the plugin author. Administrative actions are protected by WordPress capabilities and nonces.
+Requires WordPress 6.2+ and PHP 8.1+. Licensed GPL-2.0-or-later; dependency license notices are included. Plugin Check 2.1.0 reported no errors or warnings.
 
-The upload includes production dependencies, LICENSE, and THIRD-PARTY-NOTICES.txt. The plugin and bundled CFShared library are GPL-2.0-or-later. Original media files are preserved by plugin uninstall.
-
-The exact installed submission ZIP passed Plugin Check 2.1.0 on WordPress 7.1.3 with zero errors and zero warnings. Default nonexperimental checks and runtime checks were enabled; no error or warning codes were ignored. Source and rebuild instructions: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/cf-media-manager. Bug reports: https://caifrazier.com/plugins/support/?plugin=cf-media-manager. Website reporting requires no account; reply email is optional and support is best-effort.
+Source and build instructions: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/cf-media-manager
+Bug reports: https://caifrazier.com/plugins/support/?plugin=cf-media-manager
 
 ========================================================================
 
 CF Media Optimizer 3.0.4
 Additional details
 
-I maintain this plugin under Cai Frazier using the WordPress.org username caifrazier. This submission is version 3.0.4, requires WordPress 6.2+ and PHP 8.1+, and is GPL-2.0-or-later.
+Converts JPEG and PNG attachments to WebP, and to AVIF where the server supports it. Conversion runs on the site's server. The plugin adds picture markup with the original image as the fallback and keeps the original files intact.
 
-CF Media Optimizer creates WebP and optional AVIF variants of JPEG/PNG attachments and serves them through picture markup with the original image as fallback. It installs independently of CF Media Manager. Conversion runs locally, with background work using Action Scheduler when available or WP-Cron.
+WebP needs GD or Imagick with the appropriate encoder. Background conversion uses Action Scheduler when available, otherwise WP-Cron. The live-page verifier makes an HTTP request to the public URL an administrator chooses. There is no hosted conversion service or telemetry sent to me.
 
-The server must provide WebP encoding through GD or Imagick. AVIF is optional and depends on the host's encoder. The plugin preserves original images and tracks the generated files it owns. An authorized administrator can explicitly run the live-page verifier, which requests the chosen public URL and sends ordinary HTTP request information to that host. No telemetry is sent to the author, and no author-operated optimization service is used.
+My local test server lacks an AVIF encoder, so two AVIF-specific tests were skipped. AVIF availability depends on the host.
 
-The ZIP includes production dependencies and license notices. It is GPL-2.0-or-later. Two local AVIF-specific PHPUnit checks were skipped because the local encoder was unavailable; the package passed Plugin Check. These checks do not establish AVIF support on every host.
+Requires WordPress 6.2+ and PHP 8.1+. Licensed GPL-2.0-or-later; dependency license notices are included. Plugin Check 2.1.0 reported no errors or warnings.
 
-The exact installed submission ZIP passed Plugin Check 2.1.0 on WordPress 7.1.3 with zero errors and zero warnings. Default nonexperimental checks and runtime checks were enabled; no error or warning codes were ignored. Source and rebuild instructions: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/cf-media-optimizer. Bug reports: https://caifrazier.com/plugins/support/?plugin=cf-media-optimizer. Website reporting requires no account; reply email is optional and support is best-effort.
+Source and build instructions: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/cf-media-optimizer
+Bug reports: https://caifrazier.com/plugins/support/?plugin=cf-media-optimizer
 
 ========================================================================
 
 CF Chunked Upload 1.2.2
 Additional details
 
-I maintain this plugin under Cai Frazier using the WordPress.org username caifrazier. This submission is version 1.2.2, requires WordPress 6.2+ and PHP 8.1+, and is GPL-2.0-or-later.
+Uploads large files as smaller browser requests, then assembles them on the server. It works in the Media Library and through Tools > Import Large File. Each request still has to fit the host's limits.
 
-CF Chunked Upload splits large files into browser-side chunks and assembles them on the server. It integrates with the Media Library and provides a separate Tools > Import Large File screen. It works within per-request host limits; it does not change PHP configuration or remove disk-space limits.
+Chunks stay on the site's server and are checked with SHA-256. Upload sessions belong to the user who started them. Quota and free-space checks limit storage use. Assembly and cleanup need a working WP-Cron setup or Action Scheduler.
 
-Files and temporary chunks stay on the site's server. Upload sessions are tied to the submitting user, chunks are checked with SHA-256, and quota/disk-space checks bound storage use. Assembly and cleanup need a working background runner through WP-Cron or Action Scheduler when available. The readme documents the additional temporary-directory deny rule needed for Nginx. Imported files are retained after deactivation or uninstall. Plugin/theme ZIP installation is outside this version's scope.
+Nginx users need the temporary-directory deny rule documented in the readme. Imported files remain after the plugin is removed. This version does not install plugin or theme ZIPs. It uses no external service and sends no telemetry.
 
-No external service or telemetry is used. The ZIP includes production dependencies, GPL-2.0-or-later licensing, and third-party notices.
+Requires WordPress 6.2+ and PHP 8.1+. Licensed GPL-2.0-or-later; dependency license notices are included. Plugin Check 2.1.0 reported no errors or warnings.
 
-The exact installed submission ZIP passed Plugin Check 2.1.0 on WordPress 7.1.3 with zero errors and zero warnings. Default nonexperimental checks and runtime checks were enabled; no error or warning codes were ignored. Source and rebuild instructions: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/cf-chunked-upload. Bug reports: https://caifrazier.com/plugins/support/?plugin=cf-chunked-upload. Website reporting requires no account; reply email is optional and support is best-effort.
+Source and build instructions: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/cf-chunked-upload
+Bug reports: https://caifrazier.com/plugins/support/?plugin=cf-chunked-upload
 
 ========================================================================
 
 CF Content Calendar 0.1.3
 Additional details
 
-I maintain this plugin under Cai Frazier using the WordPress.org username caifrazier. This submission is version 0.1.3, requires WordPress 6.2+ and PHP 8.1+, and is GPL-2.0-or-later.
+Adds an editorial calendar under Posts > Calendar, with month, week, and list views. Users can create drafts and drag posts to another date. This is an early 0.1.x release.
 
-CF Content Calendar adds month, week, and list views under Posts > Calendar. Users can filter content, create drafts, and reschedule posts from the calendar. This is an early 0.1.x release.
+It uses existing WordPress posts and the site's REST API, with WordPress permissions controlling who can make changes. Scheduled publishing still needs a working cron setup. Calendar ranges are limited to 500 posts; a notice appears when more posts match.
 
-The plugin reads and edits standard WordPress posts through the site's own REST API. It follows WordPress post permissions and does not create custom database tables. Publishing scheduled posts still depends on WordPress scheduling and a working cron setup. A visible notice is shown when a requested calendar range contains more than 500 posts.
+Scripts are bundled locally or loaded from WordPress. The JavaScript source and build instructions are in the repository. No external account, service, or telemetry is used.
 
-JavaScript is built from development source available in the linked repository and bundled locally; WordPress-provided scripts are loaded through WordPress. The plugin is GPL-2.0-or-later and dependency licenses are included. It requires no external account or service and sends no telemetry to the author.
+Requires WordPress 6.2+ and PHP 8.1+. Licensed GPL-2.0-or-later; dependency license notices are included. Plugin Check 2.1.0 reported no errors or warnings.
 
-The exact installed submission ZIP passed Plugin Check 2.1.0 on WordPress 7.1.3 with zero errors and zero warnings. Default nonexperimental checks and runtime checks were enabled; no error or warning codes were ignored. Source and rebuild instructions: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/cf-content-calendar. Bug reports: https://caifrazier.com/plugins/support/?plugin=cf-content-calendar. Website reporting requires no account; reply email is optional and support is best-effort.
+Source and build instructions: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/cf-content-calendar
+Bug reports: https://caifrazier.com/plugins/support/?plugin=cf-content-calendar
 
 ========================================================================
 
 CF Bulk Meta Editor 1.0.6
 Additional details
 
-I maintain this plugin under Cai Frazier using the WordPress.org username caifrazier. This submission is version 1.0.6, requires WordPress 6.2+ and PHP 8.1+, and is GPL-2.0-or-later.
+A spreadsheet-style editor for SEO titles, descriptions, and other post metadata. Users select posts, edit the values, save them in batches, and export CSV. Presets supply the metadata keys used by common SEO plugins; custom keys also work.
 
-CF Bulk Meta Editor provides a spreadsheet-style editor for SEO titles, descriptions, and configured custom postmeta. Users select posts, edit metadata, save changes in batches, and export CSV. Presets map common SEO-plugin metadata keys; an SEO plugin is not a mandatory dependency.
+Read and write access is checked against the user's permissions for each post. Data stays in WordPress. The editor uses AG Grid Community, bundled locally with its license. It does not use AG Grid Enterprise, a hosted service, or telemetry.
 
-The editor checks the current user's permissions for the posts being read or changed. Metadata and editor preferences stay in the WordPress database, and CSV downloads go to the requesting user. AG Grid Community and the other required frontend libraries are bundled locally. No external service, paid AG Grid Enterprise component, or author telemetry is required.
+The repository includes the JavaScript source and build instructions. This version edits metadata only and does not keep a history of saved changes.
 
-The ZIP includes the production build, GPL-2.0-or-later licensing for the plugin/CFShared code, and third-party license notices. Readable JavaScript development source and rebuild instructions are available in the linked repository. It edits post metadata; full post-content editing and an audit history of saved changes are outside this version's scope.
+Requires WordPress 6.2+ and PHP 8.1+. Licensed GPL-2.0-or-later; dependency license notices are included. Plugin Check 2.1.0 reported no errors or warnings.
 
-The exact installed submission ZIP passed Plugin Check 2.1.0 on WordPress 7.1.3 with zero errors and zero warnings. Default nonexperimental checks and runtime checks were enabled; no error or warning codes were ignored. Source and rebuild instructions: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/cf-bulk-meta-editor. Bug reports: https://caifrazier.com/plugins/support/?plugin=cf-bulk-meta-editor. Website reporting requires no account; reply email is optional and support is best-effort.
+Source and build instructions: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/cf-bulk-meta-editor
+Bug reports: https://caifrazier.com/plugins/support/?plugin=cf-bulk-meta-editor
 
 ========================================================================
 
 CF Post List View 1.0.2
 Additional details
 
-I maintain this plugin under Cai Frazier using the WordPress.org username caifrazier. This submission is version 1.0.2, requires WordPress 6.2+ and PHP 8.1+, and is GPL-2.0-or-later.
+An admin list for posts, pages, and custom post types. It adds selectable columns for metadata and hierarchy information, with filtering and CSV export.
 
-CF Post List View adds an administrative list for posts, pages, and eligible custom post types. Users can choose columns covering SEO metadata, hierarchy, taxonomy, author data, and WordPress internals, then filter the list or export CSV. It is a reporting/list tool rather than a bulk content editor.
+The list, exports, and child counts respect the user's access to the selected post type and its posts. Data comes from WordPress. Column choices are saved in the browser's localStorage for each post type.
 
-Queries and exports follow the selected post type and current user's WordPress permissions. The submission candidate also limits child counts to posts readable by that user. Data comes from the site's WordPress database. Column preferences are stored in the browser's localStorage per post type. It does not use a remote service, API key, or telemetry.
+It uses local scripts and needs no API key or external service. No telemetry is collected.
 
-The package uses plain local scripts and includes its production dependencies and GPL-2.0-or-later/third-party license notices. The supported PHP minimum is 8.1; the former 7.4 line in the readme body has been corrected to match the package header.
+Requires WordPress 6.2+ and PHP 8.1+. Licensed GPL-2.0-or-later; dependency license notices are included. Plugin Check 2.1.0 reported no errors or warnings.
 
-The exact installed submission ZIP passed Plugin Check 2.1.0 on WordPress 7.1.3 with zero errors and zero warnings. Default nonexperimental checks and runtime checks were enabled; no error or warning codes were ignored. Source and rebuild instructions: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/cf-post-list-view. Bug reports: https://caifrazier.com/plugins/support/?plugin=cf-post-list-view. Website reporting requires no account; reply email is optional and support is best-effort.
+Source and build instructions: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/cf-post-list-view
+Bug reports: https://caifrazier.com/plugins/support/?plugin=cf-post-list-view
 
 ========================================================================
 
 CF QR Redirect 1.3.2
 Additional details
 
-I maintain this plugin under Cai Frazier using the WordPress.org username caifrazier. This submission is version 1.3.2, requires WordPress 6.2+ and PHP 8.1+, and is GPL-2.0-or-later.
+Creates short URLs on the site's own domain and generates QR images in the browser. qrcode.js and JSZip are bundled with their licenses. WordPress capabilities control who can create or change codes and redirects.
 
-CF QR Redirect creates short URLs on the site's own domain, generates QR artwork in the browser, and manages redirect destinations. qrcode.js and JSZip are bundled locally with their license notices. QR/redirect management is restricted by plugin-prefixed WordPress capabilities.
+Redirecting to external HTTP(S) destinations is part of the plugin's intended use. Destinations are saved by authorized users and validated. Visitors cannot pass in their own redirect destination.
 
-External HTTP(S) destinations are an intentional administrator-controlled feature. Saved destinations are validated; public visitors do not supply an arbitrary destination parameter. The default UTM mode adds attribution parameters and redirects without loading a plugin analytics script. Optional intermediate-page mode loads Google's gtag.js and sends a qr_redirect event to the owner's configured GA4 property. Google receives normal request information and may use cookies. This mode does not inherit the theme's consent manager, so the readme documents the need to establish visitor consent before using it. Google terms/privacy links are provided in the readme.
+The default mode adds UTM parameters and redirects without loading an analytics script. Optional intermediate-page mode loads Google's gtag.js and sends a qr_redirect event to the configured GA4 property. Google receives the request information and may use cookies. That page does not inherit the theme's consent manager. The readme explains the consent requirement and links to Google's terms and privacy policy.
 
-Hit counts, destination-change audit records, and captured 404 data are stored locally with documented retention. No telemetry is sent to the plugin author. The plugin is GPL-2.0-or-later and requires PHP 8.1; the stale 8.0 readme-body requirement has been corrected.
+Hit counts, destination-change records, and captured 404 data stay in WordPress, with retention limits described in the readme. No telemetry is sent to me.
 
-The exact installed submission ZIP passed Plugin Check 2.1.0 on WordPress 7.1.3 with zero errors and zero warnings. Default nonexperimental checks and runtime checks were enabled; no error or warning codes were ignored. Source and rebuild instructions: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/qr-redirect. Bug reports: https://caifrazier.com/plugins/support/?plugin=cf-qr-redirect. Website reporting requires no account; reply email is optional and support is best-effort.
+Requires WordPress 6.2+ and PHP 8.1+. Licensed GPL-2.0-or-later; dependency license notices are included. Plugin Check 2.1.0 reported no errors or warnings.
+
+Source and build instructions: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/qr-redirect
+Bug reports: https://caifrazier.com/plugins/support/?plugin=cf-qr-redirect
 
 ========================================================================
 
 Schema Override Manager 1.0.2
 Additional details
 
-I maintain this plugin under Cai Frazier using the WordPress.org username caifrazier. This submission is version 1.0.2, requires WordPress 6.2+ and PHP 8.1+, and is GPL-2.0-or-later.
+Adds sitewide schema settings, post-type defaults, and per-post JSON-LD overrides. It works on its own and can also use Yoast SEO or Rank Math's schema hooks.
 
-Schema Override Manager lets site administrators configure site identity schema and post-type templates, and lets authorized editors manage per-post JSON-LD overrides. It can integrate with Yoast SEO or Rank Math, but neither is required.
+Settings stay in WordPress. The resulting JSON-LD is public on the website. The inspector requests the site's own post URL when an authorized user runs it. Schema.org URLs identify schema types; the plugin does not call a schema.org API. Optional diagnostic logs are stored under uploads.
 
-Settings and overrides stay in the WordPress database. Configured JSON-LD is published on the site for visitors and search engines. The live-schema inspector fetches the site's own post permalink only when an authorized user requests it. Schema.org URLs identify the vocabulary; they are not an external API dependency. Optional diagnostic logs stay under uploads, and no author telemetry is used.
+Theme-output suppression is off by default. When enabled for a matching page, it buffers only wp_head. Saved schema is sanitized and has size and nesting limits. There is no required external service or telemetry.
 
-Theme/other JSON-LD suppression is disabled by default. When explicitly enabled and matched by a suppression rule, its output buffering is limited to wp_head. Saved schema is sanitized with payload limits. Compatibility-hook annotations document the externally owned Yoast/Rank Math hooks. The ZIP includes production dependencies, GPL-2.0-or-later licensing, and third-party notices.
+Requires WordPress 6.2+ and PHP 8.1+. Licensed GPL-2.0-or-later; dependency license notices are included. Plugin Check 2.1.0 reported no errors or warnings.
 
-The exact installed submission ZIP passed Plugin Check 2.1.0 on WordPress 7.1.3 with zero errors and zero warnings. Default nonexperimental checks and runtime checks were enabled; no error or warning codes were ignored. Source and rebuild instructions: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/schema-override-manager. Bug reports: https://caifrazier.com/plugins/support/?plugin=schema-override-manager. Website reporting requires no account; reply email is optional and support is best-effort.
+Source and build instructions: https://github.com/CaiFrazier/wp-plugins/tree/prep/wordpress-org-20261009/schema-override-manager
+Bug reports: https://caifrazier.com/plugins/support/?plugin=schema-override-manager
