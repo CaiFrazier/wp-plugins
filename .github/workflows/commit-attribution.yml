@@ -1,0 +1,87 @@
+name: Commit attribution
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+
+      - name: Check new commit metadata
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_SHA: ${{ github.sha }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          ZERO=0000000000000000000000000000000000000000
+
+          has_commit() { git cat-file -e "$1^{commit}" 2>/dev/null; }
+          ensure_commit() {
+            has_commit "$1" || git fetch --no-tags --quiet origin "$1" || true
+            has_commit "$1"
+          }
+
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            ensure_commit "$PR_BASE"
+            ensure_commit "$PR_HEAD"
+            list=$(git rev-list "$PR_BASE..$PR_HEAD")
+          elif [ "$PUSH_BEFORE" = "$ZERO" ]; then
+            # First push of this branch: everything reachable is new.
+            list=$(git rev-list "$PUSH_SHA")
+          elif ensure_commit "$PUSH_BEFORE"; then
+            list=$(git rev-list "$PUSH_BEFORE..$PUSH_SHA")
+          else
+            # Previous tip unavailable: exclude commits on other remote branches.
+            others=$(git for-each-ref --format='%(refname)' refs/remotes/origin \
+              | grep -vx -e "refs/remotes/origin/$REF_NAME" -e 'refs/remotes/origin/HEAD' || true)
+            # shellcheck disable=SC2086
+            list=$(git rev-list "$PUSH_SHA" --not $others)
+          fi
+
+          count=0
+          failed=0
+          for sha in $list; do
+            count=$((count + 1))
+            author=$(git show -s --format='%an <%ae>' "$sha")
+            committer=$(git show -s --format='%cn <%ce>' "$sha")
+            message=$(git show -s --format='%B' "$sha")
+
+            if grep -Eiq 'claude|anthropic' <<<"$author"; then
+              echo "::error::$sha: author matches claude|anthropic ($author)"
+              failed=1
+            fi
+            if grep -Eiq 'claude|anthropic' <<<"$committer"; then
+              echo "::error::$sha: committer matches claude|anthropic ($committer)"
+              failed=1
+            fi
+            if grep -Eiq '^[[:space:]]*co-authored-by:.*(claude|anthropic)' <<<"$message"; then
+              echo "::error::$sha: Co-authored-by trailer names Claude/Anthropic"
+              failed=1
+            fi
+            if grep -Eiq 'generated with \[?claude code' <<<"$message"; then
+              echo "::error::$sha: message contains 'Generated with Claude Code'"
+              failed=1
+            fi
+          done
+
+          if [ "$failed" -ne 0 ]; then
+            echo "Attribution check failed."
+            exit 1
+          fi
+          echo "Attribution check passed: $count commit(s) checked."
