@@ -13,7 +13,7 @@ A collection of free, focused WordPress utility plugins by Cai Frazier, plus a s
 | CF Chunked Upload | [`cf-chunked-upload/`](cf-chunked-upload/) | Uploads large files by splitting them into browser-side chunks and reassembling them on the server. |
 | CF Post List View | [`cf-post-list-view/`](cf-post-list-view/) | A developer-focused list view for any post type — adjustable columns, SEO fields, hierarchy, taxonomy terms, and CSV export. |
 | CF Content Calendar | [`cf-content-calendar/`](cf-content-calendar/) | An editorial calendar: drag to reschedule, create drafts from empty day slots, and see content across post types. |
-| Schema Override Manager | [`schema-override-manager/`](schema-override-manager/) | View, suppress, extend, and inject JSON-LD structured data at the global, template, and per-page level. |
+| CF Schema Override Manager | [`schema-override-manager/`](schema-override-manager/) | View, suppress, extend, and inject JSON-LD structured data at the global, template, and per-page level. |
 
 Each plugin's own `readme.txt` is the source of truth for its current version, full feature list, and changelog.
 
